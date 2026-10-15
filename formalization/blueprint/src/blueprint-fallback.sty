@@ -1,0 +1,23 @@
+% A minimal stand-in for the `blueprint` package shipped with leanblueprint.
+% It lets print.tex compile with a plain pdflatex installation, rendering the
+% annotations as margin/inline notes instead of a dependency graph.
+% Once `pip install leanblueprint` is done, drop this file and use
+% \usepackage[showmore, dep_graph]{blueprint} in print.tex instead.
+\ProvidesPackage{blueprint-fallback}
+\RequirePackage{amsthm,amssymb,amsmath}
+\RequirePackage{xcolor}
+\newcommand{\lean}[1]{\par\smallskip\noindent{\footnotesize\textcolor{blue!60!black}{\texttt{Lean: \detokenize{#1}}}}\par\smallskip}
+\newcommand{\uses}[1]{\par\noindent{\footnotesize\textcolor{gray}{Uses: \detokenize{#1}}}\par}
+\newcommand{\leanok}{\textcolor{green!50!black}{$\checkmark$}}
+\newcommand{\notready}{\par\noindent{\footnotesize\textcolor{red!70!black}{\textbf{Blocked: depends on material not yet in Mathlib.}}}\par}
+\newcommand{\discussion}[1]{}
+\newcommand{\home}[1]{}
+\newcommand{\dochome}[1]{}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}

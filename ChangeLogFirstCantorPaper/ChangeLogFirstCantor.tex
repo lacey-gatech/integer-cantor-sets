@@ -1,0 +1,155 @@
+
+\documentclass[12pt,leqno]{amsart}
+\usepackage{amssymb,amsmath,amsthm,amssymb,bm}
+\usepackage{color}
+\usepackage[normalem]{ulem}
+\usepackage[bookmarksopen,bookmarksdepth=3,colorlinks,citecolor=red,pagebackref,hypertexnames=true]{hyperref}
+\usepackage[msc-links,nobysame,non-sorted-cites, initials]{amsrefs}
+\usepackage[inline]{enumitem}
+\usepackage{mathtools}
+\mathtoolsset{showonlyrefs}
+\renewcommand{\eprint}[1]{\href{http://arxiv.org/abs/#1}{#1}}
+
+\oddsidemargin=-.0cm
+\evensidemargin=-.0cm
+\textwidth=16cm
+\textheight=22cm
+\topmargin=0cm
+\definecolor{darkblue}{RGB}{0,0,160}
+
+\usepackage[lining]{libertine}   
+\usepackage{cabin}
+\usepackage[libertine]{newtxmath}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\def\b#1{{\color{blue}#1}}
+
+
+\def\eps{\varepsilon}
+\def\d{{\rm d}}
+\def\R {\mathbb{R}}
+\def\N {\mathbb{N}}
+\def\Mod {{\mathrm{Mod}}}
+\def\Dil {{\mathrm{Dil}}}
+\def\Tr {{\mathrm{Tr}}}
+\def\supp {{\mathrm{supp}\,}}
+\def\Z {{\mathbb Z}}
+\def\C {{\mathrm C}}
+\def\B {{\mathcal B}}
+\def\D {{\mathcal D}}
+\def \l {\langle}
+\def \r {\rangle}
+\def\bb{\mathfrak{b}}
+\def\Sy {{\mathsf{Sy}}}
+\newcommand{\lip}{\langle}
+\newcommand{\rip}{\rangle}
+
+\newcounter{counter}
+\newcounter{counter2}
+\numberwithin{equation}{section}
+\numberwithin{counter2}{section}
+\newtheorem{proposition}[subsection]{Proposition}
+\newtheorem{theorem}[counter]{Theorem}
+\newcounter{theorem}
+\newtheorem{corollary}[counter]{Corollary}
+\newtheorem{lemma}[subsection]{Lemma} 
+\newtheorem{claim}[subsection]{Claim} 
+\newtheorem{conjecture}[counter]{Conjecture}
+\newtheorem{sublemma}[subsubsection]{Lemma} 
+\theoremstyle{definition}
+\newtheorem{definition}[subsection]{Definition}
+\newtheorem*{remark*}{Remark}
+\newtheorem*{warn*}{A word of warning}
+\newtheorem{example}{Example}
+\newtheorem{remark}[subsection]{Remark} 
+\theoremstyle{plain}
+
+\newcommand{\ip}[2]{\left\langle #1,#2 \right\rangle}
+\newcommand{\abs}[1]{\left\vert #1\right\vert}
+\newcommand{\norm}[1]{\left\Vert #1\right\Vert}
+\newcommand{\ep}{\varepsilon}
+\newcommand{\BMO}{\mathrm{BMO}(\mathbb R^d)}
+\newcommand{\CMO}{\mathrm{CMO}(\mathbb R^d)}
+\newcommand{\Schw}{{\mathcal{S}}}
+\newcommand{\varu}{\vartheta}
+\newtheorem{problem}[equation]{Problem}
+\usepackage{scalerel} 
+\DeclareMathOperator*{\Expectation}{\scalerel*{\mathbb{E}}{\textstyle\sum}}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\def\ind{\cic{1}}
+\newcommand{\cic}{\bm}
+\title{Change Log}
+
+
+%\texttt{\texttt{\texttt{}}}
+
+
+\begin{document}
+	
+	\section{Change Log}
+	\begin{itemize}
+		\item[1)] Should we add an additional conclusion to lemma 2.3 as in $s_b(k_{n+h})=s_{b}(k_n)+s_b(k_h)$
+		\item[2)] Page 12, last line is not correct. With the notation of the premise of the proceeding lemma $s$ is the largest integer s.t $D$ is contained in an AP with step $s.$ Therefore take $\theta=\frac{r}{s_0}$ then we have that, because we have that $D \subset \left\{ n \equiv a \pmod{s} \right\}$ for some $a$ therefore each $d$ can be written as $d=ks+a$ so that $e(d \frac{r}{s_0})=e(ks \frac{r}{s_0} +a\frac{r}{s_0})=e( a \frac{r}{s_0} )$ (constant).
+		\item[3)] Page 13, Shouldn't  it be $b^j \alpha \to  \alpha_0=\frac{a}{b-1} \mod{1}$ ? Instead of $b^j \alpha \to  \frac{r}{b-1} $ ? 
+		\item[4)] Page 14, "If $s>1$, and $s\nmid d_0$ for some $d_0\in D$, we turn to the Cantor set $\mathcal C ' = \mathcal C'_{b/s, D'}$"  it should be {\color{red}$\mathcal C ' = \mathcal C'_{b, D'}$}
+		\item[5)] Page 14, should we add a sentence to say that the uniform limit is obtained by switching from powers of $\delta$ to general $M$ and $N$  respectively in the same way it was done in (4.11)?
+		\item[6)] Page 15, "Thus, with $b ^{n_0-1}<N<b{n_0} \to {\color{red} b ^{n_0-1}<N<b^{n_0} } $"
+		\item[7)] Proposition 5.1 has an error. Take $D \subset \left\{  n \equiv r \pmod{q}\right\}$ for some $(r,q)=1$ that would make $|\widehat{L}(\frac{a}{q})|=1$ because \[ e(\left(kq+r\right)\frac{a}{q})=e(\frac{ra}{q}), \quad \textbf{(constant)} \]
+		\item[8)] Page 17, 3rd line from the bottom: "If $\textup{gcd}(a,a',b-1)=g>1$, it follows that for all integers $k$,  $b^k$ is congruent to $1$, mod $a$ and $a'$." 
+		
+		This is incorrect. For example take $a=a'=14$ and $b=5$ then $\textup{gcd}(14,14,4)=2$ but \[ b \equiv 5 \pmod{ 14} \]
+		\item[9)] Page 18, " If $\alpha=0$ in \eqref{e;modularLimit}, while $\beta\neq0$, then the limit is zero, due to Proposition \ref{p;sumDigits}. " This builds on Prop 5.2 whose premise is incorrect therefore this has to change as well. 
+		\item[10)] Page 19, Theorem 6.2, \begin{equation}
+			\lim_N  \Expectation_{k\in \mathcal C \cap [0,N]}(U,V) ^{p (k_n, \sigma(k_n))}  x  
+			\quad \textup{exists in norm} 
+		\end{equation} should be   \begin{equation}
+		\lim_N  \Expectation_{k\in \mathcal C \cap [0,N]}(U,V) ^{{\color{red}p (k, \sigma(k))}}  x  
+		\quad \textup{exists in norm} 
+		\end{equation}
+		\item[11)] Page 19, By the spectral theorem we have that \[ \begin{split}
+		&	U^k= \int_{a_1 \in \mathbb{T}}e(ka_1) \d A_{U}(a_1), \quad V^{s_b(k)}= \int_{a_2 \in \mathbb{T}} e(s_b(k)a_2) \d A_V(a_2) \\ & \Rightarrow \Expectation_{k \in \mathcal{C} \cap [0,N]} U^k V^{s_b(k)}x = \int_{(a_1,a_2) \in \mathbb{T}^2} \Expectation_{k \in \mathcal{C} \cap [0,N]  } e(ka_1+s_b(k)a_2) \d A_{U}(a_1)  \d A_V(a_2)
+		\end{split} \]
+		I dont understand what is \[ {\color{red}
+				\lim_N  \Expectation_{\mathcal C \cap [0,N] ^2 } e((m +n)/q)}  
+	\]
+			Under the conditions of Theorem 6.1 \[ \lim_{N} \Expectation_{k \in \mathcal{C} \cap [0,N]  } e(ka_1+s_b(k)a_2)  \] exists for all $a_1,a_2$ and is non-zero only when $sa_1=\frac{h}{b-1}+\frac{r}{b^t}$ and $sa_2=-\frac{h}{b-1}$ for integers $h,r$.
+            \item[12)] Page 11, The limit under discussion is \[ \lim_{N \to \infty} \Expectation_{[N] \cap \mathcal{C}}e(k \alpha+s_b(k)\beta)  \] however on the bottom of page 13 the limit \[ \Expectation_{[N]}e(c_n \alpha+s_b(c_n) \beta) \] is evaluated. The limit one wants, since  the interest below resides at discussing the uniform distribution of the sequences $c_n$ etc is , due to Weyl's criterion, \[ \lim_{N \to \infty} \Expectation_{[N]}e(c_n \alpha+s_b(c_n)\beta) \]
+            \item[13)] Lemma 5.2 second bullet point, page 17. It must be "then the asymptotic distribution of $\mathcal{C} \mod q   $ is that of $\mathcal{C} \cap [b^j] \mod q$
+	\end{itemize}
+\begin{remark}
+In this remark we show that the $\gcd(q,s)=1$ is equivalent to $\gcd(q,D-D)=1$ where $s$ is the largest integer such that $D$ lies in a progressions of step size $s.$ 
+
+Under the aforementioned conditions, we can write for sequence $\left\{k_i \right\}_{i=1}^{|D|} $ and $0 \leq r<|D|$ \[ D= \left\{ k_{i}s+r, i \in \left\{1,\ldots,|D| \right\}   \right\} \] We will prove that \[ \gcd(k_{i+1}-k_{i}; i \in \left\{1,\ldots,|D|-1\right\})=1 \] Indeed if $ g \coloneqq \gcd(k_{i+1}-k_{i}; i \in \left\{1,\ldots,|D|-1\right\})>1,$ then since $d_{i+1}=d_i+(k_{i+1}-k_{i})s $ we have that $D= \left\{ d_1,d_1+(\widetilde{k_{2}-k_{1}})(gs), \ldots ,d_1+(\widetilde{k_{|D|}-k_{|D|-1})}(gs)  \right\} $ which implies that $D$ lies in a progression of step size $>s$ which is absurd. Therefore $\gcd(q,D-D)=\gcd(q,s)$ which clearly implies the desired conclusion.
+\end{remark}
+
+\subsection{Other changes (Alex)}
+\begin{enumerate}
+    \item Changed SAAVEDRA-ARAYA reference to the published form
+    \item Original Theorem 5.3 was incorrect. There are a lot of faulty conclusions. We removed.
+    \item Removed $\pi_q(0)>0$ from Lemma 5.2 and proved in standalone new Lemma 5.3.
+\end{enumerate}
+
+
+\subsection{Revision of October 2026 (MTL)}
+\begin{enumerate}
+    \item \textbf{Standing assumption.} Throughout, $D\subset\{0,\ldots,b-1\}$, $0\in D$, $2\leq|D|<b$, and $\mathcal C=\{0=k_0<k_1<\cdots\}$. Signed digit sets are used only in the new \S3.1 (power savings). $s=\gcd(D)$ is defined once in \S2.3.
+    \item \textbf{Prop.~2.2.} Index ranges corrected ($i\geq1$, $n\geq0$, $0\leq j<|D|^i$); part (iii) removed (unused).
+    \item \textbf{Removed} the van der Corput inequality, Lemma \texttt{l:Diff}, and the Kronecker/weak mixing paragraph (no longer used).
+    \item \textbf{\S3.} Intersective and vdC definitions exclude $0$. Equivalent formulations of vdC corrected; the false claim that intersective sets contain IP sets removed. New Question on power savings under the standing assumption. Proof of Prop.~\texttt{Powersavings} rewritten (off-by-one, notation); remark on difference sets corrected; new remark: power savings $\leq$ dimension.
+    \item \textbf{Thm.~\texttt{t:polysIntersective}.} Stated for $d^\ast(A)>0$; $\mathcal H_{\rm rat}$ uses $k\geq1$; modulus $t'=tL$ to handle integer valued polynomials; $\liminf$ and final step added; comparison with Bergelson--Furstenberg--McCutcheon (IP$^\ast$) added.
+    \item \textbf{Lemma \texttt{l;irrational}.} Restated with ``exceptional'' pairs; old case (3) removed; proof rewritten, including the passage to general windows $M\leq n<N$ and the uniform limit for all non-exceptional pairs.
+    \item \textbf{Thm.~\texttt{t:polyUniform}.} PUDU definition corrected (scalar polynomials). The van der Corput step replaced by a Cauchy--Schwarz argument over digit blocks, with new Lemma \texttt{l:badDirections}; this handles e.g.\ $p=\alpha y^2$, where the old step failed.
+    \item \textbf{\S5.} Prop.~\texttt{p;sumDigits} and Lemma \texttt{l:Allq} restated and reproved (uniform on $g\mathbb Z_q$; product structure via CRT). Lemma \texttt{lem:positiveDensity} now follows from Lemma \texttt{l:Allq}. Joint modular theorem labelled \texttt{t:modularJoint}, with sufficient and necessary conditions.
+    \item \textbf{\S6.} Thm.~\texttt{t:weaklyMixingPET} renamed \texttt{t:polyMeanErgodic}, proof completed. Height discussion, toy maximal problem and figure removed; pointwise convergence now cites Brokering Pinilla--Iosevich--Krause.
+    \item \textbf{\S7.} Digits $\leq(b-1)/2$; energy identity $E(\mathcal C_{b^s})=E(D)^s$; $\epsilon(D)$ defined explicitly; statement of Aistleitner--Larcher--Lewko Thm.~1 quoted.
+    \item \textbf{Abstract and introduction} rewritten to match the results; history section given a heading.
+    \item \textbf{References.} Added Maynard (Invent.\ Math.\ 2019), Ruzsa, Bourgain, Aistleitner--Lachmann--Pausinger, Grepstad--Larcher, Bergelson--McCutcheon (Memoirs), Brokering Pinilla--Iosevich--Krause; fixed Mauduit 2006 and capitalization.
+    \item \textbf{Files.} Removed unused jointErgodic, sumOfDigits, Weyl, UniformDistribution\_OldFile.
+\end{enumerate}
+
+
+
+%	\bibliography{ThinAndSquares}
+%	\bibliographystyle{amsplain}
+\end{document}

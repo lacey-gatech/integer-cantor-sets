@@ -1,0 +1,523 @@
+% \bib, bibdiv, biblist are defined by the amsrefs package.
+\begin{bibdiv}
+\begin{biblist}
+
+\bib{MR4542733}{article}{
+      author={Aistleitner, Christoph},
+      author={Baker, Simon},
+      author={Technau, Niclas},
+      author={Yesha, Nadav},
+       title={Gap statistics and higher correlations for geometric progressions
+  modulo one},
+        date={2023},
+        ISSN={0025-5831,1432-1807},
+     journal={Math. Ann.},
+      volume={385},
+      number={1-2},
+       pages={845\ndash 861},
+         url={https://doi.org/10.1007/s00208-022-02362-3},
+      review={\MR{4542733}},
+}
+
+\bib{AistleitnerLachmannPausinger2018}{article}{
+      author={Aistleitner, Christoph},
+      author={Lachmann, Thomas},
+      author={Pausinger, Florian},
+       title={Pair correlations and equidistribution},
+        date={2018},
+     journal={J. Number Theory},
+      volume={182},
+       pages={206\ndash 220},
+}
+
+\bib{MR3736514}{article}{
+      author={Aistleitner, Christoph},
+      author={Larcher, Gerhard},
+      author={Lewko, Mark},
+       title={Additive energy and the {H}ausdorff dimension of the exceptional
+  set in metric pair correlation problems},
+        date={2017},
+        ISSN={0021-2172,1565-8511},
+     journal={Israel J. Math.},
+      volume={222},
+      number={1},
+       pages={463\ndash 485},
+         url={https://doi.org/10.1007/s11856-017-1597-5},
+        note={With an appendix by Jean Bourgain},
+      review={\MR{3736514}},
+}
+
+\bib{MR1417769}{article}{
+      author={Bergelson, Vitaly},
+      author={Furstenberg, Hillel},
+      author={McCutcheon, Randall},
+       title={I{P}-sets and polynomial recurrence},
+        date={1996},
+        ISSN={0143-3857,1469-4417},
+     journal={Ergodic Theory Dynam. Systems},
+      volume={16},
+      number={5},
+       pages={963\ndash 974},
+         url={https://doi.org/10.1017/S0143385700010130},
+      review={\MR{1417769}},
+}
+
+\bib{BergelsonMcCutcheon2000}{article}{
+      author={Bergelson, Vitaly},
+      author={McCutcheon, Randall},
+       title={An ergodic {IP} polynomial {S}zemer\'{e}di theorem},
+        date={2000},
+     journal={Mem. Amer. Math. Soc.},
+      volume={146},
+      number={695},
+}
+
+\bib{Bourgain1987}{article}{
+      author={Bourgain, J.},
+       title={Ruzsa's problem on sets of recurrence},
+        date={1987},
+     journal={Israel J. Math.},
+      volume={59},
+      number={2},
+       pages={150\ndash 166},
+}
+
+\bib{pinilla2026pointwiseconvergenceergodicaverages}{misc}{
+      author={Brokering~Pinilla, F\'elix},
+      author={Iosevich, Alex},
+      author={Krause, Ben},
+       title={Pointwise convergence of ergodic averages along integer {C}antor
+  sets},
+        date={2026},
+         url={https://arxiv.org/abs/2607.16064},
+        note={arXiv:2607.16064},
+}
+
+\bib{MR3314206}{article}{
+      author={Chaubey, Sneha},
+      author={Lanius, Melinda},
+      author={Zaharescu, Alexandru},
+       title={Pair correlation of fractional parts derived from rational valued
+  sequences},
+        date={2015},
+        ISSN={0022-314X,1096-1658},
+     journal={J. Number Theory},
+      volume={151},
+       pages={147\ndash 158},
+         url={https://doi.org/10.1016/j.jnt.2014.12.014},
+      review={\MR{3314206}},
+}
+
+\bib{MR506123}{article}{
+      author={Coquet, Jean},
+       title={On the uniform distribution modulo one of some subsequences of
+  polynomial sequences},
+        date={1978},
+        ISSN={0022-314X,1096-1658},
+     journal={J. Number Theory},
+      volume={10},
+      number={3},
+       pages={291\ndash 296},
+         url={https://doi.org/10.1016/0022-314X(78)90025-2},
+      review={\MR{506123}},
+}
+
+\bib{MR578819}{article}{
+      author={Coquet, Jean},
+       title={On the uniform distribution modulo one of subsequences of
+  polynomial sequences. {II}},
+        date={1980},
+        ISSN={0022-314X,1096-1658},
+     journal={J. Number Theory},
+      volume={12},
+      number={2},
+       pages={244\ndash 250},
+         url={https://doi.org/10.1016/0022-314X(80)90060-8},
+      review={\MR{578819}},
+}
+
+\bib{MR2678855}{article}{
+      author={Drmota, Michael},
+      author={Mauduit, Christian},
+       title={Weyl sums over integers with affine digit restrictions},
+        date={2010},
+        ISSN={0022-314X,1096-1658},
+     journal={J. Number Theory},
+      volume={130},
+      number={11},
+       pages={2404\ndash 2427},
+         url={https://doi.org/10.1016/j.jnt.2010.04.006},
+      review={\MR{2678855}},
+}
+
+\bib{MR6197}{article}{
+      author={Erd{\H o}s, P.},
+      author={Tur\'an, P.},
+       title={On a problem of {S}idon in additive number theory, and on some
+  related problems},
+        date={1941},
+        ISSN={0024-6107,1469-7750},
+     journal={J. London Math. Soc.},
+      volume={16},
+       pages={212\ndash 215},
+         url={https://doi.org/10.1112/jlms/s1-16.4.212},
+      review={\MR{6197}},
+}
+
+\bib{ERDOS199899}{article}{
+      author={Erd{\H o}s, Paul},
+      author={Mauduit, Christian},
+      author={S\'ark{\"o}zy, Andr\'as},
+       title={On arithmetic properties of integers with missing digits {I}:
+  distribution in residue classes},
+        date={1998},
+        ISSN={0022-314X},
+     journal={Journal of Number Theory},
+      volume={70},
+      number={2},
+       pages={99\ndash 120},
+  url={https://www.sciencedirect.com/science/article/pii/S0022314X98922296},
+}
+
+\bib{MR1692287}{article}{
+      author={Erd{\H o}s, Paul},
+      author={Mauduit, Christian},
+      author={S\'ark{\"o}zy, Andr{\'a}s},
+       title={On arithmetic properties of integers with missing digits. {II}.
+  {P}rime factors},
+        date={1999},
+        ISSN={0012-365X,1872-681X},
+     journal={Discrete Math.},
+      volume={200},
+      number={1-3},
+       pages={149\ndash 164},
+         url={https://doi.org/10.1016/S0012-365X(98)00331-8},
+        note={Paul Erd\H os memorial collection},
+      review={\MR{1692287}},
+}
+
+\bib{MR184895}{article}{
+      author={Fine, N.~J.},
+       title={The distribution of the sum of digits {$({\rm mod}\ p)$}},
+        date={1965},
+        ISSN={0002-9904},
+     journal={Bull. Amer. Math. Soc.},
+      volume={71},
+       pages={651\ndash 652},
+         url={https://doi.org/10.1090/S0002-9904-1965-11381-7},
+      review={\MR{184895}},
+}
+
+\bib{MR833409}{article}{
+      author={Furstenberg, H.},
+      author={Katznelson, Y.},
+       title={An ergodic {S}zemer\'edi theorem for {IP}-systems and
+  combinatorial theory},
+        date={1985},
+        ISSN={0021-7670,1565-8538},
+     journal={J. Analyse Math.},
+      volume={45},
+       pages={117\ndash 168},
+         url={https://doi.org/10.1007/BF02792547},
+      review={\MR{833409}},
+}
+
+\bib{MR0498471}{article}{
+      author={Furstenberg, Harry},
+       title={Ergodic behavior of diagonal measures and a theorem of
+  {S}zemer\'edi on arithmetic progressions},
+        date={1977},
+        ISSN={0021-7670,1565-8538},
+     journal={J. Analyse Math.},
+      volume={31},
+       pages={204\ndash 256},
+         url={https://doi.org/10.1007/BF02813304},
+      review={\MR{498471}},
+}
+
+\bib{MR220693}{article}{
+      author={Gel{\cprime f}ond, A.~O.},
+       title={Sur les nombres qui ont des propri\'et\'es additives et
+  multiplicatives donn\'ees},
+        date={1967/68},
+        ISSN={0065-1036},
+     journal={Acta Arith.},
+      volume={13},
+       pages={259\ndash 265},
+         url={https://doi.org/10.4064/aa-13-3-259-265},
+      review={\MR{220693}},
+}
+
+\bib{MR4734865}{article}{
+      author={Glasscock, Daniel},
+      author={Moreira, Joel},
+      author={Richter, Florian~K.},
+       title={Additive and geometric transversality of fractal sets in the
+  integers},
+        date={2024},
+        ISSN={0024-6107,1469-7750},
+     journal={J. Lond. Math. Soc. (2)},
+      volume={109},
+      number={5},
+       pages={Paper No. e12902, 55},
+         url={https://doi.org/10.1112/jlms.12902},
+      review={\MR{4734865}},
+}
+
+\bib{green2023sarkozystheoremshiftedprimes}{article}{
+      author={Green, Ben},
+       title={On {S}\'ark\"ozy's theorem for shifted primes},
+        date={2024},
+        ISSN={0894-0347,1088-6834},
+     journal={J. Amer. Math. Soc.},
+      volume={37},
+      number={4},
+       pages={1121\ndash 1201},
+         url={https://doi.org/10.1090/jams/1036},
+      review={\MR{4777641}},
+}
+
+\bib{green2025newboundsfurstenbergsarkozytheorem}{article}{
+      author={Green, Ben},
+      author={Sawhney, Mehtaab},
+       title={New bounds for the {F}urstenberg--{S}\'ark{\"o}zy theorem},
+        date={2025},
+      eprint={arxiv:2411.17448},
+         url={https://arxiv.org/abs/2411.17448},
+}
+
+\bib{GrepstadLarcher2017}{article}{
+      author={Grepstad, Sigrid},
+      author={Larcher, Gerhard},
+       title={On pair correlation and discrepancy},
+        date={2017},
+     journal={Arch. Math. (Basel)},
+      volume={109},
+      number={2},
+       pages={143\ndash 149},
+}
+
+\bib{MR0516154}{article}{
+      author={Kamae, T.},
+      author={Mend\`es~France, M.},
+       title={van der {C}orput's difference theorem},
+        date={1978},
+        ISSN={0021-2172},
+     journal={Israel J. Math.},
+      volume={31},
+      number={3-4},
+       pages={335\ndash 342},
+         url={https://doi.org/10.1007/BF02761498},
+      review={\MR{516154}},
+}
+
+\bib{MR1832701}{article}{
+      author={Konyagin, Sergei},
+       title={Arithmetic properties of integers with missing digits:
+  distribution in residue classes},
+        date={2001},
+        ISSN={0031-5303,1588-2829},
+     journal={Period. Math. Hungar.},
+      volume={42},
+      number={1-2},
+       pages={145\ndash 162},
+         url={https://doi.org/10.1023/A:1015256809636},
+      review={\MR{1832701}},
+}
+
+\bib{kra2025ergodicaverageslargeintersection}{article}{
+      author={Kra, Bryna},
+      author={Shalom, Or},
+       title={Ergodic averages and the large intersection property along {IP}
+  sets},
+        date={2025},
+      eprint={arxiv:2506.17771},
+         url={https://arxiv.org/abs/2506.17771},
+}
+
+\bib{leng2024vinogradovstheoremprimesrestricted}{article}{
+      author={Leng, James},
+      author={Sawhney, Mehtaab},
+       title={{V}inogradov's theorem for primes with restricted digits},
+        date={2024},
+      eprint={arxiv:2409.06894},
+         url={https://arxiv.org/abs/2409.06894},
+}
+
+\bib{MR1830572}{article}{
+      author={Mauduit, Christian},
+       title={Multiplicative properties of the {T}hue-{M}orse sequence},
+        date={2001},
+        ISSN={0031-5303,1588-2829},
+     journal={Period. Math. Hungar.},
+      volume={43},
+      number={1-2},
+       pages={137\ndash 153},
+         url={https://doi.org/10.1023/A:1015241900975},
+      review={\MR{1830572}},
+}
+
+\bib{MR2290789}{article}{
+      author={Mauduit, Christian},
+       title={Propri\'et\'es arithm\'etiques des substitutions et automates
+  infinis},
+        date={2006},
+        ISSN={0373-0956,1777-5310},
+     journal={Ann. Inst. Fourier (Grenoble)},
+      volume={56},
+      number={7},
+       pages={2525\ndash 2549},
+         url={https://doi.org/10.5802/aif.2248},
+        note={Num\'eration, pavages, substitutions},
+      review={\MR{2290789}},
+}
+
+\bib{MR2680394}{article}{
+      author={Mauduit, Christian},
+      author={Rivat, Jo\"el},
+       title={Sur un probl\`eme de {G}el{\cprime f}ond: la somme des chiffres
+  des nombres premiers},
+        date={2010},
+        ISSN={0003-486X,1939-8980},
+     journal={Ann. of Math. (2)},
+      volume={171},
+      number={3},
+       pages={1591\ndash 1646},
+         url={https://doi.org/10.4007/annals.2010.171.1591},
+      review={\MR{2680394}},
+}
+
+\bib{MaynardInvent2019}{article}{
+      author={Maynard, James},
+       title={Primes with restricted digits},
+        date={2019},
+     journal={Invent. Math.},
+      volume={217},
+      number={1},
+       pages={127\ndash 218},
+}
+
+\bib{jlms.12837}{article}{
+      author={Nath, Kunjakanan},
+       title={Primes with a missing digit: Distribution in arithmetic
+  progressions and an application in sieve theory},
+        date={2024},
+     journal={Journal of the London Mathematical Society},
+      volume={109},
+      number={1},
+       pages={e12837},
+  eprint={https://londmathsoc.onlinelibrary.wiley.com/doi/pdf/10.1112/jlms.12837},
+  url={https://londmathsoc.onlinelibrary.wiley.com/doi/abs/10.1112/jlms.12837},
+}
+
+\bib{MR4336213}{article}{
+      author={O'Bryant, Kevin},
+       title={A complete annotated bibliography of work related to {S}idon
+  sequences},
+        date={2004},
+        ISSN={1077-8926},
+     journal={Electron. J. Combin.},
+      volume={DS11},
+       pages={39},
+      review={\MR{4336213}},
+}
+
+\bib{MR4164447}{article}{
+      author={Rudnick, Ze\'ev},
+      author={Technau, Niclas},
+       title={The metric theory of the pair correlation function of real-valued
+  lacunary sequences},
+        date={2020},
+        ISSN={0019-2082,1945-6581},
+     journal={Illinois J. Math.},
+      volume={64},
+      number={4},
+       pages={583\ndash 594},
+         url={https://doi.org/10.1215/00192082-8720506},
+      review={\MR{4164447}},
+}
+
+\bib{MR1924774}{article}{
+      author={Rudnick, Ze\'ev},
+      author={Zaharescu, Alexandru},
+       title={The distribution of spacings between fractional parts of lacunary
+  sequences},
+        date={2002},
+        ISSN={0933-7741,1435-5337},
+     journal={Forum Math.},
+      volume={14},
+      number={5},
+       pages={691\ndash 712},
+         url={https://doi.org/10.1515/form.2002.030},
+      review={\MR{1924774}},
+}
+
+\bib{Ruzsa1984}{incollection}{
+      author={Ruzsa, I.~Z.},
+       title={Connections between the uniform distribution of a sequence and
+  its differences},
+        date={1984},
+   booktitle={Topics in classical number theory, {V}ol. {I}, {II} ({B}udapest,
+  1981)},
+      series={Colloq. Math. Soc. J\'anos Bolyai},
+      volume={34},
+   publisher={North-Holland, Amsterdam},
+       pages={1419\ndash 1443},
+        note={Colloq. Math. Soc. J\'anos Bolyai, vol. 34, North-Holland,
+  Amsterdam},
+}
+
+\bib{SAAVEDRA-ARAYA_2026}{article}{
+      author={Saavedra-Araya, Vicente},
+       title={Distribution of integers with digit restrictions via {M}arkov
+  chains},
+        date={2026},
+     journal={Ergodic Theory and Dynamical Systems},
+      volume={46},
+      number={3},
+       pages={757–804},
+}
+
+\bib{MR487031}{article}{
+      author={S\'ark{\"o}zy, A.},
+       title={On difference sets of sequences of integers. {III}},
+        date={1978},
+        ISSN={0001-5954,1588-2632},
+     journal={Acta Math. Acad. Sci. Hungar.},
+      volume={31},
+      number={3-4},
+       pages={355\ndash 386},
+         url={https://doi.org/10.1007/BF01901984},
+      review={\MR{487031}},
+}
+
+\bib{MR1501951}{article}{
+      author={Singer, James},
+       title={A theorem in finite projective geometry and some applications to
+  number theory},
+        date={1938},
+        ISSN={0002-9947,1088-6850},
+     journal={Trans. Amer. Math. Soc.},
+      volume={43},
+      number={3},
+       pages={377\ndash 385},
+         url={https://doi.org/10.2307/1990067},
+      review={\MR{1501951}},
+}
+
+\bib{MR4634690}{article}{
+      author={Technau, Niclas},
+      author={Yesha, Nadav},
+       title={On the correlations of {$n^\alpha\bmod1$}},
+        date={2023},
+        ISSN={1435-9855,1435-9863},
+     journal={J. Eur. Math. Soc. (JEMS)},
+      volume={25},
+      number={10},
+       pages={4123\ndash 4154},
+         url={https://doi.org/10.4171/jems/1281},
+      review={\MR{4634690}},
+}
+
+\end{biblist}
+\end{bibdiv}

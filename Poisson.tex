@@ -1,0 +1,107 @@
+
+
+
+
+
+\section{Metric Pair Correlation}  
+\label{sec;PairCorrelation}
+
+We give sufficient conditions so that for almost all $\alpha \in [0,1]$, one has asymptotic \emph{Poissonian pair correlation} for 
+$\{ \alpha k \colon k\in \mathcal{C}\}$
+ for some Cantor sets $\mathcal C$.   
+We recall the definition here. 
+
+\begin{definition}  Given a sequence $(\theta_n)_{n\geq 0} \subset \mathbb R$, and $s>0$, set  
+\begin{equation}
+    R_2 (s,\{\theta_n \}, N) = R(s,N)
+    \coloneqq 
+    N^{-1} \lvert \{ 0\leq j\neq k < N \colon 
+    \lVert \theta_j - \theta_k \rVert < s/N\}\rvert , 
+\end{equation}
+where $\lVert \cdot \rVert$ is the distance to the nearest integer. 
+We say that $(\theta_n)$ has \emph{(Poissonian) pair correlation} if $R_2(s,N) \to 2s$ as $N\to \infty$, 
+for every $s>0$.  
+\end{definition}
+
+Here, we focus only on pair correlation.  
+A sequence with pair correlation is uniformly distributed \cites{AistleitnerLachmannPausinger2018,GrepstadLarcher2017}. And, if $\{\theta_n\}$ are iid uniformly distributed on $[0,1]$, then almost surely the sequence has pair correlation. The interest in the pair correlation for specific sequences has a deep set of connections to a range of issues.
+We refer the reader to the references in \cites{MR3736514,MR4634690} for more information, and as well the paper \cite{MR4542733} that establishes, for instance,  a Weyl type result for pair and higher order correlations. 
+
+
+Here, using the main result from \cite{MR3736514}, we  provide a simple sufficient condition 
+on a Cantor set $\mathcal C$  for the sequence 
+$\{ \alpha k \colon k\in \mathcal{C}\}$
+ to have pair correlation, except for a very thin set of $\alpha$. 
+
+
+ \begin{proposition} \label{p:pairCorrelation} 
+ Assume, in addition to the standing assumption \eqref{e:standing}, that $D\subset \{0 , 1, \ldots, \lfloor (b-1)/2\rfloor \}$. 
+ (As $\lvert D\rvert \geq 2$, this forces $b\geq 3$, which \eqref{e:standing} already requires.) 
+ Let 
+ \begin{align} \label{eED}
+    E(D) = \sum_{\substack{d_1,d_2,d_3,d_4\in D \\ d_1+d_2=d_3+d_4}} 1 , 
+    \qquad 
+    \epsilon = \epsilon(D) \coloneqq 3 - \frac{\log E(D)}{\log \lvert D\rvert}. 
+ \end{align}
+ Then $\epsilon(D) >0$, and for almost all $\alpha \in [0,1]$, 
+ the sequence $(\alpha k_n)_{n\geq 0}$ has pair correlation.  
+ Indeed, the set of $\alpha $ for which pair correlation does not hold has Hausdorff dimension 
+ at most 
+ \begin{equation}
+     1 - \frac{\epsilon}{ 3 + \frac{\log b}{\log \lvert D\rvert }} 
+ \end{equation}
+  \end{proposition}
+
+The case of a single non-zero digit, $D=\{d\}$ with $d\neq 0$, is excluded by our standing assumption, on two counts: $0\notin D$ and $\lvert D\rvert =1$. 
+It is also excluded by \eqref{eED}, which is meaningless for $\lvert D\rvert=1$. 
+In that case $\mathcal C=\{d\frac{b^{\ell}-1}{b-1}\colon \ell \geq 1\}$ is lacunary, and lacunary sequences, of which $\{b^\ell\}$ is the model, are very well studied \cites{MR1924774,MR3314206,MR4164447} by much more sophisticated techniques.  
+
+  
+The quantity $E(D)$ in \eqref{eED} is the \emph{additive energy}  of $D$.  The trivial bound is $E(D)\leq \lvert D \rvert ^{3}$, 
+ since $d_1,d_2,d_3$ determine $d_4$. 
+ This bound is never attained when $\lvert D\rvert\geq 2$: with $d_1=d_2=\max D$ and $d_3=0$, we have $d_1+d_2-d_3=2\max D\notin D$. 
+ Hence $E(D)\leq \lvert D\rvert^3-1$, and $\epsilon(D)>0$ for every digit set satisfying our assumptions. 
+ The interest of the Proposition is in the size of $\epsilon(D)$, which is larger when the additive energy of $D$ is smaller. 
+We have the optimal bound $E(D) \ll \lvert D\rvert ^2$ if $D$ is \emph{Sidon}, that is there are only trivial solutions to $d_1+d_2=d_3+d_4$ for $d_1,d_2,d_3,d_4\in D$, in which case $\epsilon(D)\to 1$ as $\lvert D\rvert\to\infty$. 
+This is the best possible: the trivial solutions alone give $E(D)\geq 2\lvert D\rvert ^2-\lvert D\rvert$, so that $\epsilon (D)<1$ for every $D$. 
+At the other extreme, for an interval $D=\{0,1,\ldots ,m\}$ one computes $E(D)=\frac {2\lvert D\rvert ^3+\lvert D\rvert }3$, whence $\epsilon (D)=\frac{\log (3/2)}{\log \lvert D\rvert }+o(1)$, which tends to $0$. 
+Since the bound on the dimension of the exceptional set is $1-\epsilon (D)\bigl(3+\frac{1}{\dim \mathcal C}\bigr)^{-1}$, the Proposition has content only for digit sets of small additive energy, and it degenerates as $\dim \mathcal C\to 0$. 
+Results of Erd{\H o}s and Tur\'an \cite{MR6197} and Singer \cite{MR1501951}
+ reveal that the largest cardinality of a Sidon subset of $\{0,1,\ldots,m\}$ is   $\approx m^{1/2}$.  
+Also see \cite{MR4336213}. 
+
+
+The proof is an easy corollary to the main result of Aistleitner, Larcher and Lewko \cite{MR3736514}. 
+Certainly, issues related to pair correlation would be worthy of investigation with sharper techniques. 
+
+
+\begin{proof}
+Fix the Cantor set $\mathcal C$ as above. To apply the main result of \cite{MR3736514}, we need to estimate the additive energy of 
+$A_N=\{k_0,k_1,\ldots,k_{N-1}\}$, the first $N$ elements of $\mathcal C$.  
+First let $N=\lvert D\rvert^\ell$, so that $A_N=\mathcal C\cap[0,b^\ell)$. 
+The condition on the allowed digits, namely that each digit is at most $(b-1)/2$, implies that adding two elements of $A_N$ does not lead to a carry digit: 
+if $x=\sum_{j<\ell}x_jb^j$ and $y=\sum_{j<\ell}y_jb^j$ with $x_j,y_j\in D$, then the base $b$ digits of $x+y$ are $x_j+y_j\leq b-1$. 
+Hence, for $x,y,z,w\in A_N$, we have $x+y=z+w$ if and only if $x_j+y_j=z_j+w_j$ for every $j<\ell$. 
+The additive energy is therefore multiplicative, 
+\begin{align}
+    E(A_{\lvert D\rvert^\ell}) &= E(D) ^{\ell} 
+     =  \lvert D\rvert ^{(3-\epsilon)\ell} = 
+    \lvert A_{\lvert D\rvert^\ell} \rvert ^{3 - \epsilon}. 
+\end{align}
+For general $N$, choose $\ell$ with $\lvert D\rvert^{\ell-1}<N\leq \lvert D\rvert^\ell$. Since additive energy is monotone under inclusion, 
+$E(A_N)\leq E(D)^\ell \leq \lvert D\rvert^{3}N^{3-\epsilon}$.
+Observe that  $k_n$, the $n$th element of $\mathcal C$, 
+satisfies $k_n \ll n ^d$, with $d= \frac{\log b}{\log \lvert D\rvert}$: if $\lvert D\rvert^{L-1}\leq n<\lvert D\rvert^L$, then $k_n<b^L\leq b\,n^d$. 
+We now apply the results of Aistleitner, Larcher and Lewko \cite{MR3736514}*{Theorem 1}. 
+%% TODO: confirm the theorem numbers in [ALL]; the a.e. statement and the Hausdorff dimension statement are separate results there, 
+%% and the growth hypothesis a(x) << x^d is attached only to the latter. 
+If $(a(x))_{x\geq1}$ is a sequence of distinct non-negative integers whose truncations satisfy $E(A_N)\ll N^{3-\epsilon}$, 
+then for almost all $\alpha$ the sequence $(\alpha a(x))$ has pair correlation; and if in addition $a(x)\ll x^d$, 
+the exceptional set of $\alpha$ has Hausdorff dimension at most $\frac{d+3-\epsilon}{d+3}=1-\frac{\epsilon}{d+3}$. 
+(As a check on normalizations, $a(x)=x^d$ has $\epsilon=1$, and the bound reads $\frac{d+2}{d+3}$, as in \cite{MR3736514}.) 
+Applied to $a(x)=k_x$, this is our conclusion. 
+
+    
+\end{proof}
+
+ 

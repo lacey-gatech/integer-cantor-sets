@@ -1,0 +1,7 @@
+/.lake/
+/blueprint/print/
+/blueprint/web/
+*.aux
+*.log
+*.out
+*.toc

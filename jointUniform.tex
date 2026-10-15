@@ -1,0 +1,500 @@
+
+ 
+\section{Uniform Distribution on \texorpdfstring{$[0,1]^2$}{[0,1]²}}% (fold)
+\label{sec:uniformDistributionMod1}
+
+% section ergodic_theorem (end)
+\begin{definition} A sequence $(x_n)_{n \geq 1}$ in $[0,1) ^2 $ is said to be \emph{uniformly distributed} if for all $0\leq a < b < 1$ and $0\leq c<d<1$, 
+\begin{equation}
+    \lim_{N\to \infty} \Expectation _{[N]}  \mathbf{1}_{ (a,b) \times (c,d)} (x_n) = (b-a)(d-c) 
+\end{equation}
+That is, the proportion of integers $n$ with $x_n \in (a,b) \times (c,d)$ behaves as expected.  We say that a sequence $(x_n) \subset \mathbb{R} ^2 $  is \textit{uniformly distributed (mod $1$)} if the sequence of fractional parts $(\{ x_n \}) = ( x_{n,1} - \lfloor x_{n,1} \rfloor,  x_{n,2} - \lfloor x_{n,2} \rfloor )$ is uniformly distributed in $\mathbb{T}  ^2 $.      
+\end{definition}
+
+
+
+
+A polynomial $p\colon\mathbb{Z}^2\to\mathbb{R}$ is said to be \emph{irrational} if at least one of its non-constant monomials has an irrational coefficient.  
+
+\begin{definition} A sequence $\{x_n \colon n \geq 0\}$ in $ \mathbb{Z} ^2  $ is said to be \emph{polynomial uniformly distributed, uniformly}, briefly \emph{PUDU}, if 
+for every irrational polynomial $p\colon\mathbb{Z}^2\to\mathbb{R}$, 
+\begin{equation}\label{e:PUDU}
+    \lim_{N-M\to \infty} \Expectation _{M\leq n<N}    e( p (x_n))  = 0. 
+\end{equation}
+\end{definition}
+
+By the Weyl criterion \eqref{eWeyl} below, if $(x_n)$ is PUDU, and $P=(p_1,p_2)\colon\mathbb{Z}^2\to\mathbb{R}^2$ is a polynomial map such that 
+$m\cdot P$ is irrational for every $m\in\mathbb{Z}^2\setminus\{(0,0)\}$, then $P(x_n)$ is uniformly distributed (mod $1$), and indeed uniformly so: 
+the averages in the definition of uniform distribution may be taken over $M\leq n<N$, with $N-M\to\infty$. 
+The condition on $m\cdot P$ cannot be weakened to $P$ having an irrational coefficient: 
+$P(x,y)=(\alpha x,2\alpha x)$ is not uniformly distributed (mod $1$), for any $\alpha$.
+
+
+
+Let $ \mathcal{C}$ be a classical Cantor set with base $b$ and  digits set $ D$. 
+Let $s_b(\cdot)$ be the sum of digits function with base $b$, that is, 
+\begin{equation} \label{e:sumofdigits}
+s_b\Bigl( \sum_{j=0}^k d_j b^j\Bigr) = 
+\sum_{j=0}^k  d_j.  
+\end{equation}
+The main theorem of this section is this. 
+
+\begin{theorem} \label{t:polyUniform}
+Let $\mathcal C = \mathcal C _{b, D} =\{k_0< k_1 < \cdots \}$. 
+Then the sequence $\bigl( (k_n, s_b(k_n) )\bigr)_{n\geq 0} $ is PUDU.  
+\end{theorem}
+
+Coquet \cites{MR506123,MR578819} has established polynomial uniform distribution for general Cantor sets. The novelty here is the uniformity, paired with the sum of digits function.  The uniformity is a property we need for a further work, in which we will necessarily need $0$ to be an allowed digit. 
+
+
+We will appeal to the Weyl criterion, which asserts that uniform distribution of $(x_n) \subset \mathbb{R} ^2 $ in $\mathbb{T} ^2 $ is equivalent to 
+\begin{equation} \label{eWeyl}
+    \lim_{N\to \infty} \Expectation _{[N]}  e(m \cdot x_n) =0 
+    \qquad m\in \mathbb{Z} ^2 \setminus \{(0,0)\}. 
+\end{equation}
+Here, and throughout,  $e ( \alpha ) = e^{2 \pi i \alpha }$.  
+Note that if $P$ is a polynomial map with $m\cdot P$ having only rational non-constant coefficients for some $m\neq(0,0)$, then  
+letting $q$ be a common denominator of these coefficients, $e(qm\cdot P(k_n, s_b(k_n)))$ is constant, and so $P(k_n,s_b(k_n))$ fails the Weyl test for the frequency $qm$.  
+Thus, the Theorem above is a characterization of the polynomial uniform distribution property. 
+
+ 
+The key lemma for this result, as well as the ergodic theorems in \S\ref{s;meanErgodic}, is below. 
+
+%%%%%%%%%%%%%%%%%%%%%% Lemma 
+\begin{lemma}  \label{l;irrational} 
+Let $\mathcal{C} = \mathcal{C}_{b,D}=\{k_0<k_1<\cdots\}$, 
+and let $s=\gcd(D)$ be the largest integer such that $D$ is contained in a progression of step size $s$. 
+Call $(\alpha,\beta)\in\mathbb{R}^2$ \emph{exceptional} if 
+\begin{equation}\label{e:exceptional}
+s\alpha = \frac{a}{b-1}+\frac {r}{b^t} \quad\textup{and}\quad s\beta \equiv - \frac{a}{b-1} \mod 1, 
+\qquad \textup{for some integers $a$, $r$, and $t\geq 0$.}
+\end{equation}
+(When $s=1$ this reads $\alpha = \frac{a}{b-1}+\frac {r}{b^t}$ and $\beta \equiv - \frac{a}{b-1}$.) 
+Then the  limit 
+\begin{equation}\label{ee:limit}
+\lim _{N\to \infty} \Expectation 
+_{0\leq n<N} e(k_n \alpha + s_b(k_n)\beta )
+\end{equation}
+exists for all $\alpha $ and $\beta $, and it is zero unless $(\alpha,\beta)$ is exceptional. 
+Moreover, if $(\alpha,\beta)$ is not exceptional, and in particular if $\alpha $ or $\beta $ is irrational,   then   
+\begin{equation} \label{e:uniformLimitExponentials} 
+\lim _{N-M\to \infty} \Expectation 
+_{ M\leq n<N} 
+e(k_n \alpha + s_b(k_n)\beta )=0. 
+\end{equation}
+\end{lemma}
+
+Limits of this type, for rational $\alpha$ and $\beta$, govern the distribution of $(k_n,s_b(k_n))$ in residue classes, which was studied in \cite{ERDOS199899}, under an additional restriction on the modulus. This restriction was recently removed in \cite{SAAVEDRA-ARAYA_2026}*{Theorem A}. 
+Both papers establish rates of convergence to the uniform distribution, which we do not address.  
+
+
+\begin{remark} The integer $s$ enters \eqref{e:exceptional} because the function $\widehat L$ of \eqref{e;widehatL} below has modulus $1$ at each of the $s$ points $\theta \in [0,1)$ with $s\theta \in \mathbb{Z}$, and not at $\theta =0$ alone. 
+It is for this reason that the proof begins by reducing to the case $s=1$. 
+Consider for example the case of $b = 101$, and $D=\{0,5,10,\ldots,100\}$ the multiples of $5$ in $\{0,\ldots,100\}$, so that $s=5$. 
+Then we have 
+\begin{equation}
+\widehat L (\alpha )  = \tfrac 1{21} \sum_{m=0} ^{20} e ( 5m \alpha ) , 
+\end{equation}
+which has modulus $1$ at $\alpha = 1/5, 2/5, 3/5, 4/5$.  
+%A second example is  $b=100$, and $D = \{ 11, 31, 71 \}$. 
+\end{remark}
+
+
+
+
+\begin{proof} 
+Throughout, let $\sigma_n=s_b(k_n)$ and $\Phi(n)=e(k_n\alpha+\sigma_n\beta)$. 
+The key function is 
+\begin{align} \label{e;widehatL}
+\widehat L(\theta ) =  \Expectation _{d\in D} e(d\theta ) = \frac{1}{\lvert D\rvert} \sum_{d \in D} e(d \theta).
+\end{align}
+Since $0\in D$, we have $\lvert \widehat L(\theta)\rvert=1$ if and only if $e(d\theta)=1$ for all $d\in D$, that is, if and only if $s\theta\in\mathbb{Z}$. 
+In particular, $\lvert\widehat L(\theta)\rvert<1$ except at the finitely many $\theta\in[0,1)$ with $s\theta\in\mathbb{Z}$. 
+
+\smallskip 
+\noindent\emph{Reduction to $s=1$.} 
+If $s>1$, the digit set $D'= \{d/s \colon d\in D\}$ again satisfies the standing assumption, and $\gcd(D')=1$. 
+The elements of $\mathcal C$ are $k_n=sk'_n$, where $k'_0<k'_1<\cdots$ are the elements of $\mathcal C'=\mathcal C_{b,D'}$, and $s_b(k_n)=s\,s_b(k'_n)$. 
+Hence $e(k_n\alpha+s_b(k_n)\beta)=e(k'_n s\alpha+s_b(k'_n)s\beta)$, and all of our conclusions follow from the case $s=1$, applied to $(s\alpha,s\beta)$. 
+(Note that $s\alpha$ is irrational if $\alpha$ is, and likewise for $\beta$.) 
+So we assume from now on that $s=1$. 
+
+\smallskip 
+\noindent\emph{Products over blocks.} 
+By Proposition \ref{p;CantorStructure}(i), as $j$ ranges over $0\leq j<\lvert D\rvert^\ell$, the base $b$ digits of $k_j$ in positions $0,\ldots,\ell-1$ range independently and uniformly over $D$. 
+Hence 
+\begin{align}  \label{e;widehat}
+P_\ell \coloneqq 
+\Expectation_{0\leq j<\lvert D\rvert^\ell}\Phi(j)
+= \prod _{c=0}^{\ell-1} \widehat L (b^c\alpha + \beta  )  .
+\end{align}
+By Proposition \ref{p;CantorStructure}(ii), for all $i\geq 1$, $m\geq 0$, and $0\leq j<\lvert D\rvert^i$, 
+\begin{equation}\label{e:blockSplit}
+\Phi(\lvert D\rvert^im+j)=e\bigl(b^ik_m\alpha+\sigma_m\beta\bigr)\,\Phi(j). 
+\end{equation}
+Now let $0\leq M<N$ be integers, and $i\geq1$. Set $M_i=\lceil M/\lvert D\rvert^i\rceil$ and $N_i=\lfloor N/\lvert D\rvert^i\rfloor$. 
+The integers in $[M,N)$ that do not lie in $[\lvert D\rvert^iM_i,\lvert D\rvert^iN_i)$ number at most $2\lvert D\rvert^i$. 
+Summing \eqref{e:blockSplit} over the blocks $\{\lvert D\rvert^im+j\colon 0\leq j<\lvert D\rvert^i\}$, $M_i\leq m<N_i$, we obtain 
+\begin{equation}\label{e:windowSplit}
+\Expectation_{M\leq n<N}\Phi(n)
+=\frac{\lvert D\rvert^i(N_i-M_i)}{N-M}\, P_i\, \Expectation_{M_i\leq m<N_i}e\bigl(b^ik_m\alpha+\sigma_m\beta\bigr) 
++O\Bigl(\frac{\lvert D\rvert^i}{N-M}\Bigr), 
+\end{equation}
+where the main term is interpreted as zero if $N_i\leq M_i$. 
+The implied constant is absolute, and in particular does not depend on $\alpha$, $\beta$, $M$, $N$, or $i$. 
+
+\smallskip 
+\noindent\emph{The limit of $P_\ell$.} 
+We show that $P_\ell \to 0$ as $\ell\to\infty$ unless $(\alpha,\beta)$ is exceptional, in which case $P_\ell=P_t$ for all $\ell\geq t$, where $t$ is as in \eqref{e:exceptional}. 
+Let $\lVert\cdot\rVert$ denote the distance to the nearest integer. 
+
+Suppose first that $\lVert b^c\alpha+\beta\rVert$ does not tend to zero as $c\to\infty$. 
+Then there is an $\eta>0$ with $\lVert b^c\alpha+\beta\rVert\geq\eta$ for infinitely many $c$. 
+As $s=1$, $\lvert\widehat L\rvert<1$ on the compact set $\{\theta\in\mathbb{T}\colon\lVert\theta\rVert\geq\eta\}$, so $\lvert\widehat L\rvert\leq 1-\kappa$ there, for some $\kappa>0$. 
+Hence infinitely many factors in \eqref{e;widehat} have modulus at most $1-\kappa$, while all have modulus at most $1$, and $P_\ell\to0$. 
+
+Suppose next that $\lVert b^c\alpha+\beta\rVert\to0$. 
+Then $x=(b-1)\alpha$ satisfies $\lVert b^cx\rVert\leq \lVert b^{c+1}\alpha+\beta\rVert+\lVert b^c\alpha+\beta\rVert\to0$. 
+We claim that $b^tx\in\mathbb{Z}$ for some $t\geq0$. 
+Choose $c_0$ such that $\lVert b^cx\rVert<1/(2b)$ for all $c\geq c_0$. 
+If $0<\lVert b^cx\rVert<1/(2b)$, then $\lVert b^{c+1}x\rVert=b\lVert b^cx\rVert$. 
+So if $\lVert b^{c_0}x\rVert\neq0$, the quantities $\lVert b^{c_0+i}x\rVert=b^i\lVert b^{c_0}x\rVert$ would eventually exceed $1/(2b)$, a contradiction. 
+Thus $b^{c_0}x\in\mathbb{Z}$, proving the claim with $t=c_0$. 
+Since $\gcd(b-1,b^t)=1$, we can then write $\alpha=\frac{x}{b-1}=\frac{a}{b-1}+\frac{r}{b^t}$ with integers $a$ and $r$. 
+As $b\equiv1\mod (b-1)$, for $c\geq t$ we have $b^c\alpha\equiv\frac{a}{b-1}\mod1$. 
+So $\lVert b^c\alpha+\beta\rVert\to0$ forces $\beta\equiv-\frac a{b-1}\mod 1$, that is, $(\alpha,\beta)$ is exceptional. 
+Moreover $b^c\alpha+\beta\in\mathbb{Z}$ for all $c\geq t$, so the factors in \eqref{e;widehat} with $c\geq t$ equal $\widehat L(0)=1$, and $P_\ell=P_t$ for $\ell\geq t$. 
+
+Conversely, if $(\alpha,\beta)$ is exceptional, the same computation shows $b^c\alpha+\beta\in\mathbb{Z}$ for $c\geq t$. 
+This completes the analysis of $P_\ell$. 
+
+\smallskip 
+\noindent\emph{Non-exceptional $(\alpha,\beta)$.} 
+Let $\epsilon>0$, and choose $i$ with $\lvert P_i\rvert<\epsilon$. 
+Since $\lvert D\rvert^i(N_i-M_i)\leq N-M$, \eqref{e:windowSplit} gives 
+\begin{equation}
+\Bigl\lvert\Expectation_{M\leq n<N}\Phi(n)\Bigr\rvert\leq \epsilon+O\Bigl(\frac{\lvert D\rvert^i}{N-M}\Bigr). 
+\end{equation}
+Letting $N-M\to\infty$, and then $\epsilon\to0$, proves \eqref{e:uniformLimitExponentials}. 
+Taking $M=0$, the limit \eqref{ee:limit} exists and equals zero. 
+If $\alpha$ or $\beta$ is irrational, then $(\alpha,\beta)$ is not exceptional, since exceptional pairs are rational. 
+
+\smallskip 
+\noindent\emph{Exceptional $(\alpha,\beta)$.} 
+Let $t$ be as in \eqref{e:exceptional}, and take $i\geq t$. 
+Then $b^i\alpha\equiv\frac{a}{b-1}\equiv-\beta\mod1$, so for every $m$, 
+\begin{equation}
+b^ik_m\alpha+\sigma_m\beta\equiv \frac{a}{b-1}\,(k_m-\sigma_m)\equiv 0\mod 1, 
+\end{equation}
+because $b-1$ divides $b^c-1$ for every $c$, and hence divides $k_m-s_b(k_m)$. 
+Thus the average over $m$ in \eqref{e:windowSplit} equals $1$, and $P_i=P_t$. 
+Taking $M=0$ in \eqref{e:windowSplit}, and using $\lvert D\rvert^iN_i/N\to1$ as $N\to\infty$, we obtain 
+\begin{equation}
+\lim_{N\to\infty}\Expectation_{0\leq n<N}\Phi(n)=P_t. 
+\end{equation}
+So the limit \eqref{ee:limit} exists in this case as well. 
+\end{proof} 
+
+\begin{proof}[Proof of Theorem \ref{t:polyUniform}] 
+Throughout the proof we write $\sigma_n=s_b(k_n)$. 
+By definition of PUDU, we must show that for every irrational polynomial $p\colon \mathbb{Z}^2\to\mathbb{R}$, 
+\begin{equation}  \label{e;UDtoshow}
+\lim_{N-M\to \infty} \Expectation_{M\leq n<N} 
+e(p(k_n, \sigma_n)) =0. 
+\end{equation}
+Following Coquet \cite{MR506123}, 
+say that $p \colon \mathbb{Z} ^2 \to \mathbb{R} $ has \emph{irrational degree $\ell$} 
+if it has an irrational coefficient on a term of degree $\ell$, and all higher degree terms, if they are present, have  rational coefficients.  
+An irrational polynomial has irrational degree $\ell\geq 1$. 
+
+Our induction hypothesis is $\textup{UD} _{\ell}$:  The limit \eqref{e;UDtoshow} holds for all polynomials of irrational degree $\ell$.
+  Note that to establish $\textup{UD} _{\ell}$, it suffices to consider polynomials with no constant term, which we assume below.   
+
+\begin{proof}[Proof of $\textup{UD} _{1}$]
+Consider first linear polynomials. If $\alpha$ or $\beta$ is irrational, then 
+\eqref{e:uniformLimitExponentials} gives
+\begin{equation} \label{e:deltaProgressions} 
+\lim _{N-M\to \infty} \Expectation 
+_{ M\leq n<N } 
+e(k_n \alpha + \sigma_n\beta )=0.  
+\end{equation}
+That is, we have uniform convergence  for linear polynomials with an irrational coefficient.  
+
+Now consider a general polynomial $p$ of irrational degree $1$. Thus $p(x,y) =\alpha x+\beta y+p'(x,y)$, where 
+either $\alpha$ or $\beta$ is irrational, and  $p'$ has exclusively rational coefficients and terms of degree two or higher. 
+Let $q$ be the least  common multiple  of the  denominators of the coefficients of $p'$.  
+For integers $x,y,t,t'$, every monomial satisfies $(x+qt)^i(y+qt')^{i'}\equiv x^iy^{i'} \mod q$, so 
+$e(p'(x,y))$ depends only on $(x \mod q,\ y\mod q)$. 
+Define 
+\begin{equation} \label{e:Nrq}
+  N(r, r') \coloneqq  \{ n \colon k_n \equiv r \mod q ,\  \sigma_n \equiv r'\mod q \} , \qquad 0\leq r,r'<q. 
+\end{equation}
+The indicator of this set has the Fourier expansion 
+\begin{equation}
+    \mathbf{1}_{N(r,r')} (n) = \Expectation_{0\leq u,u'<q} 
+    e\bigl(u(k_n-r)/q+u'(\sigma_n-r')/q\bigr) . 
+\end{equation}
+And so, we have 
+\begin{align}
+    \Expectation 
+_{ M \leq n < N } 
+e( p(k_n, \sigma_n))
+&= \sum_{0\leq r,r'<q} e(p'(r,r'))
+    \Expectation 
+_{ M \leq n < N } \mathbf{1}_{N(r,r')} (n) 
+e( \alpha k_n+\beta \sigma_n)
+\\
+&= 
+\sum_{0\leq r,r'<q} e(p'(r,r'))
+ \Expectation_{0\leq u,u'<q} e\bigl(-(ur+u'r')/q\bigr)
+ \\ & \qquad \times  \Expectation_{M\leq n < N}  e\bigl( (\alpha+\tfrac uq)k_n+(\beta+\tfrac{u'}q)\sigma_n\bigr). 
+\end{align}
+For each of the finitely many choices of $u,u'$, one of $\alpha+\frac uq$ and $\beta+\frac{u'}q$ is irrational, 
+so the innermost average tends to zero by \eqref{e:deltaProgressions}. 
+\end{proof}
+
+For the induction step, we need to know when differencing lowers the irrational degree by exactly one. 
+For a polynomial $Q$ with real coefficients, let $\overline Q$ denote the polynomial obtained by reducing each coefficient modulo $\mathbb{Q}$. 
+That is, $\overline Q$ has coefficients in the $\mathbb{Q}$-vector space $\mathbb{R}/\mathbb{Q}$, and $\overline Q=0$ if and only if all coefficients of $Q$ are rational. 
+Derivatives of $\overline Q$ are defined as usual; for $w=(w_1,w_2)\in\mathbb{Q}^2$ set $\partial_w=w_1\partial_x+w_2\partial_y$. 
+
+\begin{lemma}\label{l:badDirections}
+Let $Q$ be a homogeneous polynomial of degree $\ell\geq 1$ with $\overline Q\neq 0$. 
+There are integers $(c_1,c_2)\neq(0,0)$ such that for all $w\in\mathbb{Z}^2$, if $\partial_w\overline Q=0$, then $c_1w_1+c_2w_2=0$. 
+\end{lemma}
+
+\begin{proof}
+The map $w\mapsto \partial_w\overline Q$ is $\mathbb{Q}$-linear on $\mathbb{Q}^2$. 
+If its kernel were all of $\mathbb{Q}^2$, then $\partial_x\overline Q=\partial_y\overline Q=0$, so $\overline Q$ would be constant. 
+As $\overline Q$ is homogeneous of degree $\ell\geq1$, this forces $\overline Q=0$, a contradiction. 
+Hence the kernel has dimension at most one, and is contained in a line $\{c_1w_1+c_2w_2=0\}$, with $c_1,c_2$ integers, not both zero. 
+\end{proof}
+
+\begin{proof}[Proof of $\textup{UD}_{\ell-1} \implies \textup{UD}_\ell$] 
+For $\ell\geq 2$, we assume $\textup{UD}_{\ell-1}$. 
+Fix a polynomial $p$ of irrational degree $\ell$, and let $Q$ be its homogeneous part of degree $\ell$, so that $\overline Q\neq 0$. 
+Let $(c_1,c_2)$ be as in Lemma \ref{l:badDirections}. 
+
+Fix an integer $\rho\geq 1$. 
+Given $M<N$, let $M'=\lceil M/\lvert D\rvert^{\rho}\rceil$ and $N'=\lfloor N/\lvert D\rvert^{\rho}\rfloor$. 
+The integers $n\in[M,N)$ that are not in $[\lvert D\rvert^{\rho}M',\lvert D\rvert^{\rho}N')$ number at most $2\lvert D\rvert^{\rho}$, and $N'-M'\to\infty$ as $N-M\to\infty$. 
+Each $n\in[\lvert D\rvert^{\rho}M',\lvert D\rvert^{\rho}N')$ is uniquely written as $n=\lvert D\rvert^{\rho}m+j$, with $M'\leq m<N'$ and $0\leq j<\lvert D\rvert^{\rho}$, 
+and by Proposition \ref{p;CantorStructure}, 
+\begin{equation}
+k_n=b^{\rho}k_m+k_j, \qquad \sigma_n=\sigma_m+\sigma_j. 
+\end{equation}
+Therefore, by the Cauchy--Schwarz inequality in $m$, 
+\begin{align}
+\Bigl\lvert \Expectation_{M\leq n<N}e(p(k_n,\sigma_n))\Bigr\rvert^2
+&\leq 
+\Expectation_{M'\leq m<N'}\Bigl\lvert \Expectation_{0\leq j<\lvert D\rvert^{\rho}} e\bigl(p(b^{\rho}k_m+k_j,\sigma_m+\sigma_j)\bigr)\Bigr\rvert^2 + O\Bigl(\frac{\lvert D\rvert^{\rho}}{N-M}\Bigr)
+\\ \label{e:CSblocks}
+&\leq 
+\Expectation_{0\leq j,j'<\lvert D\rvert^{\rho}}\Bigl\lvert 
+\Expectation_{M'\leq m<N'}e\bigl(R_{j,j'}(k_m,\sigma_m)\bigr)\Bigr\rvert + O\Bigl(\frac{\lvert D\rvert^{\rho}}{N-M}\Bigr), 
+\end{align}
+where 
+\begin{equation}
+R_{j,j'}(X,Y)\coloneqq p(b^{\rho}X+k_j,\,Y+\sigma_j)-p(b^{\rho}X+k_{j'},\,Y+\sigma_{j'}). 
+\end{equation}
+
+We claim that $R_{j,j'}$ has irrational degree $\ell-1$, unless $w=w_{j,j'}\coloneqq(k_j-k_{j'},\,\sigma_j-\sigma_{j'})$ satisfies $c_1w_1+c_2w_2=0$. 
+Indeed, the terms of $p$ of degree larger than $\ell$ have rational coefficients, and so contribute only rational coefficients to $R_{j,j'}$. 
+The terms of degree $\ell$ in $R_{j,j'}$ coming from $Q$ cancel, and the terms of $p$ of degree less than $\ell$ contribute only terms of degree at most $\ell-2$. 
+Hence, modulo rational coefficients, the part of $R_{j,j'}$ of degree $\ell-1$ is 
+\begin{equation}
+(\partial_w\overline Q)(b^{\rho}X,Y). 
+\end{equation}
+The coefficient of $X^iY^{\ell-1-i}$ here is $b^{\rho i}$ times the corresponding coefficient of $\partial_w\overline Q$, so it is non-zero if and only if $\partial_w\overline Q\neq 0$. 
+By Lemma \ref{l:badDirections}, this holds unless $c_1w_1+c_2w_2=0$, proving the claim. 
+
+Call the pair $(j,j')$ \emph{bad} if $c_1k_j+c_2\sigma_j=c_1k_{j'}+c_2\sigma_{j'}$, and \emph{good} otherwise. 
+For each of the finitely many good pairs $(j,j')$, the polynomial $R_{j,j'}$ has irrational degree $\ell-1\geq 1$. 
+By $\textup{UD}_{\ell-1}$, the corresponding inner average in \eqref{e:CSblocks} tends to zero as $N'-M'\to\infty$. 
+Bounding the inner average by $1$ for bad pairs, we conclude that 
+\begin{equation}
+\limsup_{N-M\to\infty}\Bigl\lvert \Expectation_{M\leq n<N}e(p(k_n,\sigma_n))\Bigr\rvert^2\leq \eta_\rho, 
+\end{equation}
+where $\eta_\rho$ is the proportion of bad pairs among all pairs $0\leq j,j'<\lvert D\rvert^{\rho}$. 
+Since $\rho$ is arbitrary, it remains to show that $\eta_\rho\to0$ as $\rho\to\infty$. 
+Note that for $0\leq j<\lvert D\rvert^{\rho}$, the element $k_j$ has at most $\rho$ digits, so $0\leq\sigma_j\leq (b-1)\rho$. 
+\begin{itemize}
+\item If $c_2=0$, then $c_1\neq0$, and a bad pair has $k_j=k_{j'}$, that is $j=j'$. So $\eta_\rho=\lvert D\rvert^{-\rho}$. 
+
+\item If $c_1\neq0$ and $c_2\neq 0$, a bad pair has $\lvert k_j-k_{j'}\rvert = \lvert c_2/c_1\rvert\,\lvert\sigma_j-\sigma_{j'}\rvert\leq \lvert c_2/c_1\rvert(b-1)\rho$. 
+As the $k_j$ are distinct integers, for each $j$ there are at most $2\lvert c_2/c_1\rvert(b-1)\rho+1$ such $j'$. 
+So $\eta_\rho\leq (2\lvert c_2/c_1\rvert(b-1)\rho+1)\lvert D\rvert^{-\rho}$. 
+
+\item If $c_1=0$, a bad pair has $\sigma_j=\sigma_{j'}$. 
+For $j$ uniformly distributed on $\{0,\ldots,\lvert D\rvert^{\rho}-1\}$, the base $\lvert D\rvert$ digits of $j$ are independent and uniform, 
+so $\sigma_j$ is the sum of $\rho$ independent random variables, each uniformly distributed on $D$. 
+Thus $\Expectation_{0\leq j<\lvert D\rvert^{\rho}}e(\theta\sigma_j)=\widehat L(\theta)^{\rho}$, with $\widehat L$ as in \eqref{e;widehatL}, and 
+\begin{equation}
+\eta_\rho=\int_0^1\Bigl\lvert \Expectation_{0\leq j<\lvert D\rvert^{\rho}}e(\theta\sigma_j)\Bigr\rvert^2\;d\theta
+=\int_0^1\lvert\widehat L(\theta)\rvert^{2\rho}\;d\theta. 
+\end{equation}
+As shown in the proof of Lemma \ref{l;irrational}, $\lvert\widehat L(\theta)\rvert<1$ except for the finitely many $\theta\in[0,1)$ with $s\theta\in\mathbb{Z}$. 
+By dominated convergence, $\eta_\rho\to0$. 
+\end{itemize}
+In all cases $\eta_\rho\to0$, which completes the proof of $\textup{UD}_{\ell-1}\implies\textup{UD}_\ell$. 
+\end{proof}
+
+By induction, $\textup{UD}_\ell$ holds for all $\ell\geq1$, which proves the Theorem. 
+\end{proof} 
+
+
+\section{Uniform Distribution on \texorpdfstring{$\mathbb Z_a \times \mathbb Z_{a'}$}{Za x Za'}} \label{sec:modular}
+While uniform distribution results have been investigated in \cite{SAAVEDRA-ARAYA_2026}, we choose to revisit those with a simpler approach through the lens of Weyl's equidistribution theorem combined with Lemma \ref{l;irrational}. 
+
+First, for the sum of digits function.  
+
+\begin{proposition}  \label{p;sumDigits}
+Let $\mathcal{C} = \mathcal{C}_{b,D}=\{k_0<k_1<\cdots \}$, let $s$ be the largest integer such that $D$ is contained in a progression of step size $s$, 
+and let $q\geq 1$ be an integer. Set $g=\textup{gcd}(q,s)$. 
+Then the sequence 
+$ \{s_b(k_n) \mod q\}$ is asymptotically uniformly distributed on the subgroup $g\mathbb{Z}_q$ of $\mathbb{Z} _{q}$. 
+In particular, it is asymptotically uniformly distributed on $\mathbb{Z}_q$ if and only if $\textup{gcd}(q,s)=1$. 
+\end{proposition}
+
+\begin{proof}
+Every digit is a multiple of $s$, so $s_b(k_n)\in s\mathbb{Z}\subset g\mathbb{Z}$ for all $n$. 
+The uniform distribution on the subgroup $g\mathbb{Z}_q$, which has order $q/g$, has Fourier coefficients 
+$\Expectation_{x\in g\mathbb{Z}_q}e(ux/q)=\mathbf{1}_{(q/g)\mid u}$, for $u\in\mathbb{Z}_q$. 
+So it suffices to show that for every integer $u$, 
+\begin{align}\label{e:sumDigitsFourier}
+\lim_{N\to\infty} 
+\Expectation_{0\leq n<N}e\Bigl(s_b(k_n) \frac{u}{q}\Bigr) =\mathbf{1}_{(q/g)\mid u}. 
+\end{align}
+If $(q/g)\mid u$, then $s_b(k_n)u/q=\frac{s_b(k_n)}{g}\cdot\frac{u}{q/g}\in\mathbb{Z}$, and \eqref{e:sumDigitsFourier} is clear. 
+Otherwise, we apply Lemma \ref{l;irrational} with $(\alpha,\beta)=(0,u/q)$; the limit exists, and it is zero unless $(0,u/q)$ is exceptional. 
+If it were exceptional, then $0=\frac{a}{b-1}+\frac{r}{b^t}$ for some integers $a,r,t$. As $\gcd(b-1,b^t)=1$, this forces $\frac{a}{b-1}\in\mathbb{Z}$, 
+and then $\frac{su}{q}\equiv-\frac{a}{b-1}\equiv 0\mod 1$. That is, $q\mid su$, so $(q/g)\mid (s/g)u$, and since $\gcd(q/g,s/g)=1$, $(q/g)\mid u$, a contradiction. 
+\end{proof}
+
+
+Let us discuss the case of just the elements of the Cantor set.  Uniform distribution in this case is much harder to characterize.  Recall that $0$ is an allowed digit, by our standing assumption; this is important for some of the combinatorial and ergodic theoretic results. 
+
+
+
+\begin{lemma} \label{l:Allq}
+Let $\mathcal C = \mathcal C_{b,D} 
+= \{k_0<k_1 < \cdots\}$, and let $s$ be the largest integer such that $D$ is contained in a progression of step size $s$. 
+Then, for all $q\in \mathbb{N}   $, 
+the sequence $ k_n\mod q$ converges to a distribution on $\mathbb{Z} _q$. 
+That is, for all $x\in \mathbb{Z} _q$ the limit 
+\begin{equation}
+\pi_q (x) = \lim_{N\to \infty} \Expectation _{0\leq n<N} 
+\mathbf{1} _{k_n \equiv x \mod q} 
+\end{equation}
+exists. Moreover, we have 
+\begin{enumerate}
+    \item If $\gcd(q,b)=1$, then $\pi_q$ is the uniform distribution on the subgroup $g\mathbb{Z}_q$, where $g=\gcd(q,s)$. 
+    In particular, $k_n \mod q $ is asymptotically uniformly distributed on $\mathbb{Z}_q$ if and only if $\gcd(q,s)=1$. 
+
+    \item  If  $q\mid b^j$, for some integer $j\geq 1$,   
+    then $\pi_q$ is the distribution of $k_i\mod q$, for $i$ uniformly distributed on $\{0,1,\ldots,\lvert D\rvert^j-1\}$. 
+    That is, $\pi_q$ is the distribution of $\mathcal C\cap[0,b^j)\mod q$. 
+    
+    \item  In general, write $q=ru$, where $\gcd(r,b)=1$  and every prime factor of $u$ divides $b$. 
+    Then, under the isomorphism $\mathbb{Z}_q\cong\mathbb{Z}_r\times\mathbb{Z}_u$, $\pi_q$ is the product measure $\pi_r\times\pi_u$, 
+    where $\pi_r$ is described in (1), and $\pi_u$ in (2). 
+\end{enumerate}
+\end{lemma}
+
+Note in particular, that if  $q\mid b^j$, for some integer $j\geq 1$,   the Cantor set could be uniformly distributed on $\mathbb{Z} _{q}$, depending on the choice of $D$, and the smallest choice of $j$ with $q \mid b^j$.  
+
+
+\begin{proof}
+By Lemma \ref{l;irrational}, the limit $\lim_{N}\Expectation_{0\leq n<N}e(k_n\frac aq)$ exists for every integer $a$. 
+By Fourier inversion on $\mathbb{Z}_q$, the limit $\pi_q(x)$ exists for every $x$. 
+
+For (1), let $\gcd(q,b)=1$, and $g=\gcd(q,s)$. As in the proof of Proposition \ref{p;sumDigits}, it suffices to show that 
+$\lim_N\Expectation_{0\leq n<N}e(k_n\frac aq)=\mathbf{1}_{(q/g)\mid a}$. 
+If $(q/g)\mid a$, then $k_na/q\in\mathbb{Z}$, since $g\mid s\mid k_n$. 
+Otherwise, by Lemma \ref{l;irrational} the limit is zero unless $(a/q,0)$ is exceptional. 
+If it were, then $s\frac aq=\frac{c}{b-1}+\frac{r'}{b^t}$ and $0\equiv-\frac{c}{b-1}\mod 1$, for some integers $c,r',t$. 
+Then $\frac{c}{b-1}\in\mathbb{Z}$, so $b^t\frac{sa}{q}\in\mathbb{Z}$. As $\gcd(q,b)=1$, we get $q\mid sa$, and so $(q/g)\mid a$, a contradiction. 
+
+For (2), suppose that $q\mid b^j$. 
+By Proposition \ref{p;CantorStructure}, for $m\geq0$ and $0\leq i<\lvert D\rvert^j$, $k_{\lvert D\rvert^jm+i}=b^jk_m+k_i\equiv k_i\mod q$. 
+So on each block $\{\lvert D\rvert^jm+i\colon 0\leq i<\lvert D\rvert^j\}$, the residues $k_n\mod q$ have exactly the distribution of $k_i\mod q$, $0\leq i<\lvert D\rvert^j$. 
+The incomplete block contributes $O(\lvert D\rvert^j/N)$, and (2) follows. 
+
+For (3), fix $j\geq1$ with $u\mid b^j$, and let $x\in\mathbb{Z}_r$, $y\in\mathbb{Z}_u$. 
+Writing $n=\lvert D\rvert^jm+i$ as above, we have $k_n\equiv k_i\mod u$, and $k_n=b^jk_m+k_i$. 
+As $b$ is invertible modulo $r$, the condition $k_n\equiv x\mod r$ is equivalent to $k_m\equiv b^{-j}(x-k_i)\mod r$. 
+Hence, up to an error $O(\lvert D\rvert^j/N)$, 
+\begin{equation}
+\Expectation_{0\leq n<N}\mathbf{1}_{k_n\equiv x\mod r}\mathbf{1}_{k_n\equiv y\mod u}
+=\Expectation_{0\leq i<\lvert D\rvert^j}\mathbf{1}_{k_i\equiv y\mod u}\;
+\Expectation_{0\leq m<\lfloor N/\lvert D\rvert^j\rfloor}\mathbf{1}_{k_m\equiv b^{-j}(x-k_i)\mod r}. 
+\end{equation}
+As $N\to\infty$, the inner average tends to $\pi_r(b^{-j}(x-k_i))$. 
+By (1), $\pi_r$ is uniform on $g'\mathbb{Z}_r$, where $g'=\gcd(r,s)$. 
+Since $k_i\in s\mathbb{Z}\subset g'\mathbb{Z}$, and multiplication by the unit $b^{-j}$ preserves $g'\mathbb{Z}_r$, we have $\pi_r(b^{-j}(x-k_i))=\pi_r(x)$. 
+Therefore the limit is $\pi_r(x)\,\pi_u(y)$, using (2) for $\pi_u$. 
+\end{proof}
+
+
+In the particular case where $a=0$ (that is, elements of the Cantor set divisible by $q$), one has strictly positive density along this residue class.
+
+\begin{lemma}\label{lem:positiveDensity}
+    Let $\mathcal{C}=\mathcal C_{b,D}=\{k_0<k_1<\cdots\}$. Then, for any $q\in \mathbb{N}$, \begin{align*}
+        \lim_N \Expectation_{0\leq n<N}\mathbf{1}_{k_n\equiv 0\ (\text{mod }q)}>0.
+    \end{align*}
+\end{lemma}
+
+\begin{proof}
+Write $q=ru$ as in Lemma \ref{l:Allq}(3). Then $\pi_q(0)=\pi_r(0)\,\pi_u(0)$. 
+By Lemma \ref{l:Allq}(1), $\pi_r(0)=\gcd(r,s)/r>0$. 
+By Lemma \ref{l:Allq}(2), with $j$ such that $u\mid b^j$, $\pi_u(0)\geq \lvert D\rvert^{-j}>0$, because $k_0=0$. 
+\end{proof}
+
+
+We record here a result about the  distribution of 
+the pair $(k, s_b(k))$ in the modular case, for integers $k$ in a Cantor set, where $s_b(k)$ is the sum of digits function. 
+
+\begin{theorem}\label{t:modularJoint}
+Let $\mathcal{C} = \mathcal{C}_{b,D}=\{k_0<k_1<\cdots \}$. Let $s$ be the largest integer such that $D$ is contained in a progression of step size $s$.  Let $a,a'\geq 1$ be integers, and consider the distributions 
+\begin{equation}
+    (k_n \mod a,\ s_b(k_n)\mod a')\in\mathbb{Z}_a\times\mathbb{Z}_{a'}, \quad 0\leq n< N. 
+\end{equation}
+These conclusions hold. 
+\begin{enumerate}
+    \item  The limiting distribution, as $N\to\infty$, exists. 
+
+    \item The limiting distribution is uniform on $\mathbb{Z}_a\times\mathbb{Z}_{a'}$ if 
+    $\textup{gcd}(a,sb)=1$ and  $\textup{gcd}(a',s(b-1))=1$. 
+
+    \item The limiting distribution is not uniform if $\textup{gcd}(a,s)>1$, or $\textup{gcd}(a',s)>1$, or $\textup{gcd}(a,a',b-1)>1$. 
+\end{enumerate}
+\end{theorem}
+
+The sufficient condition in (2) is not necessary. 
+For instance, with $b=4$ and $D=\{0,1\}$, $k_n\mod 2$ is the last digit of $k_n$, which is asymptotically uniform on $\mathbb{Z}_2$, although $\gcd(2,b)>1$. 
+And $s_b(k_n)\mod 3$ is asymptotically uniform on $\mathbb{Z}_3$ by Proposition \ref{p;sumDigits}, although $\gcd(3,b-1)>1$. 
+
+\begin{proof}
+For (1), by Lemma \ref{l;irrational} the limit 
+\begin{equation}
+\lim_{N\to\infty}\Expectation_{0\leq n<N}e\Bigl(k_n\frac ua+s_b(k_n)\frac{u'}{a'}\Bigr)
+\end{equation}
+exists for all integers $u,u'$. By Fourier inversion on $\mathbb{Z}_a\times\mathbb{Z}_{a'}$, the limiting distribution exists. 
+
+For (2), by the Weyl criterion on $\mathbb{Z}_a\times\mathbb{Z}_{a'}$, it suffices to show that the limits above are zero for $(u,u')\not\equiv(0,0)\mod (a,a')$. 
+By Lemma \ref{l;irrational}, it suffices to show that $(u/a,u'/a')$ is not exceptional. 
+Suppose it is, so that for some integers $c$, $r$ and $t$, 
+\begin{equation}
+s\frac ua=\frac{c}{b-1}+\frac{r}{b^t}, \qquad s\frac{u'}{a'}+\frac{c}{b-1}\in\mathbb{Z}. 
+\end{equation}
+The number $x=su'/a'$ satisfies $a'x\in\mathbb{Z}$, and $y=c/(b-1)$ satisfies $(b-1)y\in\mathbb{Z}$. 
+As $x+y\in\mathbb{Z}$, both $a'y$ and $(b-1)y$ are integers, and since $\gcd(a',b-1)=1$, $y\in\mathbb{Z}$; hence also $x\in\mathbb{Z}$. 
+So $a'\mid su'$, and as $\gcd(a',s)=1$, $a'\mid u'$. 
+Then $b^tsu/a\in\mathbb{Z}$, and as $\gcd(a,sb)=1$, $a\mid u$. This is a contradiction. 
+
+For (3), if a prime $p$ divides $\gcd(a,s)$, then $k_n\equiv 0\mod p$ for all $n$, as every digit is a multiple of $s$; so the distribution is not uniform. 
+The same argument applies to $s_b(k_n)$ if $p$ divides $\gcd(a',s)$. 
+If a prime $p$ divides $\gcd(a,a',b-1)$, then $k_n\equiv s_b(k_n)\mod p$ for all $n$, since $b-1$ divides $k-s_b(k)$ for every $k$. 
+So the image of the distribution in $\mathbb{Z}_p\times\mathbb{Z}_p$ is supported on the diagonal, and it is not uniform. 
+\end{proof}
+

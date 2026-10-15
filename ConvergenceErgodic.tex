@@ -1,0 +1,120 @@
+
+\section{Ergodic Theorems} \label{s;meanErgodic}
+We specialize the discussion of the previous section to that of mean ergodic theorems along Cantor sets of integers.   The core is this Theorem for norm convergence. 
+
+\begin{theorem} \label{t:ergodic}
+Let $\mathcal C = \mathcal C _{b,D}=\{k_0<k_1<\cdots\}$, and let $s=\gcd(D)$ be the largest  step size of a progression that contains $D$. 
+Then,  for commuting unitary operators $(U,V)$ on a Hilbert space $\mathcal H$, and all $x\in \mathcal H$, 
+\begin{equation} \label{e:ergodicLimit}
+  \lim_N  \Expectation_{0\leq n<N} U^{k_n} V^{s_b(k_n)} x\quad \textup{exists in norm}. 
+ \end{equation}
+Let $\mathcal E\subset \mathbb T ^2 $ be the set of exceptional pairs \eqref{e:exceptional}, namely those $(\alpha ,\beta )$ for which 
+$s\alpha \equiv \frac{a}{b-1}+\frac {r}{b^t}$ and $s\beta \equiv - \frac{a}{b-1}$ modulo $1$, for some integers $a$, $r$ and $t\geq 0$. 
+It is countable. 
+For $(\alpha ,\beta )\in \mathcal E$, let $P_{\alpha ,\beta }$ denote the orthogonal projection onto the joint eigenspace 
+$\{y\in \mathcal H\colon Uy=e(\alpha )y, \ Vy=e(\beta )y\}$. 
+Then the limit in \eqref{e:ergodicLimit} equals 
+\begin{equation} \label{e:ergodicFormula}
+    \sum_{(\alpha ,\beta )\in \mathcal E} F(\alpha ,\beta ) \, P_{\alpha ,\beta } x , 
+\end{equation}
+where $F(\alpha ,\beta )$ denotes the limit \eqref{ee:limit}. 
+In particular, the limit depends only on the joint point spectrum of $(U,V)$ on $\mathcal E$, and it is zero if $(U,V)$ has no joint eigenvalue in $\mathcal E$. 
+\end{theorem}
+
+
+
+
+\begin{proof}
+Let $E$ be the joint spectral measure of the commuting unitaries $(U,V)$ on $\mathbb T ^2 $, so that $U^mV^{m'}=\int_{\mathbb T ^2 }e(m\alpha +m'\beta )\;dE(\alpha ,\beta )$ 
+for integers $m,m'$, and put $\nu_x(\cdot )=\langle E(\cdot )x,x\rangle$, a finite positive measure. 
+Set $F_N(\alpha ,\beta )=\Expectation_{0\leq n<N}e(k_n\alpha +s_b(k_n)\beta )$, so that 
+\begin{equation}
+\Bigl\lVert \Expectation_{0\leq n<N} U^{k_n}V^{s_b(k_n)}x - \Expectation_{0\leq n<M} U^{k_n}V^{s_b(k_n)}x \Bigr\rVert ^2 
+= \int_{\mathbb T ^2 } \lvert F_N - F_M\rvert ^2 \; d \nu_x . 
+\end{equation}
+By Lemma \ref{l;irrational}, the functions $F_N$ converge pointwise on $\mathbb T ^2 $ to a function $F$ which vanishes off $\mathcal E$. 
+As $\lvert F_N\rvert \leq 1$, dominated convergence shows that the averages are Cauchy in $\mathcal H$, proving \eqref{e:ergodicLimit}, 
+and the same estimate identifies the limit as $\bigl(\int_{\mathbb T ^2 }F\;dE\bigr)x$. 
+
+The set $\mathcal E$ is countable: there are countably many values of $\frac{a}{b-1}+\frac{r}{b^t}$, each giving at most $s$ values of $\alpha$, 
+and then $\beta$ is determined modulo $1$ by $a$ modulo $b-1$, again up to $s$ choices. 
+Since $F$ vanishes off the countable set $\mathcal E$, 
+\begin{equation}
+\int_{\mathbb T ^2 } F \; dE = \sum_{(\alpha ,\beta )\in \mathcal E} F(\alpha ,\beta )\, E(\{(\alpha ,\beta )\}) , 
+\end{equation}
+the series converging in the strong operator topology. 
+Finally, $E(\{(\alpha ,\beta )\})$ is the projection onto $\{y\colon Uy=e(\alpha )y,\ Vy=e(\beta )y\}$, which is $P_{\alpha ,\beta }$. 
+This proves \eqref{e:ergodicFormula}. 
+\end{proof}
+
+We are interested in polynomial versions of the result above, which we can obtain under stronger  assumptions. 
+
+
+
+\begin{theorem} \label{t:polyMeanErgodic}
+Let $\mathcal C = \mathcal C _{b,D}=\{k_0<k_1<\cdots\}$.  Then for all commuting unitary operators, $(U,V)$ on a Hilbert space $\mathcal H$, we have for any integer-valued polynomial $p \colon \mathbb{Z} ^2  \to \mathbb{Z} ^2 $, 
+\begin{equation}
+  \lim_N  \Expectation_{0\leq n<N}(U,V) ^{p (k_n, s_b(k_n))}  x  
+  \quad \textup{exists in norm} 
+ \end{equation}
+for all $x\in \mathcal H$. 
+Above, by $(U,V) ^{(m,m')}$ we mean $U ^{m}V ^{m'}$.  
+\end{theorem}
+
+\begin{proof} 
+The central point is that for all $\alpha \in  \mathbb T ^2  $, the limit below exists: 
+\begin{align}
+    F(\alpha)=\lim_N  F_N(\alpha), \qquad F_N(\alpha)=\Expectation_{0\leq n<N} e(\alpha \cdot  p(k_n, s_b(k_n) ) ) . 
+\end{align}
+Write $\alpha\cdot p=c_0+\tilde p$, where $c_0$ is the constant term of the real polynomial $\alpha\cdot p$. 
+If $\tilde p$ has an irrational coefficient, then $F_N(\alpha)\to0$ by Theorem \ref{t:polyUniform}. 
+Otherwise, all coefficients of $\tilde p$ are rational; let $q$ be a common denominator. 
+As in the proof of $\textup{UD}_1$ in Theorem \ref{t:polyUniform}, $e(\tilde p(x,y))$ depends only on $(x\mod q,\ y\mod q)$. 
+Hence 
+\begin{equation}
+F_N(\alpha)=e(c_0)\sum_{x,y\in\mathbb{Z}_q}e(\tilde p(x,y))\,\Expectation_{0\leq n<N}\mathbf{1}_{k_n\equiv x\mod q}\,\mathbf{1}_{s_b(k_n)\equiv y\mod q}, 
+\end{equation}
+which converges as $N\to\infty$ by Theorem \ref{t:modularJoint}(1). 
+
+By the spectral theorem for the commuting unitary operators $U$ and $V$, there is a finite positive measure $\nu_x$ on $\mathbb{T}^2$ such that 
+for all $N,M$, 
+\begin{equation}
+\Bigl\lVert \Expectation_{0\leq n<N}(U,V) ^{p (k_n, s_b(k_n))}  x-\Expectation_{0\leq n<M}(U,V) ^{p (k_n, s_b(k_n))}  x\Bigr\rVert^2
+=\int_{\mathbb{T}^2}\lvert F_N(\alpha)-F_M(\alpha)\rvert^2\;d\nu_x(\alpha). 
+\end{equation}
+The functions $F_N$ are bounded by $1$ and converge pointwise, so by dominated convergence the averages form a Cauchy sequence in $\mathcal H$. 
+\end{proof}
+
+
+ 
+
+
+
+
+
+
+
+
+
+The proof above is purely an $L^2$ result. 
+It applies to an \emph{invertible} measure preserving system $(X,\mathcal A,\mu ,T)$: take $U$ to be the Koopman operator $Uf=f\circ T$, which is then unitary on $L^2(X)$, 
+take $V$ to be the identity, and take $p(x,y)=(p_1(x),0)$ for an integer valued polynomial $p_1$ of one variable. 
+We conclude that for $f\in L^2(X)$ the averages 
+\begin{equation}
+ \Expectation _{0\leq n<N} f\circ T^{p_1(k_n)} 
+\end{equation}
+converge in $L^2(X)$. 
+Invertibility is used here only to make the Koopman operator unitary; for general $T$ it is an isometry, and one would instead argue from the Herglotz representation of the positive definite sequence $m\mapsto \int_X f\cdot f\circ T^{m}\;d\mu$.
+It is natural to ask for other forms of convergence. 
+Kra and Shalom \cite{kra2025ergodicaverageslargeintersection} raise the question of pointwise convergence, focusing on the case of rational spectra IP sets. 
+For integer Cantor sets, the question is whether, for all measure preserving systems $(X,m,T)$ and $f\in L^2(X)$, the limits 
+\begin{equation}
+    \lim_N \Expectation_{\mathcal C \cap [N]}  f(T^{k} x)
+\end{equation}
+exist for almost every $x\in X$. 
+This has recently been established by Brokering Pinilla, Iosevich and Krause \cite{pinilla2026pointwiseconvergenceergodicaverages}*{Theorem 1.2}. 
+For every Cantor set satisfying our standing assumption \eqref{e:standing}, every $\sigma$-finite measure preserving system $(X,\mu,T)$, and every $f\in L^p(X)$ with $2\leq p<\infty$, 
+they show that the averages $\Expectation_{k\in\mathcal C\cap[N]}f(T^kx)$ converge for $\mu$-almost every $x$. 
+Pointwise convergence for the polynomial averages $\Expectation_{0\leq n<N}f(T^{p(k_n)}x)$, and for the averages weighted by the sum of digits function as in Theorem \ref{t:ergodic}, remains open, as far as we know.
+ 
+

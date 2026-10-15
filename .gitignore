@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Lean / Lake build output (Mathlib sources and oleans, ~7 GB)
+# Restore with: cd formalization && lake exe cache get && lake build
+formalization/.lake/
+
+# LaTeX intermediates.  The .bbl is kept deliberately: arXiv wants it, and it
+# is the only record of the bibliography as typeset.
+*.aux
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Course rosters: student names and emails, nothing to do with this paper.
+# Kept out of version control deliberately.
+Claude outputs/

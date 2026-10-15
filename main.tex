@@ -1,0 +1,259 @@
+\documentclass[12pt]{amsart}
+\usepackage{amsmath,amsthm,amscd,amsfonts,amssymb,graphicx,color,mathabx,enumitem,mathtools,comment,amsrefs}
+     
+
+
+\setcounter{tocdepth}{3} %TOC indentation
+    \makeatletter
+    \def\l@subsection{\@tocline{2}{0pt}{2.9pc}{5pc}{}}
+    \def\l@subsubsection{\@tocline{2}{0pt}{5pc}{7.5pc}{}}
+    \makeatother
+\usepackage[margin=2.8cm]{geometry}
+\renewcommand{\baselinestretch}{1.15}
+\usepackage[bookmarksnumbered, colorlinks, plainpages]{hyperref}
+    \hypersetup{colorlinks=true, linkcolor=blue, citecolor=magenta, filecolor=magenta, urlcolor=cyan}
+\allowdisplaybreaks
+    \mathtoolsset{showonlyrefs,showmanualtags} 
+\numberwithin{equation}{section}
+\newtheorem{theorem}[equation]{Theorem}
+\newtheorem{lemma}[equation]{Lemma}
+\newtheorem{proposition}[equation]{Proposition}
+\newtheorem{corollary}[equation]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[equation]{Definition}
+\newtheorem{conjecture}[equation]{Conjecture}
+\newtheorem{hypothesis}[equation]{Hypothesis}
+% \theoremstyle{remark}
+\newtheorem{remark}[equation]{Remark}
+\newtheorem{question}[equation]{Question}
+\usepackage{scalerel} 
+\DeclareMathOperator*{\Expectation}{\scalerel*{\mathbb{E}}{\textstyle\sum}}
+\DeclareMathOperator*{\Convolution}{\scalerel*{\Asterisk}{\textstyle\sum}}
+
+
+\begin{document}
+\title[Integer Cantor Sets]{Integer Cantor Sets:\\ Arithmetic Combinatorial Properties}
+
+\author[Burgin]{Alex Burgin} 
+    \address{School of Mathematics, Georgia Institute of Technology, Atlanta GA 30332, USA}
+    \email{alexander.burgin@gatech.edu}
+    \thanks{Research of AB supported in part by the Department of Education Graduate Assistance in Areas of National Need program at the Georgia Institute of Technology (Award \# P200A240169)}
+
+\author[Fragkos]{Anastasios Fragkos}
+\address{ School of Mathematics, Georgia Institute of Technology, Atlanta GA 30332, USA}
+    \email {anastasiosfragkos@gatech.edu}
+
+\author[Lacey]{Michael T. Lacey} 
+    \address{ School of Mathematics, Georgia Institute of Technology, Atlanta GA 30332, USA}
+    \email {lacey@math.gatech.edu}
+    \thanks{Research of MTL and AB supported in part by a grant from the US National Science Foundation, DMS-2247254.}
+
+ \author[Mena]{Dario Mena}
+    \address{Centro de Investigaci\'{o}n en Matem\'{a}tica Pura y Aplicada \\ Escuela de Matem\'{a}tica, Universidad de Costa Rica}
+    \email{dario.menaarias@ucr.ac.cr}
+    \thanks{Research of DM partially supported by grant C1012 from Universidad de Costa Rica}
+
+\author[Reguera]{Maria Carmen Reguera} 
+ \address{Universidad de M\'alaga}
+    \email{m.reguera@uma.es}
+    \thanks{Research of MCR supported by the Spanish Ministry of Science and Innovation through the projects RYC2020-030121-IAEI/10.13039/501100011033/ and PID2022-136619NB-I00 funded by MCIN/AEI/10.13039/501100011033/FEDER, UE}
+
+\begin{abstract}
+    Cantor sets of integers, namely the integers whose base $b$ digits all lie in a fixed set $D$, have a rich set of arithmetic combinatorial properties. 
+    Assuming that $0$ is an allowed digit, we show the following. 
+    (a) These sets are van der Corput, and hence intersective, and polynomials evaluated along them are intersective, with a positive density of return times. 
+    Allowing signed digits, we give examples with power savings in the van der Corput property, of arbitrarily small dimension. 
+    (b) A real polynomial evaluated at the pair consisting of an element of the Cantor set and its sum of digits is uniformly distributed modulo $1$, uniformly over intervals of indices, exactly when the polynomial has an irrational non-constant coefficient. 
+    For a polynomial map into $\mathbb{R}^2$, the correct condition is instead that every non-trivial integer combination of the two coordinates be irrational. 
+    We also give sufficient conditions, and separately some necessary conditions, for these pairs to be uniformly distributed in residue classes. 
+    (c) Polynomial mean ergodic theorems hold along Cantor sets. 
+    (d) If the digits are at most $(b-1)/2$, the dilates of the Cantor set have metric Poissonian pair correlation, with a bound on the Hausdorff dimension of the exceptional set in terms of the additive energy of $D$. 
+\end{abstract}
+
+
+ 
+\maketitle 
+
+
+
+
+\tableofcontents 
+
+
+\section{Introduction} % (fold)
+\label{sec:introduction}
+
+
+
+
+
+We establish arithmetic combinatorial properties of Cantor sets of integers.  
+The most accessible example of such a set of integers would be the integer analog of the classical middle third Cantor set: all non-negative integers $n$ that, when written in base $3$, do not have $1$ as a digit.   
+The properties we address in this paper are  (a) intersective and van der Corput properties, 
+(b) uniform distribution for polynomials evaluated along Cantor sets, 
+(c) mean polynomial ergodic theorems,  and 
+(d) metric pair correlation.  
+
+Let $\mathcal{C}_{b,D}$ denote a \emph{classical integer Cantor set} defined by a base $b\geq 3$ 
+and a collection of digits 
+$ D \subset \{0,1,\ldots,b-1\}$. 
+That is, 
+\begin{equation}
+\mathcal{C}_{b, D}  \coloneqq 
+\Bigl\{ 
+ \sum_{j=0}^k d_j b ^{j} 
+ \colon  k\in \mathbb{N}_0 ,\ d_j \in  D
+\Bigr\}.
+\end{equation}
+The middle third Cantor set corresponds to $\mathcal{C}_{3,\{ 0, 2 \}}$, that is, base $b=3$  
+and allowed digits $D= \{0,2\}$.  
+A key fact that we use is that the representation of a number in a Cantor set is uniquely determined by its digits.
+
+\smallskip 
+\noindent\textbf{Standing assumption.} 
+Throughout the paper, with the single exception of \S\ref{sub:signed}, the base $b\geq 3$ and the digit set $D$ satisfy 
+\begin{equation}\label{e:standing}
+D\subset \{0,1,\ldots ,b-1\}, \qquad 0\in D, \qquad 2\leq \lvert D\rvert <b. 
+\end{equation}
+We write $\mathcal C = \mathcal C_{b,D}$, and list its elements in increasing order as $0=k_0<k_1<k_2<\cdots$. 
+
+\begin{remark} 
+The condition $0\in D$ is natural. It is necessary for $\mathcal C$ to be intersective (see \S\ref{sec;intersective}). 
+It also makes the map from base-$\lvert D\rvert$ expansions of $n$ to $k_n$ an order preserving bijection (Proposition \ref{p;CantorStructure}), 
+so that the first $\lvert D\rvert^\ell$ elements of $\mathcal C$ are exactly $\mathcal C\cap[0,b^\ell)$. 
+Without it, the base-$\lvert D\rvert$ expansion of $n$ no longer indexes $\mathcal C$, since such expansions have variable length and leading zeros are not permitted.
+For instance, for $b=3$ and $D=\{1,2\}$ we have $k_0=1$, $k_1=2$, $k_2=4$, while Proposition \ref{p;CantorStructure}(i) would predict $k_2=d_0+d_1b=7$.
+In particular the block identity $k_{\lvert D\rvert^in+j}=b^ik_n+k_j$ of Proposition \ref{p;CantorStructure}(ii) fails, and several of our arguments do not apply. 
+The case $\lvert D \rvert=1$ is excluded, since then $D=\{0\}$ and $\mathcal{C}=\{0\}$. 
+\end{remark}
+  
+
+A more detailed summary of the results of this paper follows, with additional details in each section below.    
+We establish simple sufficient conditions for a Cantor set $\mathcal C$ to be \emph{intersective} with power savings, that is, there are concrete constants $\delta >0$ and $C$ so that for all large $N$, every subset $A\subset \{1, \ldots, N\}$ with $\lvert A\rvert \geq CN^{1- \delta }$ contains two elements whose difference is a non-zero element of the Cantor set. 
+In fact these sets $\mathcal C$ are \emph{van der Corput} as well, and can be of arbitrarily small dimension while still having power savings. 
+These examples use digit sets which contain negative digits, and so are the one place where we depart from our standing assumption; see \S\ref{sub:signed}.  These are deterministic examples, which complement the recent result of Green \cite{green2023sarkozystheoremshiftedprimes} showing that the shifted primes also satisfy the stronger van der Corput property with power savings.  
+
+
+For a Cantor set of integers to be intersective, it is necessary that $0$ is an allowed digit. We show every Cantor set satisfying our standing assumption is van der Corput, and hence intersective. We record the elementary bound $\tau(\mathcal C,N)\leq \log b/\log N$ in Proposition \ref{p:logSavings}; whether these sets have a power savings we do not know, see Question \ref{q:powersavings}.  
+We discuss the intersective property for certain polynomials evaluated along Cantor sets. 
+That these sets are intersective already follows from the polynomial IP recurrence theorem of Bergelson, Furstenberg and McCutcheon \cite{MR1417769}, since a Cantor set contains an IP set. 
+What is new is a density statement for the set of return times, measured along the natural enumeration of the Cantor set.  
+These results are presented in \S \ref{sec;intersective}.  
+
+The polynomial intersective result uses Furstenberg's correspondence principle, 
+much as it first appeared in \cite{MR0498471}, and depends in part on the uniform distribution results for Cantor sets established by Coquet 
+\cites{MR506123,MR578819}. We discuss uniform distribution modulo $1$ in \S\ref{sec:uniformDistributionMod1} and obtain extensions of those results to the modular case in \S\ref{sec:modular}, a theme that was the focus of \cite{ERDOS199899} and \cite{SAAVEDRA-ARAYA_2026}.   
+The uniform distribution results imply certain mean ergodic theorems, recorded in \S\ref{s;meanErgodic}.  The question of pointwise convergence arises. For the linear averages along Cantor sets, it has recently been answered by Brokering Pinilla, Iosevich and Krause \cite{pinilla2026pointwiseconvergenceergodicaverages}, for $L^p$ functions with $2\leq p<\infty$; the polynomial case remains open, as far as we know. 
+
+The last section \S\ref{sec;PairCorrelation} notes that Cantor sets whose digits are at most $(b-1)/2$ enjoy a property stronger than classical uniform distribution, namely \emph{metric pair correlation}, with a bound on the dimension of the exceptional set in terms of the additive energy of $D$. 
+Extensions of this observation would be interesting to pursue.  
+
+
+\smallskip 
+
+
+ \input{historical}
+
+\section{Preliminaries}
+
+\subsection{Notation} 
+We use standard Vinogradov notation, thus $A\ll B$ means that $\lvert A\rvert \leq C \lvert B\rvert$, 
+for an absolute constant $C$. By $A=B+O(\delta)$ we mean that $A-B \ll \delta$.  
+
+For integers $N$, we set $[N] = \{1,2, \ldots, N\}$. 
+For a finite set $A$ and $f \colon A\to \mathbb C$, we write 
+\begin{equation}
+    \Expectation_A f = \frac{1}{\lvert A\rvert} 
+    \sum_{n\in A} f(n). 
+\end{equation}
+And we will frequently write $\Expectation_{[N]}=\Expectation_N$.  
+We index the elements of a Cantor set from $n=0$, and averages over the index $n$ are written $\Expectation_{0\leq n<N}$, or $\Expectation_{M\leq n<N}$; 
+the distinction from $\Expectation_{[N]}$ matters only in that $k_0=0$ is included.  
+When integrating over a probability space $(X,P)$, we will write $\Expectation_X$. 
+Exponentials are denoted by $e(x)=e^{2 \pi i x}$. 
+
+\subsection{Measure Preserving Systems} 
+We recall standard notions around measure preserving systems.  
+In particular, $(X,\mathcal A,\mu,T)$ 
+is a \emph{measure preserving system} if $(X,\mathcal A,\mu)$ is a probability space, and $T \colon X\to X$ preserves $\mu$ measure, in that $\mu(T^{-1} A)=\mu(A)$ for all measurable $A\in \mathcal A$.  
+
+
+
+
+
+
+\subsection{Cantor Sets} % (fold)
+\label{sub:cantor_sets}
+
+We collect here important, yet elementary, properties of the Cantor sets we work with. 
+Below, the elements of a Cantor set $\mathcal C$ are written as $k_0<k_1 < \cdots$, and the \emph{sum of digits function} $s_b(k)$ is done relative to the base $b$ of the Cantor set. Thus, writing $k=\sum_{c=0}^t k_c b^c$, with $k_c \in \{0,...,b-1\}$, we have $s_b(k)= \sum_{c=0}^t k_c $.  
+Since $D\subset\{0,\ldots,b-1\}$, for $k=\sum_j d_jb^j\in\mathcal C$ we have $s_b(k)=\sum_j d_j$. 
+
+We also let $s$ denote the largest integer such that $D$ is contained in an arithmetic progression of step size $s$. 
+Since $0\in D$, we have $s=\gcd(D)$, and in particular $s\mid d$ for all $d\in D$, and $\mathcal C\subset s\mathbb{Z}$.
+ 
+
+% \textbf{color}{blue}{Note:Digit set is required be in the 'natural residues'.} 
+
+
+\begin{proposition} \label{p;CantorStructure}
+    Let $\mathcal C=\mathcal C_{b,D}=(k_n)_{n\geq 0}$, and write $D=\{0=d_0<d_1<\cdots<d_{|D|-1}\}$.  Then, the following are true: 
+    \begin{enumerate}
+        \item[(i)] For any $n\in \mathbb{N}_0$, written in base-$|D|$ as $n=\sum_{c=0}^tn_c|D|^c$ with $n_c\in \{0,...,|D|-1\}$, then $k_n=\sum_{c=0}^td_{n_c}b^c$.  And $s_b(k_n)=\sum_{c=0}^td_{n_c}$.  
+        %Note: we do not allow leading zeroes in the base-$|D|$ representation of $n$ unless $0\not \in D$. \\
+        \item[(ii)] For any $i\geq 1 $, $n \geq 0$, and $0\leq j < |D|^i$, $k_{|D|^in+j}=b^ik_n+k_j$, 
+        and $s_b(k_{|D|^in+j})=s_b(k_n)+s_b(k_j)$. 
+    \end{enumerate}
+\end{proposition}
+
+\begin{proof}
+    With $0$ as an allowed digit, the point (i) is clear, because the map $\phi:\mathbb{N}_0\rightarrow \mathcal C$ given by  \begin{align*} n&\mapsto \sum_{c=0}^td_{n_c}b^c\end{align*} 
+    is both bijective and monotone (with respect to increasing orderings on $\mathbb{N}_0$ and $\mathcal C$). \\
+    
+    For the point (ii), write $n=\sum_{c=0}^tn_c|D|^c$ and $j=\sum_{c=0}^{i-1}j_c|D|^c$ with $n_c,j_c\in \{0,...,|D|-1\}$. Then, $k_n=\sum_{c=0}^td_{n_c}b^c$ and $k_j=\sum_{c=0}^{i-1}d_{j_c}b^c$. Note that since the most significant digit of $j$ is at most in the $(i-1)$-st place, we may write $|D|^in+j=\sum_{c=i}^{t+i}n_{c-i}|D|^c+\sum_{c=0}^{i-1}j_c|D|^c$, so that, by part (i) $k_{|D|^in+j}=\sum_{c=i}^{t+i}d_{n_{c-i}}b^c+\sum_{c=0}^{i-1}d_{j_c}b^c$. By factoring $b^i$ out of the first sum and reindexing, the result follows.
+
+
+\end{proof} 
+
+
+
+
+
+
+
+
+
+
+
+
+% subsection cantor_sets (end)
+
+
+% Section 
+\input{sarkozy}
+
+\input{jointUniform}
+
+  
+
+
+
+\input{ConvergenceErgodic}
+
+\input{Poisson}
+
+
+
+
+ 
+
+% amsrefs supplies its own bibliography style (amsrn.bst); do not set \bibliographystyle here. 
+\bibliography{bibliography.bib}
+
+
+% section quantitative_bound (end)
+
+
+ 
+
+\end{document}
