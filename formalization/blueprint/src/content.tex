@@ -31,7 +31,9 @@ spent where it will actually close.
   \item \textbf{Chapters \ref{chap:expsum} and \ref{chap:pudu} are hard but
     unblocked.} They need limits of infinite products of complex numbers,
     Weyl's criterion, and a two-variable polynomial induction. All of the
-    ingredients exist in Mathlib; the work is long but ordinary.
+    ingredients exist in Mathlib; the work is long but ordinary. Chapter
+    \ref{chap:expsum} is now complete, and Chapter \ref{chap:pudu} is complete
+    apart from its induction step, Theorem \ref{thm:UDstep}.
   \item \textbf{Chapter \ref{chap:residue} is unblocked and moderate.} It is
     finite Fourier analysis on $\Z_q$ plus the results of Chapter
     \ref{chap:expsum}.
@@ -962,71 +964,169 @@ The quantitative bridge between them, $\abs{1 - e(x)} = 2\sin(\pi\norm{x})
 \chapter{Polynomial uniform distribution}
 \label{chap:pudu}
 
-This chapter formalizes Section 4. It is the longest unblocked piece.
+This chapter formalizes Section 4; the file is
+\texttt{IntegerCantorSets/PUDU.lean}. Everything below is formalized
+\emph{except} the induction step, Theorem \ref{thm:UDstep}: its Lean statement
+exists and typechecks, but its proof is \texttt{sorry}. Consequently Theorem
+\ref{thm:polyUniform} is reduced to Theorem \ref{thm:UDstep} in Lean but is
+not yet unconditionally proved.
+
+Polynomials in two variables over $\R$ are represented by
+\texttt{MvPolynomial (Fin 2) $\R$}, evaluated at integer points
+(\texttt{polyEval}). The blueprint's ring $(\R/\Q)[X,Y]$ is not formed: a
+quotient ring is unnecessary, because ``$\overline{Q}$ vanishes'' is simply
+``every coefficient is rational'', and Mathlib has \texttt{Irrational} on
+individual reals. This keeps every statement of the chapter first order in the
+coefficients.
 
 \begin{definition}
   \label{def:irrationalPoly}
-  \lean{IntegerCantorSet.IsIrrationalPoly}
-  A polynomial $p : \Z^2 \to \R$ is \emph{irrational} if some non-constant
-  monomial has an irrational coefficient. Its \emph{irrational degree} is the
-  largest $\ell$ such that some degree $\ell$ monomial has an irrational
-  coefficient.
+  \lean{IntegerCantorSet.IsIrrationalPoly, IntegerCantorSet.IrrDegLE}
+  \leanok
+  A polynomial $p \in \R[X,Y]$ is \emph{irrational} if some non-constant
+  monomial has an irrational coefficient (\texttt{IsIrrationalPoly}). Its
+  \emph{irrational degree is at most} $\ell$ if every monomial of total degree
+  greater than $\ell$ has a rational coefficient (\texttt{IrrDegLE}).
+
+  The irrational degree is not introduced as a number. Every statement below is
+  phrased with the ``at most'' predicate, which is what the induction needs,
+  and \texttt{irrDegLE\_totalDegree} supplies the bound $\ell = \deg p$, so the
+  predicate is always available for some $\ell$.
 \end{definition}
 
 \begin{definition}[PUDU]
   \label{def:PUDU}
-  \lean{IntegerCantorSet.IsPUDU}
+  \lean{IntegerCantorSet.IsPUDU, IntegerCantorSet.UniformAvg}
+  \leanok
   \uses{def:irrationalPoly}
   A sequence $(x_n)$ in $\Z^2$ is \emph{PUDU} if for every irrational
-  polynomial $p$, the averages of $e(p(x_n))$ over $M \leq n < N$ tend to $0$
-  as $N - M \to \infty$.
+  polynomial $p$ and every $\varepsilon > 0$ there is a $K$ such that
+  \[
+    \norm{ \frac{1}{N-M}\sum_{M \leq n < N} \e{p(x_n)} } < \varepsilon
+    \qquad \text{whenever } M + K \leq N .
+  \]
+  This is exactly the uniform-window shape of the conclusion of Theorem
+  \ref{thm:irrational}, reused rather than restated.
+  \texttt{UniformAvg} names the displayed condition for a single $p$, and
+  \texttt{cantorSeq} is the sequence $n \mapsto (\enum(n), \sd(\enum(n)))$.
 \end{definition}
 
 \begin{lemma}[Bad directions]
   \label{lem:badDirections}
   \lean{IntegerCantorSet.badDirections}
-  Let $Q$ be homogeneous of degree $\ell \geq 1$ with $\overline{Q} \neq 0$ in
-  $(\R/\Q)[X,Y]$. Then there are integers $(c_1,c_2) \neq (0,0)$ such that
-  $\partial_w \overline{Q} = 0$ implies $c_1w_1 + c_2w_2 = 0$.
+  \leanok
+  \uses{def:irrationalPoly}
+  Let $p \in \R[X,Y]$ have an irrational coefficient on some monomial of total
+  degree $\ell \geq 1$. Then there are integers $(c_1,c_2) \neq (0,0)$ such
+  that every $w \in \Z^2$ for which $\partial_w p$ has only rational
+  coefficients in degree $\ell - 1$ satisfies $c_1w_1 + c_2w_2 = 0$.
+
+  Here $\partial_w p = w_1 \partial_X p + w_2 \partial_Y p$
+  (\texttt{dirDeriv}, built from Mathlib's \texttt{MvPolynomial.pderiv}); the
+  blueprint's condition $\partial_w \overline{Q} = 0$ is the rationality of
+  those coefficients. Directions are taken in $\Z^2$, not $\Q^2$, because that
+  is all Theorem \ref{thm:UDstep} supplies.
 \end{lemma}
 \begin{proof}
   \uses{lem:badDirections}
-  $w \mapsto \partial_w \overline{Q}$ is $\Q$-linear on $\Q^2$; its kernel is
-  not all of $\Q^2$, since $\R/\Q$ is a $\Q$-vector space and hence
-  torsion-free, so a vanishing derivative would force $\overline{Q}$ constant.
-  A proper subspace of $\Q^2$ lies in a rational line.
+  \leanok
+  Let $m_0$ be the monomial of degree $\ell$ with irrational coefficient. Since
+  $\ell \geq 1$, $m_0$ involves $X$ or $Y$; say $m_0 = m + e_X$ with
+  $\deg m = \ell - 1$ (the other case is symmetric). Put
+  \[
+    u = (m_X + 1)\,p_{m + e_X}, \qquad v = (m_Y + 1)\,p_{m + e_Y},
+  \]
+  so that $u$ is irrational. By \texttt{MvPolynomial.coeff\_pderiv} the
+  coefficient of $m$ in $\partial_w p$ is $w_1 u + w_2 v$, so it suffices to
+  show (\texttt{exists\_bad\_direction}) that the $w \in \Z^2$ with
+  $w_1u + w_2v \in \Q$ lie on a rational line, given that $u$ or $v$ is
+  irrational.
+
+  If the only such $w$ is $0$, take $(c_1,c_2) = (1,0)$. Otherwise fix
+  $w^0 \neq 0$ with $w^0_1u + w^0_2v \in \Q$ and take
+  $(c_1,c_2) = (-w^0_2, w^0_1)$, which is non-zero. For any other such $w$ set
+  $d = w^0_1w_2 - w^0_2w_1$. Then
+  \[
+    w^0_1(w_1u + w_2v) - w_1(w^0_1u + w^0_2v) = d\,v, \qquad
+    w^0_2(w_1u + w_2v) - w_2(w^0_1u + w^0_2v) = -d\,u ,
+  \]
+  and both left-hand sides are rational. If $d \neq 0$ this makes $u$ and $v$
+  both rational, a contradiction; so $d = 0$, which is the assertion
+  $c_1w_1 + c_2w_2 = 0$. No quotient ring and no dimension theory over $\Q$ is
+  used.
 \end{proof}
 
 \begin{theorem}[Base case]
   \label{thm:UD1}
   \lean{IntegerCantorSet.UD_one}
-  \uses{thm:irrational}
-  The conclusion of Definition \ref{def:PUDU} holds for all $p$ of irrational
-  degree $1$.
+  \leanok
+  \uses{thm:irrational, def:PUDU}
+  Assume the standing assumption. The conclusion of Definition \ref{def:PUDU}
+  holds for the sequence $n \mapsto (\enum(n), \sd(\enum(n)))$ and every
+  irrational $p$ of irrational degree at most $1$.
 \end{theorem}
 \begin{proof}
   \uses{thm:UD1}
-  Split off the rational higher-degree part $p'$, whose exponential depends
-  only on $(x, y)$ modulo a common denominator $q$; expand the indicator of
-  each residue class in finite Fourier series and apply Theorem
-  \ref{thm:irrational} to each shifted pair
-  $(\alpha + u/q, \beta + u'/q)$, at least one coordinate of which is
-  irrational.
+  \leanok
+  Let $\alpha$ and $\beta$ be the coefficients of $X$ and $Y$ in $p$, and let
+  $g = p - p_0 - \alpha X - \beta Y$ (\texttt{ratPart}). Since $p$ has
+  irrational degree at most $1$ and is irrational, $\alpha$ or $\beta$ is
+  irrational, and every coefficient of $g$ is rational.
+
+  A product of the denominators over the support of $g$ gives a $q \geq 1$
+  with $q\,g_m \in \Z$ for every $m$ (\texttt{exists\_common\_denom}); hence
+  $g(x,y) - g(x',y') \in \Z$ whenever $x \equiv x'$ and $y \equiv y' \pmod q$
+  (\texttt{polyEval\_sub\_int\_of\_dvd}), so $\e{g(x,y)}$ depends only on
+  $(x,y)$ modulo $q$. Expanding the indicator of each residue class by
+  orthogonality of the additive characters of $\Z/q$,
+  \[
+    \frac{1}{q}\sum_{t < q} \e{\frac{tz}{q}}
+      = \begin{cases} 1 & q \mid z \\ 0 & \text{otherwise,}\end{cases}
+  \]
+  (\texttt{sum\_expc\_orthogonality}, a geometric sum) and reordering the
+  resulting four-fold sum gives the finite Fourier expansion
+  \[
+    \e{g(x,y)} = \sum_{s,t < q} c_{s,t}\, \e{\frac{sx + ty}{q}}
+  \]
+  (\texttt{fourier\_expansion}). Therefore
+  \[
+    \e{p(\enum(n), \sd(\enum(n)))}
+      = \sum_{s,t<q} \e{p_0} c_{s,t}\,
+        \Phi_{\alpha + s/q,\ \beta + t/q}(n) ,
+  \]
+  a fixed finite linear combination of the sums of Theorem
+  \ref{thm:irrational}. Each shifted pair $(\alpha + s/q, \beta + t/q)$ has an
+  irrational coordinate, hence is not exceptional: an exceptional pair has
+  $s(D)\alpha$ and $s(D)\beta$ both rational by Definition
+  \ref{def:exceptional} (\texttt{not\_exceptional\_of\_irrational}, which uses
+  $s(D) \geq 1$, \texttt{stepSize\_pos}). So Theorem \ref{thm:irrational}
+  applies to each of the $q^2$ terms; taking $K$ to be the largest of the $q^2$
+  thresholds and $\varepsilon/(1 + \sum_{s,t}\abs{c_{s,t}})$ as the tolerance
+  for each gives the claim.
 \end{proof}
 
 \begin{theorem}[Induction step]
   \label{thm:UDstep}
   \lean{IntegerCantorSet.UD_succ}
-  \uses{lem:badDirections, lem:enum-block, lem:Lhat-abs-one}
-  For $\ell \geq 2$, the conclusion for irrational degree $\ell - 1$ implies
-  it for irrational degree $\ell$.
+  \leanok
+  \uses{lem:badDirections, lem:enum-block, lem:Lhat-abs-one, def:PUDU}
+  Assume the standing assumption and let $\ell \geq 1$. If the conclusion of
+  Definition \ref{def:PUDU} holds for every irrational polynomial of
+  irrational degree at most $\ell$, then it holds for every irrational
+  polynomial of irrational degree at most $\ell + 1$.
+
+  \emph{The Lean statement exists and typechecks; the Lean proof is
+  \texttt{sorry}.}
 \end{theorem}
 \begin{proof}
   \uses{thm:UDstep}
   Split $[M,N)$ into blocks of length $\delta^\rho$ using Lemma
   \ref{lem:enum-block}, apply Cauchy--Schwarz in the block index, and observe
-  that the resulting difference polynomial $R_{j,j'}$ has irrational degree
-  $\ell-1$ unless $(j,j')$ is \emph{bad}, meaning
+  that the resulting difference polynomial $R_{j,j'}$, the derivative of $p$ in
+  the integer direction
+  $w = (\enum(j) - \enum(j'), \sd(\enum(j)) - \sd(\enum(j')))$ plus lower
+  order terms, has irrational degree $\ell$ by Lemma \ref{lem:badDirections}
+  unless $(j,j')$ is \emph{bad}, meaning
   $c_1\enum(j) + c_2\sd(\enum(j))$ agrees for $j$ and $j'$. The proportion
   $\eta_\rho$ of bad pairs tends to $0$: if $c_2 = 0$ it is $\delta^{-\rho}$;
   if $c_1, c_2 \neq 0$ it is $O(\rho\,\delta^{-\rho})$ since
@@ -1037,13 +1137,21 @@ This chapter formalizes Section 4. It is the longest unblocked piece.
 
 \begin{theorem}[Theorem 4.3]
   \label{thm:polyUniform}
-  \lean{IntegerCantorSet.isPUDU}
+  \lean{IntegerCantorSet.isPUDU, IntegerCantorSet.UD_le}
+  \leanok
   \uses{thm:UD1, thm:UDstep}
+  Assume the standing assumption. Then
   $\bigl((\enum(n), \sd(\enum(n)))\bigr)_{n \geq 0}$ is PUDU.
 \end{theorem}
 \begin{proof}
   \uses{thm:polyUniform}
-  Induction on the irrational degree.
+  Induction on $\ell$ in ``irrational degree at most $\ell$''
+  (\texttt{UD\_le}): the base case is Theorem \ref{thm:UD1} and the step is
+  Theorem \ref{thm:UDstep}. Any irrational $p$ has irrational degree at most
+  $\deg p$ (\texttt{irrDegLE\_totalDegree}), which supplies the $\ell$. In Lean
+  this reduction is complete and carries no \texttt{sorry} of its own, but it
+  inherits the \texttt{sorry} of Theorem \ref{thm:UDstep}, so the proof is not
+  marked complete.
 \end{proof}
 
 \chapter{Distribution in residue classes}

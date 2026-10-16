@@ -5,8 +5,9 @@ A Lean 4 / Mathlib formalization of the paper in the parent directory, with a
 
 ## Status
 
-The project **builds and contains no `sorry`**. Chapters 2, 3 and 4 are
-complete.
+The project **builds**. Chapters 2, 3 and 4 are complete and sorry-free;
+Chapter 5 is complete apart from its induction step. There is exactly
+**one `sorry`** in the project, `UD_succ` in `PUDU.lean`.
 
 - **Chapter 2 is complete**: `Structure.lean` proves **Proposition 2.5**,
   the enumeration theorem (`thm:enum-bij`, `lem:enum-block`), so `enum` is the
@@ -22,21 +23,30 @@ complete.
   rests on — `abs_Lhat_eq_one_iff`, `blockProduct` and `window_split` — and
   the escape lemma `exceptional_of_tendsto`. This is the result on which
   Chapters 5, 6 and 8 of the blueprint all depend.
+- **Chapter 5 is complete except for the induction step**: `PUDU.lean` sets up
+  polynomial uniform distribution for `MvPolynomial (Fin 2) ℝ` and proves
+  **the base case** `UD_one` (`thm:UD1`), the first consumer of
+  `tendsto_expSum`, together with `badDirections` (`lem:badDirections`) and
+  the whole finite-Fourier apparatus it needs. `UD_succ` (`thm:UDstep`) is
+  **stated but proved by `sorry`**; `UD_le` and `isPUDU` (`thm:polyUniform`,
+  Theorem 4.3) reduce the theorem to it, so they are proved *modulo*
+  `UD_succ` and carry `sorryAx`.
 
-The remaining blueprint chapters (5–9) have no Lean statements yet; four of
+The remaining blueprint chapters (6–9) have no Lean statements yet; four of
 their results are blocked on material absent from Mathlib (see below).
 
 | | |
 |---|---|
 | Lean toolchain | `leanprover/lean4:v4.35.0` |
 | Mathlib | pinned at tag `v4.35.0` |
-| Lean declarations | 20 definitions/structures, 104 theorem statements |
-| Proved | 104 (all of them) |
+| Lean declarations | 30 definitions/structures, 137 theorem statements |
+| Proved | 134; three (`UD_succ`, `UD_le`, `isPUDU`) depend on the one `sorry` |
 | Blueprint items | 65 (20 definitions, 45 results), 8 marked blocked |
-| `sorry` | 0 |
+| `sorry` | 1 (`UD_succ`) |
 
-Every theorem in the project depends only on `propext`, `Classical.choice`
-and `Quot.sound`; in particular `IntegerCantorSet.range_enum`,
+Every theorem in the project except `UD_succ`, `UD_le` and `isPUDU` depends
+only on `propext`, `Classical.choice` and `Quot.sound`; those three also
+depend on `sorryAx`. In particular `IntegerCantorSet.range_enum`,
 `IntegerCantorSet.enum_block`, `IntegerCantorSet.vdcConst_cantorSet_le`,
 `IntegerCantorSet.intersectiveConst_cantorSet_le`,
 `IntegerCantorSet.isIntersective_cantorSet`,
@@ -90,6 +100,28 @@ Proved so far:
   `block_count_le`, `norm_window_le`.
 - Chapter 4, Lemma 4.7: `escape_core`, `exceptional_of_tendsto`,
   `exists_int_of_mem_cantorSet`, `tendsto_expSum`.
+- Chapter 5, two-variable monomials and irrational polynomials: `mono2`,
+  `mono2_apply_zero`, `mono2_apply_one`, `finsupp_fin2_ext`, `mono2_self`,
+  `mono2_eq_zero_iff`, `mono2_one_zero`, `mono2_zero_one`, `sum_support_eq`,
+  `IsIrrationalPoly`, `IrrDegLE`, `IrrDegLE.mono`, `irrDegLE_totalDegree`,
+  `irrational_coeff_of_irrDegLE_one`.
+- Chapter 5, PUDU and bad directions: `polyEval`, `IsPUDU`, `UniformAvg`,
+  `cantorSeq`, `dirDeriv`, `coeff_dirDeriv`, `exists_bad_direction`,
+  `badDirections`.
+- Chapter 5, non-exceptional pairs: `stepSize_pos`,
+  `not_exceptional_of_irrational` (an exceptional pair has both coordinates
+  rational).
+- Chapter 5, finite Fourier analysis mod `q`: `expc_intCast`,
+  `expc_eq_of_sub_int`, `expc_natCast_mul`, `sum_expc_orthogonality`,
+  `sum_comm4`, `sum_sum_mul_mul`, `dvd_sub_natCast_iff`, `fourierCoeff`,
+  `fourier_expansion`.
+- Chapter 5, the rational part: `exists_common_denom`,
+  `polyEval_sub_int_of_dvd`, `ratPart`, `coeff_ratPart`, `ratPart_coeff_rat`,
+  `polyEval_eq_add_ratPart`.
+- Chapter 5, the base case (Theorem 4.3 for irrational degree 1): `UD_one`.
+
+Stated but **not proved**: `UD_succ` (`sorry`). `UD_le` and `isPUDU` are
+proved from `UD_one` and `UD_succ`, hence hold modulo that one `sorry`.
 
 ## Layout
 
@@ -99,6 +131,7 @@ IntegerCantorSets/Defs.lean       Chapter 2 definitions
 IntegerCantorSets/Structure.lean  Chapter 2: the enumeration theorem
 IntegerCantorSets/VanDerCorput.lean  Chapter 3: intersective / vdC
 IntegerCantorSets/ExpSum.lean     Chapter 4: the key exponential sum
+IntegerCantorSets/PUDU.lean       Chapter 5: polynomial uniform distribution
 blueprint/src/content.tex         The blueprint (all 8 chapters)
 blueprint/print/print.pdf         Readable PDF, builds with plain pdflatex
 ```
@@ -145,11 +178,18 @@ The blueprint's Chapter 1 argues for this order.
 4. ~~**`thm:irrational`**~~ — done. Lemma 4.7, the key exponential sum, with
    `lem:Lhat-abs-one`, `lem:blockProduct`, `lem:windowSplit` and
    `lem:escape`. Chapters 5, 6 and 8 are no longer blocked on Chapter 4.
-5. **`lem:noCarry`** — additive energy is multiplicative over digits. Finitary
+5. ~~**`thm:UD1`**~~ — done. The base case of Chapter 5, the first consumer of
+   `thm:irrational`, together with `lem:badDirections` and the finite Fourier
+   apparatus (orthogonality mod `q`, common denominators, the rational part of
+   a polynomial of irrational degree 1).
+6. **`thm:UDstep`** — the one `sorry` in the project, and now the single thing
+   standing between the project and Theorem 4.3. Block decomposition by
+   `enum_block'`, Cauchy–Schwarz in the block index, `badDirections` applied
+   to the difference polynomial, and three counts of bad pairs, the last of
+   which needs `∫₀¹ |L̂(θ)|^{2ρ} dθ → 0` from `abs_Lhat_eq_one_iff` by
+   dominated convergence.
+7. **`lem:noCarry`** — additive energy is multiplicative over digits. Finitary
    and independent of everything else, so it parallelizes.
-6. **Chapter 5 (`chap:pudu`)**, polynomial uniform distribution, is the
-   longest remaining unblocked piece and now has its only prerequisite,
-   `thm:irrational`, available.
 
 ## Known obstructions
 
