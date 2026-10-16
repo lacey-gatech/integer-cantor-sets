@@ -1,6 +1,7 @@
 import IntegerCantorSets.Defs
 import IntegerCantorSets.Structure
 import IntegerCantorSets.VanDerCorput
+import IntegerCantorSets.Signed
 import IntegerCantorSets.ExpSum
 import IntegerCantorSets.PUDU
 import IntegerCantorSets.Residue

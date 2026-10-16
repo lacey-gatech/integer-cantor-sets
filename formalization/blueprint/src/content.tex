@@ -718,17 +718,30 @@ Section \ref{chap:vdc} are applied to $H = \abs{\Cbd} \setminus \{0\}$.
 
 \begin{definition}[Signed Cantor set]
   \label{def:signedCantorSet}
-  \lean{IntegerCantorSet.signedCantorSet}
+  \lean{IntegerCantorSet.signedCantorSet,
+    IntegerCantorSet.SignedStanding,
+    IntegerCantorSet.signed_digits_unique}
+  \leanok
   Let $R_b \subseteq (-b, b)$ be a complete residue system mod $b$ with
   $0 \in R_b$, and $D \subseteq R_b$ with $0 \in D$ and
-  $2 \leq \abs{D} < b$. Define $\Cbd \subseteq \Z$ by the same digit formula.
+  $2 \leq \abs{D} < b$. Define $\Cbd \subseteq \Z$ by the same digit formula,
+  $\Cbd = \{\sum_{j < J} c_j b^j \colon J \geq 0,\ c_j \in D\}$.
   Uniqueness of the digit representation still holds, by induction on the
-  least significant digit.
+  least significant digit: if $\sum_{j<J} c_j b^j = \sum_{j<J} c'_j b^j$ with
+  all $c_j, c'_j \in R_b$, then $b \mid c_0 - c'_0$, so $c_0 = c'_0$ because
+  $R_b$ is a complete residue system, and one divides by $b$ and induces.
+
+  The hypotheses on $(b, R_b, D)$ are collected in the Lean structure
+  \texttt{SignedStanding}, with $R_b$ a complete residue system encoded as
+  $\abs{R_b} = b$ together with pairwise incongruence mod $b$.  They are not
+  vacuous: \texttt{vdcConst\_signed\_le\_example} instantiates them at
+  $b = 5$, $R_5 = \{-2,-1,0,1,2\}$, $D = \{-1,0,1\}$ and $S = \{0,1\}$.
 \end{definition}
 
 \begin{theorem}[Proposition 3.7]
   \label{thm:powerSavings}
   \lean{IntegerCantorSet.vdcConst_signed_le}
+  \leanok
   \uses{def:signedCantorSet, def:vdcConst}
   Let $S$ be a finite set of integers with $S - S \subseteq D$ and
   $\abs{S} = \sigma > 1$. Then for $N \geq b$,
@@ -737,7 +750,8 @@ Section \ref{chap:vdc} are applied to $H = \abs{\Cbd} \setminus \{0\}$.
   \]
 \end{theorem}
 \begin{proof}
-  \uses{thm:powerSavings}
+  \uses{thm:powerSavings, lem:fejer, lem:vdcConst-antitone}
+  \leanok
   Take $P_J(x) = \prod_{j \leq J} \abs{\sigma^{-1}\sum_{s \in S}
   e(s b^j x)}^2$. Expanding, the frequencies are $\sum_j (s_j - t_j) b^j$,
   whose digits $s_j - t_j$ lie in $S - S \subseteq D \subseteq R_b
@@ -746,6 +760,31 @@ Section \ref{chap:vdc} are applied to $H = \abs{\Cbd} \setminus \{0\}$.
   $\sigma^{J+1}$ diagonal terms contribute to the constant term, giving
   $a_0 = \sigma^{-(J+1)}$. Interpolate using
   Lemma \ref{lem:vdcConst-antitone}.
+
+  Formalized by observing that this product of Fej\'er kernels \emph{is} the
+  Fej\'er kernel of the single block set
+  \[
+    E_K = \Bigl\{ \textstyle\sum_{j<K} s_j b^j \colon s_j \in S \Bigr\}
+    \subseteq \Z, \qquad K = J+1,
+  \]
+  since $\sum_{e \in E_K} e(ex)$ factors as
+  $\prod_{j<K} \sum_{s \in S} e(s b^j x)$.  So no new admissible polynomial is
+  built: Lemma \ref{lem:fejer} (\texttt{vdcConst\_le\_of\_differences\_mem})
+  is applied to the increasing enumeration of $E_K$ translated down by
+  $\min E_K$, which is legitimate because the frequencies enter only through
+  $\cos(2\pi n x)$ and translating $E_K$ does not change its difference set.
+  $E_K$ is built by the recursion $E_{K+1} = S + b\,E_K$
+  (\texttt{signedBlock}); $\abs{E_K} = \sigma^K$
+  (\texttt{card\_signedBlock}) is the uniqueness of digits, differences of
+  its elements lie in $\Cbd$ (\texttt{sub\_mem\_signedCantorSet}) and are
+  $< b^K$ in absolute value (\texttt{abs\_sub\_signedBlock\_lt}), both by
+  induction on $K$.  Lemma \ref{lem:fejer} then gives
+  $\tau(\Cbd, b^K) \leq \sigma^{-K}$, and the interpolation takes
+  $K = \lfloor \log_b N \rfloor$, for which $b^K \leq N < b^{K+1}$.
+
+  Throughout, $\tau$ is the constant of Chapter \ref{chap:vdc} applied to the
+  set of naturals $H = \abs{\Cbd} \setminus \{0\}$; no signed version of
+  \texttt{cosPoly}, \texttt{IsAdmissible} or \texttt{vdcConst} is introduced.
 \end{proof}
 
 \chapter{The key exponential sum}

@@ -15,7 +15,14 @@ complete.
 - **Chapter 3 is complete**: `VanDerCorput.lean` proves **Proposition 3.3**
   (`thm:logSavings`), `τ(C,N) ≤ log b / log N` for `N ≥ 2`, and its
   intersective counterpart `thm:logSavings-intersective`,
-  `I(C,N) ≤ 2 log b / log N` for `N ≥ b`.
+  `I(C,N) ≤ 2 log b / log N` for `N ≥ b`. `Signed.lean` adds §3.1,
+  **Proposition 3.7** (`thm:powerSavings`, `vdcConst_signed_le`): for a signed
+  digit set `D` inside a complete residue system `R_b ⊆ (-b,b)` and a finite
+  `S ⊆ ℤ` with `S - S ⊆ D` and `σ = |S| > 1`,
+  `τ(C,N) ≤ σ N^{-log σ / log b}` for `N ≥ b` — a power saving. The signed
+  Cantor set is a `Set ℤ`; `τ` is the constant of `VanDerCorput.lean` applied
+  to `H = natAbs '' C \ {0} ⊆ ℕ`, which is legitimate because frequencies
+  enter the cosine polynomial only through `cos(2π n x)`.
 - **Chapter 4 is complete**: `ExpSum.lean` proves **Lemma 4.7**
   (`thm:irrational`), the convergence of the key exponential sum
   `N⁻¹ ∑_{n<N} e(κ(n)α + s_b(κ(n))β)`, together with the three lemmas it
@@ -42,16 +49,15 @@ complete.
   Chapter 5 is not used.
 
 The remaining blueprint chapters (7–9) have no Lean statements yet; four of
-their results are blocked on material absent from Mathlib (see below). Two
-unblocked items remain outside them: `lem:noCarry` and the signed-digit
-section of Chapter 3.
+their results are blocked on material absent from Mathlib (see below). One
+unblocked item remains outside them: `lem:noCarry`.
 
 | | |
 |---|---|
 | Lean toolchain | `leanprover/lean4:v4.35.0` |
 | Mathlib | pinned at tag `v4.35.0` |
-| Lean declarations | 42 definitions/structures, 248 theorem statements |
-| Proved | 248 (all of them) |
+| Lean declarations | 45 definitions/structures, 263 theorem statements |
+| Proved | 263 (all of them) |
 | Blueprint items | 66 (20 definitions, 46 results), 8 marked blocked |
 | `sorry` | 0 |
 
@@ -61,6 +67,7 @@ and `Quot.sound`; in particular `IntegerCantorSet.range_enum`,
 `IntegerCantorSet.intersectiveConst_cantorSet_le`,
 `IntegerCantorSet.isIntersective_cantorSet`,
 `IntegerCantorSet.exists_dvd_of_isIntersective`,
+`IntegerCantorSet.vdcConst_signed_le`,
 `IntegerCantorSet.tendsto_expSum`, `IntegerCantorSet.isPUDU`,
 `IntegerCantorSet.sumDigits_equidistributed`,
 `IntegerCantorSet.limitDistribution`, `IntegerCantorSet.positive_density`
@@ -95,6 +102,15 @@ Proved so far:
   `vdcConst_cantorSet_le`, `isVdC_cantorSet`,
   `intersectiveConst_cantorSet_le`, `isIntersective_cantorSet`,
   `exists_dvd_of_isIntersective`.
+- Chapter 3, §3.1, signed digits (`Signed.lean`): `SignedStanding` with
+  `base_pos`, `abs_digit_lt`, `eq_zero_of_dvd`; `signed_digits_unique` and
+  `signed_digits_eq_zero` (uniqueness of the signed digit representation);
+  `zero_mem_signedCantorSet`, `mem_signedCantorSet_cons`; the block set
+  `signedBlock` with `mem_signedBlock_succ`, `signedBlock_nonempty`,
+  `card_signedBlock`, `sub_mem_signedCantorSet`, `abs_sub_signedBlock_lt`;
+  `vdcConst_signed_pow_le` (the bound at `N = b^K`),
+  **`vdcConst_signed_le`** (Proposition 3.7) and
+  `vdcConst_signed_le_example` (the case `b = 5`, `D = {-1,0,1}`).
 - Chapter 4, the character `e(x)` and the distance to `ℤ`: `expc_zero`,
   `expc_add`, `norm_expc`, `expc_ne_zero`, `expc_eq_one_iff`, `expc_zpow`,
   `distInt_nonneg`, `distInt_le_half`, `round_eq_of_abs_sub_lt`,
@@ -200,6 +216,7 @@ lakefile.toml, lean-toolchain     Lean project
 IntegerCantorSets/Defs.lean       Chapter 2 definitions
 IntegerCantorSets/Structure.lean  Chapter 2: the enumeration theorem
 IntegerCantorSets/VanDerCorput.lean  Chapter 3: intersective / vdC
+IntegerCantorSets/Signed.lean     Chapter 3, §3.1: signed digits, power savings
 IntegerCantorSets/ExpSum.lean     Chapter 4: the key exponential sum
 IntegerCantorSets/PUDU.lean       Chapter 5: polynomial uniform distribution
 IntegerCantorSets/Residue.lean    Chapter 6: distribution in residue classes
