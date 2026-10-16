@@ -5,7 +5,7 @@ A Lean 4 / Mathlib formalization of the paper in the parent directory, with a
 
 ## Status
 
-The project **builds and contains no `sorry`**. Chapters 2, 3, 4 and 5 are
+The project **builds and contains no `sorry`**. Chapters 2, 3, 4, 5 and 6 are
 complete.
 
 - **Chapter 2 is complete**: `Structure.lean` proves **Proposition 2.5**,
@@ -31,17 +31,28 @@ complete.
   counts of bad pairs, the last of which is
   `∫₀¹ |L̂(θ)|^{2ρ} dθ → 0` by `abs_Lhat_eq_one_iff` and dominated
   convergence.
+- **Chapter 6 is complete**: `Residue.lean` proves **Proposition 5.1**
+  (`prop:sumDigits`, `sumDigits_equidistributed`), **Lemma 5.3**
+  (`lem:Allq`, `limitDistribution` and its three parts
+  `limitDistribution_coprime`, `limitDistribution_dvd_pow`,
+  `limitDistribution_mul`), **Lemma 5.5** (`lem:positiveDensity`,
+  `positive_density`) and **Theorem 5.7** (`thm:modularJoint`,
+  `joint_limitDistribution`, `joint_uniform` and the three non-uniformity
+  cases). It is finite Fourier analysis on `ℤ_q` over `tendsto_expSum`;
+  Chapter 5 is not used.
 
-The remaining blueprint chapters (6–9) have no Lean statements yet; four of
-their results are blocked on material absent from Mathlib (see below).
+The remaining blueprint chapters (7–9) have no Lean statements yet; four of
+their results are blocked on material absent from Mathlib (see below). Two
+unblocked items remain outside them: `lem:noCarry` and the signed-digit
+section of Chapter 3.
 
 | | |
 |---|---|
 | Lean toolchain | `leanprover/lean4:v4.35.0` |
 | Mathlib | pinned at tag `v4.35.0` |
-| Lean declarations | 36 definitions/structures, 198 theorem statements |
-| Proved | 198 (all of them) |
-| Blueprint items | 65 (20 definitions, 45 results), 8 marked blocked |
+| Lean declarations | 42 definitions/structures, 248 theorem statements |
+| Proved | 248 (all of them) |
+| Blueprint items | 66 (20 definitions, 46 results), 8 marked blocked |
 | `sorry` | 0 |
 
 Every theorem in the project depends only on `propext`, `Classical.choice`
@@ -49,8 +60,11 @@ and `Quot.sound`; in particular `IntegerCantorSet.range_enum`,
 `IntegerCantorSet.enum_block`, `IntegerCantorSet.vdcConst_cantorSet_le`,
 `IntegerCantorSet.intersectiveConst_cantorSet_le`,
 `IntegerCantorSet.isIntersective_cantorSet`,
-`IntegerCantorSet.exists_dvd_of_isIntersective` and
-`IntegerCantorSet.tendsto_expSum` and `IntegerCantorSet.isPUDU`.
+`IntegerCantorSet.exists_dvd_of_isIntersective`,
+`IntegerCantorSet.tendsto_expSum`, `IntegerCantorSet.isPUDU`,
+`IntegerCantorSet.sumDigits_equidistributed`,
+`IntegerCantorSet.limitDistribution`, `IntegerCantorSet.positive_density`
+and `IntegerCantorSet.joint_limitDistribution`.
 
 Proved so far:
 
@@ -149,6 +163,35 @@ Proved so far:
   `polyEval_substAffine_cantorSeq`, `polyEval_diffPoly_cantorSeq`,
   `polyEval_blockDiff_cantorSeq`, `mem_badPairs_of_not_irrationalPoly`,
   **`UD_succ`**, `UD_le`, **`isPUDU`**.
+- Chapter 6, counting in residue classes: `countMod`, `densityMod`,
+  `countMod_eq_sum`, `countMod_le`, `countMod_mono`, `countMod_zero`,
+  `countMod_le_add`, `countMod2`, `densityMod2`, `countMod2_eq_sum`.
+- Chapter 6, finite Fourier inversion: `expc_indicator`, `countMod_fourier`,
+  `tendsto_of_tendsto_ofReal`, `tendsto_densityMod_complex`,
+  `tendsto_densityMod`, `tendsto_densityMod_re`, and the two-dimensional
+  `countMod2_fourier`, `tendsto_densityMod2_complex`,
+  `tendsto_densityMod2_re`, `tendsto_densityMod2`.
+- Chapter 6, the arithmetic of the step size: `stepSize_dvd_enum`,
+  `stepSize_dvd_sumDigits_enum`, `div_gcd_dvd_of_dvd_mul`,
+  `expc_eq_one_of_dvd`, `dvd_of_eq_intCast`, `sub_one_dvd_of_eq_zero`,
+  `isInt_of_coprime`, `coprime_div_gcd_pow` (the `b`-free part of `q`).
+- Chapter 6, the exceptional pairs that do not arise:
+  `not_exceptional_sumDigits`, `not_exceptional_enum`,
+  `not_exceptional_joint`.
+- Chapter 6, uniform distribution on a subgroup: `sum_filter_dvd`,
+  `fourier_subgroup`, `tendsto_densityMod_subgroup`,
+  **`sumDigits_equidistributed`** (Proposition 5.1), `sumDigits_uniform_iff`.
+- Chapter 6, the limiting distribution of `κ(n) mod q` (Lemma 5.3):
+  `expPhi_enum`, `expPhi_sumDigits`, **`limitDistribution`**,
+  `limitDistribution_coprime`, `limitDistribution_uniform_iff`,
+  `countMod_block`, `limitDistribution_dvd_pow`, `linSol`, `linSol_lt`,
+  `lin_cond_iff`, `limitDistribution_mul` (the product structure).
+- Chapter 6, positive density and the joint distribution:
+  **`positive_density`** (Lemma 5.5), `expPhi_joint`,
+  **`joint_limitDistribution`** (Theorem 5.7), `JointUniform`,
+  `joint_uniform`, `not_jointUniform_of_countMod2_eq_zero`,
+  `not_jointUniform_of_gcd_enum`, `not_jointUniform_of_gcd_sumDigits`,
+  `not_jointUniform_of_gcd_sub_one`.
 
 ## Layout
 
@@ -159,6 +202,7 @@ IntegerCantorSets/Structure.lean  Chapter 2: the enumeration theorem
 IntegerCantorSets/VanDerCorput.lean  Chapter 3: intersective / vdC
 IntegerCantorSets/ExpSum.lean     Chapter 4: the key exponential sum
 IntegerCantorSets/PUDU.lean       Chapter 5: polynomial uniform distribution
+IntegerCantorSets/Residue.lean    Chapter 6: distribution in residue classes
 blueprint/src/content.tex         The blueprint (all 8 chapters)
 blueprint/print/print.pdf         Readable PDF, builds with plain pdflatex
 ```
@@ -215,10 +259,13 @@ The blueprint's Chapter 1 argues for this order.
    three counts of bad pairs, the last of which needs
    `∫₀¹ |L̂(θ)|^{2ρ} dθ → 0` from `abs_Lhat_eq_one_iff` by dominated
    convergence. Chapter 6 (`chap:residue`) is no longer blocked.
-7. **`lem:noCarry`** — additive energy is multiplicative over digits. Finitary
+7. ~~**Chapter 6 (`chap:residue`)**~~ — done. Distribution in residue classes:
+   finite Fourier inversion on `ℤ_q` over `thm:irrational`, which supplies
+   every Fourier coefficient. Chapter 5 turned out not to be needed.
+8. **`lem:noCarry`** — additive energy is multiplicative over digits. Finitary
    and independent of everything else, so it parallelizes.
-8. **Chapter 6 (`chap:residue`)**, distribution in residue classes: finite
-   Fourier analysis on `ℤ_q` plus Chapters 4 and 5, both now available.
+9. **The signed-digit section of Chapter 3** (`def:signedCantorSet`,
+   `thm:powerSavings`): the only other unblocked piece left.
 
 ## Known obstructions
 

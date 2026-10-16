@@ -1197,66 +1197,276 @@ coefficients.
 \chapter{Distribution in residue classes}
 \label{chap:residue}
 
-This chapter formalizes Section 5. Everything here is finite Fourier analysis
-on $\Z_q$ layered over Theorem \ref{thm:irrational}.
+This chapter formalizes Section 5; the file is
+\texttt{IntegerCantorSets/Residue.lean}. Everything below is formalized, with
+no \texttt{sorry}. It is finite Fourier analysis on $\Z_q$ layered over
+Theorem \ref{thm:irrational}, which supplies every Fourier coefficient that
+occurs; the polynomial uniform distribution of Chapter \ref{chap:pudu} is not
+needed here.
+
+Counting is done with
+\[
+  \texttt{countMod}\,f\,q\,x\,N = \#\{n < N : f(n) \equiv x \bmod q\},
+  \qquad
+  \texttt{densityMod}\,f\,q\,x\,N = \tfrac1N \texttt{countMod}\,f\,q\,x\,N ,
+\]
+and \texttt{countMod}$_2$, \texttt{densityMod}$_2$ are the two-dimensional
+versions, for a pair of sequences and a pair of moduli. ``The sequence has a
+limiting distribution $\pi_q$'' is formalized as: for each $x$ separately, the
+real sequence $N \mapsto \texttt{densityMod}\,f\,q\,x\,N$ converges. Since
+$\Z_q$ is finite this is the same as weak convergence of measures, and no
+measure theory is needed. Residues are naturals throughout, so $x$ ranges over
+$\N$ and the statements are invariant under $x \mapsto x + q$ by construction.
+
+\begin{lemma}[Fourier inversion on $\Z_q$]
+  \label{lem:fourierMod}
+  \lean{IntegerCantorSet.countMod_fourier, IntegerCantorSet.tendsto_densityMod,
+    IntegerCantorSet.countMod2_fourier, IntegerCantorSet.tendsto_densityMod2}
+  \leanok
+  For $q \geq 1$ and any $f : \N \to \N$,
+  \[
+    \texttt{countMod}\,f\,q\,x\,N
+      = \frac1q \sum_{u < q} \e{-\tfrac{ux}{q}} \sum_{n<N} \e{\tfrac{u f(n)}{q}} .
+  \]
+  Consequently, if for every $u < q$ the average
+  $N^{-1}\sum_{n<N} \e{u f(n)/q}$ converges to $c(u)$, then
+  $\texttt{densityMod}\,f\,q\,x\,N$ converges to
+  $\frac1q\sum_{u<q} \e{-ux/q}\,c(u)$, for every $x$. The same two statements
+  hold on $\Z_a \times \Z_{a'}$ for a pair $(f,g)$.
+\end{lemma}
+\begin{proof}
+  \uses{lem:fourierMod}
+  \leanok
+  Orthogonality of the additive characters of $\Z_q$
+  (\texttt{sum\_expc\_orthogonality}, already available from Chapter
+  \ref{chap:pudu}) gives
+  $\frac1q\sum_{u<q}\e{u(m-x)/q} = \mathbf 1_{m \equiv x \bmod q}$; summing
+  this over $n < N$ at $m = f(n)$ and exchanging the two sums is the displayed
+  identity. For the limit, divide by $N$ and apply the identity with the inner
+  average in place of the inner sum; the outer sum is finite, so the limit
+  passes through it. The two-dimensional statement multiplies the two
+  indicators and exchanges three sums.
+
+  The limit is produced in $\C$ and converted to $\R$ through continuity of
+  $\mathrm{Re}$: \texttt{tendsto\_densityMod} takes the real value as a
+  hypothesis (``this Fourier inverse equals $v$''), while
+  \texttt{tendsto\_densityMod\_re} states the limit as the real part of the
+  inverse, which is what the existence statements below use.
+\end{proof}
 
 \begin{proposition}[Proposition 5.1]
   \label{prop:sumDigits}
-  \lean{IntegerCantorSet.sumDigits_equidistributed}
-  \uses{thm:irrational, def:stepSize}
+  \lean{IntegerCantorSet.sumDigits_equidistributed,
+    IntegerCantorSet.sumDigits_uniform_iff}
+  \leanok
+  \uses{thm:irrational, def:stepSize, lem:fourierMod}
   With $g = \gcd(q, s)$, the sequence $\sd(\enum(n)) \bmod q$ is
-  asymptotically uniformly distributed on the subgroup $g\Z_q$; uniform on
-  $\Z_q$ exactly when $\gcd(q,s) = 1$.
+  asymptotically uniformly distributed on the subgroup $g\Z_q$: for every $x$,
+  \[
+    \lim_{N \to \infty} \frac{\#\{n<N : \sd(\enum(n)) \equiv x \bmod q\}}{N}
+      = \begin{cases} g/q & g \mid x \\ 0 & \text{otherwise.}\end{cases}
+  \]
+  In particular it is asymptotically uniformly distributed on all of $\Z_q$ if
+  and only if $\gcd(q,s) = 1$.
 \end{proposition}
 \begin{proof}
   \uses{prop:sumDigits}
-  Compute the Fourier coefficients of the uniform measure on $g\Z_q$ and apply
-  Theorem \ref{thm:irrational} at $(\alpha,\beta) = (0, u/q)$.
+  \leanok
+  Every digit is a multiple of $s$, so $g \mid s \mid \sd(\enum(n))$ for all
+  $n$ (\texttt{stepSize\_dvd\_sumDigits}). The Fourier coefficients of the
+  uniform measure on $g\Z_q$ are $\mathbf 1_{(q/g) \mid u}$, so by Lemma
+  \ref{lem:fourierMod} it suffices to show
+  \[
+    \lim_{N\to\infty} \frac1N \sum_{n<N} \e{\sd(\enum(n))\tfrac uq}
+      = \mathbf 1_{(q/g)\mid u}, \qquad u < q .
+  \]
+  If $(q/g) \mid u$ every summand is $1$, because $g \mid \sd(\enum(n))$.
+  Otherwise apply Theorem \ref{thm:irrational} at $(\alpha,\beta) = (0,u/q)$:
+  the limit is $0$ unless $(0,u/q)$ is exceptional. If it were, then
+  $0 = \frac{a}{b-1} + \frac{r}{b^t} + k$ for integers $a,r,k$; clearing
+  denominators and using $\gcd(b-1,b^t) = 1$ forces $(b-1) \mid a$
+  (\texttt{sub\_one\_dvd\_of\_eq\_zero}), so $\frac{a}{b-1} \in \Z$ and then
+  $s\frac uq \in \Z$, i.e.\ $q \mid su$. Since
+  $\gcd(q/g, s/g) = 1$ this gives $(q/g) \mid u$
+  (\texttt{div\_gcd\_dvd\_of\_dvd\_mul}), a contradiction.
+
+  The Fourier inverse is evaluated once and for all in
+  \texttt{fourier\_subgroup}: reindexing $u = (q/g)v$ turns
+  $\frac1q\sum_{u<q}\e{-ux/q}\mathbf 1_{(q/g)\mid u}$ into
+  $\frac1q\sum_{v<g}\e{-vx/g}$, which orthogonality evaluates to $g/q$ or $0$.
+  The ``in particular'' is the case $x = 1$ together with uniqueness of
+  limits.
 \end{proof}
 
 \begin{lemma}[Lemma 5.3]
   \label{lem:Allq}
-  \lean{IntegerCantorSet.limitDistribution}
-  \uses{thm:irrational, lem:enum-block}
-  For every $q$, $\enum(n) \bmod q$ has a limiting distribution $\pi_q$ on
-  $\Z_q$. If $\gcd(q,b) = 1$ then $\pi_q$ is uniform on $g\Z_q$,
-  $g = \gcd(q,s)$. If $q \mid b^j$ then $\pi_q$ is the distribution of
-  $\Cbd \cap [0,b^j)$ mod $q$. In general, writing $q = ru$ with
-  $\gcd(r,b)=1$ and $u$ supported on the primes dividing $b$, $\pi_q$ is the
-  product $\pi_r \times \pi_u$.
+  \lean{IntegerCantorSet.limitDistribution,
+    IntegerCantorSet.limitDistribution_coprime,
+    IntegerCantorSet.limitDistribution_uniform_iff,
+    IntegerCantorSet.limitDistribution_dvd_pow,
+    IntegerCantorSet.limitDistribution_mul}
+  \leanok
+  \uses{thm:irrational, lem:enum-block, lem:fourierMod}
+  For every $q \geq 1$, $\enum(n) \bmod q$ has a limiting distribution $\pi_q$
+  on $\Z_q$. Moreover:
+  \begin{enumerate}
+    \item If $\gcd(q,b) = 1$ then $\pi_q$ is uniform on $g\Z_q$,
+      $g = \gcd(q,s)$; it is uniform on $\Z_q$ if and only if $\gcd(q,s)=1$.
+    \item If $q \mid b^j$ then $\pi_q(x)$ is
+      $\delta^{-j}\#\{i < \delta^j : \enum(i) \equiv x \bmod q\}$, the
+      distribution of $\Cbd \cap [0,b^j) \bmod q$.
+    \item If $q = ru$ with $\gcd(r,b) = 1$ and $u \mid b^j$, then
+      $\pi_q(x) = \pi_r(x)\,\pi_u(x)$ for every $x$, with $\pi_r$ as in (1) and
+      $\pi_u$ as in (2).
+  \end{enumerate}
+  Part (3) is the product measure $\pi_r \times \pi_u$ of the paper: $\gcd(r,u)
+  = 1$ is automatic from $\gcd(r,b)=1$ and $u \mid b^j$, and under the Chinese
+  remainder isomorphism $\Z_q \cong \Z_r \times \Z_u$ the pair attached to $x$
+  is $(x \bmod r, x \bmod u)$, so the displayed identity for all $x$ is exactly
+  the product statement. The isomorphism itself is never formed.
 \end{lemma}
 \begin{proof}
   \uses{lem:Allq}
-  Fourier inversion on $\Z_q$ for existence, Theorem \ref{thm:irrational} for
-  the coprime case, Lemma \ref{lem:enum-block} for the $b$-adic case, and the
-  Chinese remainder theorem for the general case.
+  \leanok
+  Existence: by Theorem \ref{thm:irrational} the limit of
+  $\frac1N\sum_{n<N}\e{\enum(n)\frac uq}$ exists for every $u$, and Lemma
+  \ref{lem:fourierMod} turns this into convergence of each $\pi_q(x)$.
+
+  (1) As in Proposition \ref{prop:sumDigits}, with $s \mid \enum(n)$ in place
+  of $s \mid \sd(\enum(n))$ and $(\alpha,\beta) = (u/q,0)$. If $(u/q,0)$ were
+  exceptional then $0 \equiv -\frac{c}{b-1} \bmod 1$ puts $\frac{c}{b-1}$ in
+  $\Z$ directly, whence $b^t\frac{su}{q} \in \Z$; as $\gcd(q,b)=1$ this gives
+  $q \mid su$ and again $(q/g) \mid u$.
+
+  (2) By Lemma \ref{lem:enum-block}, for $i < \delta^j$ one has
+  $\enum(\delta^jm+i) = b^j\enum(m) + \enum(i) \equiv \enum(i) \bmod q$, so a
+  complete block of length $\delta^j$ contributes exactly
+  $A = \#\{i<\delta^j : \enum(i) \equiv x\}$ (\texttt{countMod\_block}), and
+  $\texttt{countMod}(\delta^jM) = MA$. For general $N$, write
+  $N = \delta^jK + F$ with $F < \delta^j$; monotonicity of the count and the
+  bound $C(N) \leq C(M) + (N-M)$ for $M \leq N$, where $C$ is the count, give
+  \[
+    \abs{ \tfrac{1}{N}C(N) - A\delta^{-j} } \leq \delta^j/N ,
+  \]
+  which tends to $0$. This replaces the paper's $O(\delta^j/N)$ by an explicit
+  inequality.
+
+  (3) Let $\Lambda = \delta^j$ and $w = b^j$, so $\gcd(w,r) = 1$. For
+  $i < \Lambda$ let $y_i < r$ be the unique solution of
+  $w\,y + \enum(i) \equiv x \bmod r$ (\texttt{linSol}, defined through
+  $(w)^{-1}$ in \texttt{ZMod r}, and characterized by \texttt{lin\_cond\_iff}).
+  Since $\enum(\Lambda m + i) = w\,\enum(m) + \enum(i)$ and $u \mid w$, the
+  Chinese remainder theorem gives
+  \[
+    \enum(\Lambda m+i) \equiv x \bmod ru
+    \iff \enum(i) \equiv x \bmod u \ \text{ and }\ \enum(m) \equiv y_i \bmod r,
+  \]
+  so, summing over a block,
+  $\texttt{countMod}\,q\,x\,(\Lambda M)
+    = \sum_{i \in S} \texttt{countMod}\,r\,y_i\,M$ with
+  $S = \{i<\Lambda : \enum(i) \equiv x \bmod u\}$. Dividing by $\Lambda M$ and
+  letting $M \to \infty$, part (1) evaluates each inner limit as $\pi_r(y_i)$.
+  Finally $g' = \gcd(r,s)$ divides $\enum(i)$, so
+  $w\,y_i \equiv x \bmod g'$, and $\gcd(g',b) = 1$ gives
+  $g' \mid y_i \iff g' \mid x$; hence $\pi_r(y_i) = \pi_r(x)$ for every $i$ and
+  the limit is $\abs{S}\Lambda^{-1}\pi_r(x) = \pi_u(x)\pi_r(x)$. The limit over
+  all $N$ exists by the first paragraph, so it agrees with this limit over the
+  subsequence $N = \Lambda M$; no second error analysis is needed.
 \end{proof}
+
+Note in particular that if $q \mid b^j$ for some $j \geq 1$, the Cantor set
+could be uniformly distributed on $\Z_q$, depending on the choice of $D$ and
+the smallest $j$ with $q \mid b^j$.
 
 \begin{lemma}[Lemma 5.5]
   \label{lem:positiveDensity}
   \lean{IntegerCantorSet.positive_density}
+  \leanok
   \uses{lem:Allq}
-  For every $q$, the set $\{n : q \mid \enum(n)\}$ has positive density.
+  For every $q \geq 1$, the set $\{n : q \mid \enum(n)\}$ has a density, and
+  that density is strictly positive.
 \end{lemma}
 \begin{proof}
   \uses{lem:positiveDensity}
-  $\pi_q(0) = \pi_r(0)\pi_u(0) \geq \frac{\gcd(r,s)}{r}\,\delta^{-j} > 0$,
-  the second factor because $\enum(0) = 0$.
+  \leanok
+  The density exists by Lemma \ref{lem:Allq} at $x = 0$; call it $c$. For
+  positivity the formalization does not go through
+  $\pi_q(0) = \pi_r(0)\pi_u(0)$, so part (3) of Lemma \ref{lem:Allq} is not
+  used: a one-sided bound along a subsequence is enough and is shorter.
+
+  Take $j = q$, $g = \gcd(q,b^q)$ and $r = q/g$. Then $\gcd(r,b)=1$
+  (\texttt{coprime\_div\_gcd\_pow}: if a prime $p$ divided both, then with
+  $e = v_p(q) < q \le j$ one has $p^e \mid g$ and $p \mid r$, so
+  $p^{e+1} \mid q$, contradicting $e = v_p(q)$). Since $g \mid b^q$ and
+  $q = gr$,
+  \[
+    r \mid \enum(m) \implies q \mid b^q\enum(m) = \enum(\delta^q m),
+  \]
+  so $m \mapsto \delta^q m$ injects $\{m < K : r \mid \enum(m)\}$ into
+  $\{n < \delta^qK : q \mid \enum(n)\}$. Dividing by $\delta^qK$ and letting
+  $K \to \infty$ along the subsequence $N = \delta^qK$,
+  \[
+    c \;\geq\; \delta^{-q}\,\frac{\gcd(r,s)}{r} \;>\; 0 ,
+  \]
+  the inner factor by part (1) of Lemma \ref{lem:Allq} applied to $r$ at
+  $x = 0$.
 \end{proof}
 
 \begin{theorem}[Theorem 5.7]
   \label{thm:modularJoint}
-  \lean{IntegerCantorSet.joint_limitDistribution}
-  \uses{lem:Allq, prop:sumDigits}
-  The pair $(\enum(n) \bmod a, \sd(\enum(n)) \bmod a')$ has a limiting
-  distribution; it is uniform if $\gcd(a, sb) = 1$ and $\gcd(a', s(b-1)) = 1$;
-  and it is not uniform if $\gcd(a,s) > 1$, or $\gcd(a',s) > 1$, or
-  $\gcd(a,a',b-1) > 1$.
+  \lean{IntegerCantorSet.joint_limitDistribution, IntegerCantorSet.JointUniform,
+    IntegerCantorSet.joint_uniform,
+    IntegerCantorSet.not_jointUniform_of_gcd_enum,
+    IntegerCantorSet.not_jointUniform_of_gcd_sumDigits,
+    IntegerCantorSet.not_jointUniform_of_gcd_sub_one}
+  \leanok
+  \uses{lem:Allq, prop:sumDigits, lem:fourierMod}
+  Let $a, a' \geq 1$ and consider the pair
+  $(\enum(n) \bmod a,\ \sd(\enum(n)) \bmod a') \in \Z_a \times \Z_{a'}$.
+  \begin{enumerate}
+    \item The limiting distribution exists.
+    \item It is uniform (the predicate \texttt{JointUniform}: every class has
+      density $(aa')^{-1}$) if $\gcd(a,sb) = 1$ and $\gcd(a',s(b-1)) = 1$.
+    \item It is not uniform if $\gcd(a,s) > 1$, or $\gcd(a',s) > 1$, or
+      $\gcd(a,a',b-1) > 1$.
+  \end{enumerate}
+  The sufficient condition in (2) is not necessary; with $b=4$, $D=\{0,1\}$,
+  $\enum(n) \bmod 2$ is uniform although $\gcd(2,b)>1$, and
+  $\sd(\enum(n)) \bmod 3$ is uniform by Proposition \ref{prop:sumDigits}
+  although $\gcd(3,b-1)>1$. (That remark is not formalized.)
 \end{theorem}
 \begin{proof}
   \uses{thm:modularJoint}
-  As in the paper. The non-uniformity in the last case uses
-  Lemma \ref{lem:b-sub-one-dvd}.
+  \leanok
+  (1) By Theorem \ref{thm:irrational} the limit of
+  $\frac1N\sum_{n<N}\e{\enum(n)\frac ua + \sd(\enum(n))\frac{u'}{a'}}$ exists
+  for all $u,u'$; the two-dimensional half of Lemma \ref{lem:fourierMod} turns
+  this into convergence of each class.
+
+  (2) By Lemma \ref{lem:fourierMod} it suffices that the limit above vanish for
+  $u < a$, $u' < a'$ not both $0$, and the $(0,0)$ term is $1$; the Fourier
+  inverse then collapses to $(aa')^{-1}$. By Theorem \ref{thm:irrational} it is
+  enough that $(u/a, u'/a')$ not be exceptional. If it were, then for integers
+  $c, r, t$,
+  \[
+    s\frac ua = \frac{c}{b-1} + \frac{r}{b^t}, \qquad
+    s\frac{u'}{a'} + \frac{c}{b-1} \in \Z .
+  \]
+  Put $Y = c/(b-1)$. Both $a'Y$ and $(b-1)Y$ are integers, and
+  $\gcd(a',b-1)=1$, so B\'ezout makes $Y$ an integer
+  (\texttt{isInt\_of\_coprime}). Hence $a' \mid su'$, and $\gcd(a',s)=1$ gives
+  $a' \mid u'$, so $u' = 0$. Then $b^tsu/a \in \Z$, and $\gcd(a,sb)=1$ gives
+  $a \mid u$, so $u = 0$: a contradiction.
+
+  (3) In each case a single residue class is empty for every $N$, which
+  contradicts uniformity because $(aa')^{-1} > 0$
+  (\texttt{not\_jointUniform\_of\_countMod2\_eq\_zero}). If
+  $d = \gcd(a,s) > 1$, the class $(x,y) = (1,0)$ is empty: $d \mid \enum(n)$
+  for all $n$, so $\enum(n) \equiv 1 \bmod a$ would force $d \mid 1$. If
+  $d = \gcd(a',s) > 1$, the class $(0,1)$ is empty by the same argument applied
+  to $\sd(\enum(n))$. If $d = \gcd(a,\gcd(a',b-1)) > 1$, the class $(0,1)$ is
+  empty because $\enum(n) \equiv \sd(\enum(n)) \bmod (b-1)$
+  (Lemma \ref{lem:b-sub-one-dvd}), so modulo $d$ one would get $0 \equiv 1$.
 \end{proof}
 
 \chapter{Polynomial recurrence}
