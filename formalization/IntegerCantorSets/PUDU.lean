@@ -736,46 +736,1206 @@ theorem UD_one (h : Standing b D) {p : MvPolynomial (Fin 2) ℝ}
         rw [mul_div_assoc', div_lt_iff₀ hB1]
         nlinarith
 
+/-! ### Cauchy--Schwarz and the differencing identity -/
+
+theorem conj_expc (x : ℝ) : (starRingEnd ℂ) (expc x) = expc (-x) := by
+  rw [expc, expc, ← Complex.exp_conj]
+  congr 1
+  simp only [map_mul, Complex.conj_ofReal, Complex.conj_I]
+  push_cast
+  try ring
+
+theorem le_of_sq_le_sq {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) (hxy : x ^ 2 ≤ y ^ 2) : x ≤ y := by
+  by_contra hcon
+  push Not at hcon
+  nlinarith
+
+theorem norm_ofReal_of_nonneg {x : ℝ} (hx : 0 ≤ x) : ‖((x : ℝ) : ℂ)‖ = x := by
+  simp [abs_of_nonneg hx]
+
+/-- Expanding `|∑ e(tⱼ)|²` as a double sum of differences. -/
+theorem normSq_sum_expc (K : ℕ) (t : ℕ → ℝ) :
+    ((‖∑ j ∈ range K, expc (t j)‖ ^ 2 : ℝ) : ℂ)
+      = ∑ j ∈ range K, ∑ j' ∈ range K, expc (t j - t j') := by
+  have hsq : ((‖∑ j ∈ range K, expc (t j)‖ ^ 2 : ℝ) : ℂ)
+      = (∑ j ∈ range K, expc (t j)) * (starRingEnd ℂ) (∑ j ∈ range K, expc (t j)) := by
+    rw [Complex.mul_conj, Complex.sq_norm]
+  rw [hsq, map_sum, Finset.sum_mul]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun j' _ => ?_
+  rw [conj_expc, ← expc_add]
+  congr 1
+  try ring
+
+/-- Cauchy--Schwarz: `‖∑ w‖² ≤ |S| ∑ ‖w‖²`. -/
+theorem norm_sum_sq_le_card_mul (S : Finset ℕ) (w : ℕ → ℂ) :
+    ‖∑ m ∈ S, w m‖ ^ 2 ≤ (S.card : ℝ) * ∑ m ∈ S, ‖w m‖ ^ 2 := by
+  have h1 : ‖∑ m ∈ S, w m‖ ≤ ∑ m ∈ S, ‖w m‖ := norm_sum_le _ _
+  have h2 : (∑ m ∈ S, ‖w m‖) ^ 2 ≤ (S.card : ℝ) * ∑ m ∈ S, ‖w m‖ ^ 2 :=
+    sq_sum_le_card_mul_sum_sq
+  nlinarith [norm_nonneg (∑ m ∈ S, w m), Finset.sum_nonneg (fun m (_ : m ∈ S) => norm_nonneg (w m))]
+
+/-! ### Splitting a window into complete blocks -/
+
+/-- The window `[M, N)` decomposes into the complete blocks of length `Λ` it
+contains, up to an error of at most `2Λ` unimodular terms. -/
+theorem window_block_split {Λ : ℕ} (hΛ : 0 < Λ) (f : ℕ → ℂ)
+    (hf : ∀ n, ‖f n‖ ≤ 1) (M N : ℕ) :
+    ‖(∑ n ∈ Ico M N, f n)
+        - ∑ m ∈ Ico ((M + Λ - 1) / Λ) (N / Λ), ∑ j ∈ range Λ, f (Λ * m + j)‖
+      ≤ 2 * (Λ : ℝ) := by
+  obtain ⟨hA, hB⟩ := ceil_div_bounds (q := Λ) (M := M) hΛ
+  obtain ⟨hC, hDD⟩ := floor_div_bounds (q := Λ) (N := N) hΛ
+  obtain ⟨Mi, hMi⟩ : ∃ k, (M + Λ - 1) / Λ = k := ⟨_, rfl⟩
+  obtain ⟨Ni, hNi⟩ : ∃ k, N / Λ = k := ⟨_, rfl⟩
+  rw [hMi] at hA hB ⊢
+  rw [hNi] at hC hDD ⊢
+  have hinc : ∀ x y : ℕ, y - x ≤ Λ → ‖∑ n ∈ Ico x y, f n‖ ≤ (Λ : ℝ) := by
+    intro x y hxy
+    calc ‖∑ n ∈ Ico x y, f n‖ ≤ ∑ n ∈ Ico x y, ‖f n‖ := norm_sum_le _ _
+      _ ≤ ∑ _n ∈ Ico x y, (1 : ℝ) := Finset.sum_le_sum fun n _ => hf n
+      _ = ((y - x : ℕ) : ℝ) := by simp
+      _ ≤ (Λ : ℝ) := by exact_mod_cast hxy
+  rcases le_or_gt Mi Ni with hle | hgt
+  · have h1 : Λ * Mi ≤ Λ * Ni := Nat.mul_le_mul_left Λ hle
+    have hmid : ∑ n ∈ Ico (Λ * Mi) (Λ * Ni), f n
+        = ∑ m ∈ Ico Mi Ni, ∑ j ∈ range Λ, f (Λ * m + j) := sum_Ico_mul Λ _ hle
+    have e2 : (∑ n ∈ Ico (Λ * Mi) (Λ * Ni), f n) + (∑ n ∈ Ico (Λ * Ni) N, f n)
+        = ∑ n ∈ Ico (Λ * Mi) N, f n := Finset.sum_Ico_consecutive _ h1 hC
+    have e1 : (∑ n ∈ Ico M (Λ * Mi), f n) + (∑ n ∈ Ico (Λ * Mi) N, f n)
+        = ∑ n ∈ Ico M N, f n := Finset.sum_Ico_consecutive _ hA (le_trans h1 hC)
+    have hdiff : (∑ n ∈ Ico M N, f n) - ∑ m ∈ Ico Mi Ni, ∑ j ∈ range Λ, f (Λ * m + j)
+        = (∑ n ∈ Ico M (Λ * Mi), f n) + (∑ n ∈ Ico (Λ * Ni) N, f n) := by
+      rw [← e1, ← e2, ← hmid]; ring
+    rw [hdiff]
+    calc ‖(∑ n ∈ Ico M (Λ * Mi), f n) + (∑ n ∈ Ico (Λ * Ni) N, f n)‖
+        ≤ ‖∑ n ∈ Ico M (Λ * Mi), f n‖ + ‖∑ n ∈ Ico (Λ * Ni) N, f n‖ := norm_add_le _ _
+      _ ≤ (Λ : ℝ) + (Λ : ℝ) := add_le_add (hinc _ _ (by omega)) (hinc _ _ (by omega))
+      _ = 2 * (Λ : ℝ) := by ring
+  · have hempty : Ico Mi Ni = (∅ : Finset ℕ) := Finset.Ico_eq_empty (by omega)
+    have hstep : Λ * Ni + Λ ≤ Λ * Mi := by
+      have hm := Nat.mul_le_mul_left Λ (show Ni + 1 ≤ Mi by omega)
+      calc Λ * Ni + Λ = Λ * (Ni + 1) := by ring
+        _ ≤ Λ * Mi := hm
+    have hNM : N - M ≤ Λ := by
+      obtain ⟨X, hX⟩ : ∃ X, Λ * Mi = X := ⟨_, rfl⟩
+      obtain ⟨Y, hY⟩ : ∃ Y, Λ * Ni = Y := ⟨_, rfl⟩
+      rw [hX] at hB hstep
+      rw [hY] at hC hDD hstep
+      omega
+    rw [hempty]
+    simp only [Finset.sum_empty, sub_zero]
+    calc ‖∑ n ∈ Ico M N, f n‖ ≤ (Λ : ℝ) := hinc _ _ hNM
+      _ ≤ 2 * (Λ : ℝ) := by
+          have h0 : (0:ℝ) ≤ (Λ:ℝ) := by positivity
+          linarith
+
+/-- The number of complete blocks of length `Λ` in `[M, N)`. -/
+theorem block_range_bounds {Λ : ℕ} (hΛ : 0 < Λ) (M N : ℕ) :
+    Λ * (N / Λ) ≤ N ∧ M ≤ Λ * ((M + Λ - 1) / Λ)
+      ∧ Λ * (N / Λ - (M + Λ - 1) / Λ) ≤ N - M := by
+  obtain ⟨hA, _⟩ := ceil_div_bounds (q := Λ) (M := M) hΛ
+  obtain ⟨hC, _⟩ := floor_div_bounds (q := Λ) (N := N) hΛ
+  exact ⟨hC, hA, block_count_le hΛ⟩
+
+/-! ### Rational reals -/
+
+/-- `x` is the cast of a rational; the negation of `Irrational`. -/
+def IsRat (x : ℝ) : Prop := ∃ r : ℚ, x = (r : ℝ)
+
+theorem isRat_iff {x : ℝ} : IsRat x ↔ ¬ Irrational x :=
+  ⟨fun ⟨r, hr⟩ => hr ▸ Rat.not_irrational r, fun h => exists_rat_of_not_irrational h⟩
+
+theorem isRat_zero : IsRat 0 := ⟨0, by norm_num⟩
+
+theorem isRat_intCast (z : ℤ) : IsRat ((z : ℤ) : ℝ) := ⟨(z : ℚ), by push_cast; ring⟩
+
+theorem isRat_natCast (n : ℕ) : IsRat ((n : ℕ) : ℝ) := ⟨(n : ℚ), by push_cast; ring⟩
+
+theorem IsRat.add {x y : ℝ} (hx : IsRat x) (hy : IsRat y) : IsRat (x + y) := by
+  obtain ⟨a, rfl⟩ := hx; obtain ⟨c, rfl⟩ := hy; exact ⟨a + c, by push_cast; ring⟩
+
+theorem IsRat.sub {x y : ℝ} (hx : IsRat x) (hy : IsRat y) : IsRat (x - y) := by
+  obtain ⟨a, rfl⟩ := hx; obtain ⟨c, rfl⟩ := hy; exact ⟨a - c, by push_cast; ring⟩
+
+theorem IsRat.mul {x y : ℝ} (hx : IsRat x) (hy : IsRat y) : IsRat (x * y) := by
+  obtain ⟨a, rfl⟩ := hx; obtain ⟨c, rfl⟩ := hy; exact ⟨a * c, by push_cast; ring⟩
+
+theorem IsRat.pow {x : ℝ} (hx : IsRat x) (n : ℕ) : IsRat (x ^ n) := by
+  obtain ⟨a, rfl⟩ := hx; exact ⟨a ^ n, by push_cast; ring⟩
+
+theorem IsRat.sum {ι : Type*} (s : Finset ι) (f : ι → ℝ) (hf : ∀ i ∈ s, IsRat (f i)) :
+    IsRat (∑ i ∈ s, f i) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simpa using isRat_zero
+  | insert a s ha ih =>
+    rw [Finset.sum_insert ha]
+    exact (hf a (Finset.mem_insert_self a s)).add
+      (ih fun i hi => hf i (Finset.mem_insert_of_mem hi))
+
+theorem irrational_of_isRat_sub {x y : ℝ} (hx : Irrational x) (h : IsRat (x - y)) :
+    Irrational y := by
+  obtain ⟨r, hr⟩ := h
+  have : y = x - (r : ℝ) := by linarith [hr]
+  rw [this]
+  exact Irrational.sub_ratCast r hx
+
+/-! ### Affine substitution -/
+
+/-- `substAffine A u v p` is the polynomial `p(A·X + u, Y + v)`. -/
+noncomputable def substAffine (A u v : ℝ) (p : MvPolynomial (Fin 2) ℝ) :
+    MvPolynomial (Fin 2) ℝ :=
+  bind₁ ![C A * X 0 + C u, X 1 + C v] p
+
+theorem eval_substAffine (A u v : ℝ) (p : MvPolynomial (Fin 2) ℝ) (x y : ℝ) :
+    eval ![x, y] (substAffine A u v p) = eval ![A * x + u, y + v] p := by
+  have h1 : ∀ (f : Fin 2 → ℝ) (q : MvPolynomial (Fin 2) ℝ), aeval f q = eval f q :=
+    fun f q => DFunLike.congr_fun (coe_aeval_eq_eval f) q
+  have h := MvPolynomial.aeval_bind₁ (R := ℝ) (S := ℝ) ![x, y]
+    ![C A * X 0 + C u, X 1 + C v] p
+  simp only [h1] at h
+  have h2 : (fun i => eval ![x, y] (![C A * X 0 + C u, X 1 + C v] i))
+      = ![A * x + u, y + v] := by
+    funext i
+    fin_cases i <;> simp
+  rw [substAffine, h, h2]
+
+theorem substAffine_add (A u v : ℝ) (p q : MvPolynomial (Fin 2) ℝ) :
+    substAffine A u v (p + q) = substAffine A u v p + substAffine A u v q := by
+  simp [substAffine]
+
+/-- The one-variable binomial expansion, as a sum of monomials. -/
+theorem C_mul_X_add_C_pow (i : Fin 2) (A u : ℝ) (n : ℕ) :
+    (C A * X i + C u) ^ n
+      = ∑ a ∈ range (n + 1),
+          monomial (Finsupp.single i a) (((n.choose a : ℕ) : ℝ) * A ^ a * u ^ (n - a)) := by
+  rw [add_pow]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  have hnat : (((n.choose a : ℕ)) : MvPolynomial (Fin 2) ℝ) = C (((n.choose a : ℕ)) : ℝ) := by
+    simp
+  rw [hnat, mul_pow, ← C_pow, ← C_pow, X_pow_eq_monomial, C_mul_monomial, mul_one]
+  rw [mul_comm (monomial (Finsupp.single i a) (A ^ a)) (C (u ^ (n - a))), C_mul_monomial]
+  rw [mul_comm (monomial (Finsupp.single i a) (u ^ (n - a) * A ^ a))
+    (C (((n.choose a : ℕ)) : ℝ)), C_mul_monomial]
+  congr 1
+  ring
+
+theorem substAffine_monomial (A u v : ℝ) (n n' : ℕ) (c : ℝ) :
+    substAffine A u v (monomial (mono2 n n') c)
+      = C c * ((C A * X 0 + C u) ^ n * (X 1 + C v) ^ n') := by
+  classical
+  rw [substAffine, bind₁_monomial]
+  congr 1
+  have hsub : (mono2 n n').support ⊆ (Finset.univ : Finset (Fin 2)) := Finset.subset_univ _
+  rw [Finset.prod_subset hsub (by
+    intro x _ hx
+    rw [Finsupp.notMem_support_iff.1 hx]
+    simp)]
+  rw [Fin.prod_univ_two]
+  simp
+
+/-- The coefficients of an affine substitution of a single monomial. -/
+theorem coeff_substAffine_monomial (A u v : ℝ) (n n' : ℕ) (c : ℝ) (m : Fin 2 →₀ ℕ) :
+    (substAffine A u v (monomial (mono2 n n') c)).coeff m
+      = c * (((n.choose (m 0) : ℕ) : ℝ) * ((n'.choose (m 1) : ℕ) : ℝ)
+          * A ^ (m 0) * u ^ (n - m 0) * v ^ (n' - m 1)) := by
+  classical
+  have hX1 : (X (1 : Fin 2) + C v : MvPolynomial (Fin 2) ℝ) = C 1 * X 1 + C v := by simp
+  rw [substAffine_monomial, hX1, C_mul_X_add_C_pow, C_mul_X_add_C_pow]
+  have hexp : C c * ((∑ a ∈ range (n + 1),
+          monomial (Finsupp.single (0 : Fin 2) a)
+            (((n.choose a : ℕ) : ℝ) * A ^ a * u ^ (n - a)))
+        * ∑ e ∈ range (n' + 1),
+          monomial (Finsupp.single (1 : Fin 2) e)
+            (((n'.choose e : ℕ) : ℝ) * (1 : ℝ) ^ e * v ^ (n' - e)))
+      = ∑ a ∈ range (n + 1), ∑ e ∈ range (n' + 1),
+          monomial (mono2 a e)
+            (c * ((((n.choose a : ℕ) : ℝ) * A ^ a * u ^ (n - a))
+              * (((n'.choose e : ℕ) : ℝ) * (1 : ℝ) ^ e * v ^ (n' - e)))) := by
+    rw [Finset.sum_mul, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    rw [Finset.mul_sum, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun e _ => ?_
+    rw [monomial_mul, C_mul_monomial]
+    rfl
+  rw [hexp, coeff_sum]
+  have h1 : ∀ a ∈ range (n + 1),
+      (∑ e ∈ range (n' + 1), monomial (mono2 a e)
+          (c * ((((n.choose a : ℕ) : ℝ) * A ^ a * u ^ (n - a))
+            * (((n'.choose e : ℕ) : ℝ) * (1 : ℝ) ^ e * v ^ (n' - e))))).coeff m
+        = ∑ e ∈ range (n' + 1), (if mono2 a e = m then
+            c * ((((n.choose a : ℕ) : ℝ) * A ^ a * u ^ (n - a))
+              * (((n'.choose e : ℕ) : ℝ) * (1 : ℝ) ^ e * v ^ (n' - e))) else 0) := by
+    intro a _
+    rw [coeff_sum]
+    exact Finset.sum_congr rfl fun e _ => coeff_monomial _ _ _
+  rw [Finset.sum_congr rfl h1]
+  have hmono : ∀ a e : ℕ, mono2 a e = m ↔ (a = m 0 ∧ e = m 1) := by
+    intro a e
+    constructor
+    · intro hh
+      exact ⟨by rw [← hh]; simp, by rw [← hh]; simp⟩
+    · rintro ⟨rfl, rfl⟩
+      exact mono2_self m
+  by_cases hm0 : m 0 ≤ n
+  · by_cases hm1 : m 1 ≤ n'
+    · rw [Finset.sum_eq_single_of_mem (m 0) (Finset.mem_range.2 (by omega))]
+      · rw [Finset.sum_eq_single_of_mem (m 1) (Finset.mem_range.2 (by omega))]
+        · rw [if_pos ((hmono _ _).2 ⟨rfl, rfl⟩)]
+          ring
+        · intro e _ hene
+          rw [if_neg (fun hc => hene ((hmono _ _).1 hc).2)]
+      · intro a _ hane
+        refine Finset.sum_eq_zero fun e _ => ?_
+        rw [if_neg (fun hc => hane ((hmono _ _).1 hc).1)]
+    · have hz : n'.choose (m 1) = 0 := Nat.choose_eq_zero_of_lt (by omega)
+      rw [Finset.sum_eq_zero (fun a _ => Finset.sum_eq_zero (fun e he => if_neg (fun hc => by
+        have h2 := ((hmono _ _).1 hc).2
+        have h3 := Finset.mem_range.1 he
+        omega))), hz]
+      push_cast
+      ring
+  · have hz : n.choose (m 0) = 0 := Nat.choose_eq_zero_of_lt (by omega)
+    rw [Finset.sum_eq_zero (fun a ha => Finset.sum_eq_zero (fun e _ => if_neg (fun hc => by
+      have h2 := ((hmono _ _).1 hc).1
+      have h3 := Finset.mem_range.1 ha
+      omega))), hz]
+    push_cast
+    ring
+
+theorem coeff_substAffine_monomial' (A u v : ℝ) (m' : Fin 2 →₀ ℕ) (c : ℝ) (m : Fin 2 →₀ ℕ) :
+    (substAffine A u v (monomial m' c)).coeff m
+      = c * ((((m' 0).choose (m 0) : ℕ) : ℝ) * (((m' 1).choose (m 1) : ℕ) : ℝ)
+          * A ^ (m 0) * u ^ (m' 0 - m 0) * v ^ (m' 1 - m 1)) := by
+  have h := coeff_substAffine_monomial A u v (m' 0) (m' 1) c m
+  rwa [mono2_self] at h
+
+/-- The weight with which `p.coeff m'` enters the `m`-th coefficient of
+`substAffine A u v p`. -/
+noncomputable def substWeight (A u v : ℝ) (m m' : Fin 2 →₀ ℕ) : ℝ :=
+  (((m' 0).choose (m 0) : ℕ) : ℝ) * (((m' 1).choose (m 1) : ℕ) : ℝ)
+    * A ^ (m 0) * u ^ (m' 0 - m 0) * v ^ (m' 1 - m 1)
+
+/-- The coefficients of an affine substitution, over any finset containing the
+support. -/
+theorem coeff_substAffine (A u v : ℝ) (p : MvPolynomial (Fin 2) ℝ) (m : Fin 2 →₀ ℕ)
+    {T : Finset (Fin 2 →₀ ℕ)} (hT : p.support ⊆ T) :
+    (substAffine A u v p).coeff m = ∑ m' ∈ T, p.coeff m' * substWeight A u v m m' := by
+  classical
+  have hp : p = ∑ m' ∈ T, monomial m' (p.coeff m') := by
+    conv_lhs => rw [MvPolynomial.as_sum p]
+    refine Finset.sum_subset hT ?_
+    intro x _ hx
+    rw [MvPolynomial.notMem_support_iff.1 hx, map_zero]
+  conv_lhs => rw [hp]
+  rw [substAffine, map_sum, coeff_sum]
+  exact Finset.sum_congr rfl fun m' _ => coeff_substAffine_monomial' A u v m' _ m
+
+theorem substWeight_eq_zero (A u v : ℝ) {m m' : Fin 2 →₀ ℕ}
+    (h : ¬ (m 0 ≤ m' 0 ∧ m 1 ≤ m' 1)) : substWeight A u v m m' = 0 := by
+  rw [substWeight]
+  rcases Nat.lt_or_ge (m' 0) (m 0) with h0 | h0
+  · rw [Nat.choose_eq_zero_of_lt h0]
+    push_cast
+    ring
+  · have h1 : m' 1 < m 1 := by omega
+    rw [Nat.choose_eq_zero_of_lt h1]
+    push_cast
+    ring
+
+theorem substWeight_self (A u v : ℝ) (m : Fin 2 →₀ ℕ) :
+    substWeight A u v m m = A ^ (m 0) := by
+  simp [substWeight]
+
+theorem substWeight_add_zero (A u v : ℝ) (m : Fin 2 →₀ ℕ) :
+    substWeight A u v m (m + Finsupp.single 0 1) = ((m 0 : ℝ) + 1) * A ^ (m 0) * u := by
+  have e0 : ((m + Finsupp.single (0 : Fin 2) 1 : Fin 2 →₀ ℕ)) 0 = m 0 + 1 := by simp
+  have e1 : ((m + Finsupp.single (0 : Fin 2) 1 : Fin 2 →₀ ℕ)) 1 = m 1 := by
+    simp [Finsupp.single_apply]
+  rw [substWeight, e0, e1, Nat.choose_succ_self_right, Nat.choose_self]
+  push_cast
+  simp
+
+theorem substWeight_add_one (A u v : ℝ) (m : Fin 2 →₀ ℕ) :
+    substWeight A u v m (m + Finsupp.single 1 1) = ((m 1 : ℝ) + 1) * A ^ (m 0) * v := by
+  have e0 : ((m + Finsupp.single (1 : Fin 2) 1 : Fin 2 →₀ ℕ)) 0 = m 0 := by
+    simp [Finsupp.single_apply]
+  have e1 : ((m + Finsupp.single (1 : Fin 2) 1 : Fin 2 →₀ ℕ)) 1 = m 1 + 1 := by simp
+  rw [substWeight, e0, e1, Nat.choose_succ_self_right, Nat.choose_self]
+  push_cast
+  simp
+
+theorem isRat_substWeight {A u v : ℝ} (hA : IsRat A) (hu : IsRat u) (hv : IsRat v)
+    (m m' : Fin 2 →₀ ℕ) : IsRat (substWeight A u v m m') := by
+  rw [substWeight]
+  exact (((isRat_natCast _).mul (isRat_natCast _)).mul (hA.pow _) |>.mul (hu.pow _)).mul (hv.pow _)
+
+@[simp] theorem add_e0_apply_zero (m : Fin 2 →₀ ℕ) :
+    ((m + Finsupp.single (0 : Fin 2) 1 : Fin 2 →₀ ℕ)) 0 = m 0 + 1 := by simp
+
+@[simp] theorem add_e0_apply_one (m : Fin 2 →₀ ℕ) :
+    ((m + Finsupp.single (0 : Fin 2) 1 : Fin 2 →₀ ℕ)) 1 = m 1 := by
+  simp [Finsupp.single_apply]
+
+@[simp] theorem add_e1_apply_zero (m : Fin 2 →₀ ℕ) :
+    ((m + Finsupp.single (1 : Fin 2) 1 : Fin 2 →₀ ℕ)) 0 = m 0 := by
+  simp [Finsupp.single_apply]
+
+@[simp] theorem add_e1_apply_one (m : Fin 2 →₀ ℕ) :
+    ((m + Finsupp.single (1 : Fin 2) 1 : Fin 2 →₀ ℕ)) 1 = m 1 + 1 := by simp
+
+theorem eq_of_le_of_deg_le {m m' : Fin 2 →₀ ℕ} (h0 : m 0 ≤ m' 0) (h1 : m 1 ≤ m' 1)
+    (hd : m' 0 + m' 1 ≤ m 0 + m 1 + 1) :
+    m' = m ∨ m' = m + Finsupp.single 0 1 ∨ m' = m + Finsupp.single 1 1 := by
+  rcases Nat.eq_or_lt_of_le h0 with e0 | e0
+  · rcases Nat.eq_or_lt_of_le h1 with e1 | e1
+    · exact Or.inl (finsupp_fin2_ext e0.symm e1.symm)
+    · exact Or.inr (Or.inr (finsupp_fin2_ext (by simp; omega) (by simp; omega)))
+  · exact Or.inr (Or.inl (finsupp_fin2_ext (by simp; omega) (by simp; omega)))
+
+/-- The difference polynomial `p(A·+u, ·+v) - p(A·+u', ·+v')`. -/
+noncomputable def diffPoly (A u v u' v' : ℤ) (p : MvPolynomial (Fin 2) ℝ) :
+    MvPolynomial (Fin 2) ℝ :=
+  substAffine (A : ℝ) (u : ℝ) (v : ℝ) p - substAffine (A : ℝ) (u' : ℝ) (v' : ℝ) p
+
+theorem coeff_diffPoly (A u v u' v' : ℤ) (p : MvPolynomial (Fin 2) ℝ) (m : Fin 2 →₀ ℕ)
+    {T : Finset (Fin 2 →₀ ℕ)} (hT : p.support ⊆ T) :
+    (diffPoly A u v u' v' p).coeff m
+      = ∑ m' ∈ T, p.coeff m'
+          * (substWeight (A : ℝ) (u : ℝ) (v : ℝ) m m'
+            - substWeight (A : ℝ) (u' : ℝ) (v' : ℝ) m m') := by
+  have hs : ∀ f g : MvPolynomial (Fin 2) ℝ, (f - g).coeff m = f.coeff m - g.coeff m :=
+    fun _ _ => rfl
+  rw [diffPoly, hs, coeff_substAffine _ _ _ _ _ hT, coeff_substAffine _ _ _ _ _ hT,
+    ← Finset.sum_sub_distrib]
+  exact Finset.sum_congr rfl fun m' _ => by ring
+
+theorem isRat_weight_diff (A u v u' v' : ℤ) (m m' : Fin 2 →₀ ℕ) :
+    IsRat (substWeight (A : ℝ) (u : ℝ) (v : ℝ) m m'
+      - substWeight (A : ℝ) (u' : ℝ) (v' : ℝ) m m') :=
+  (isRat_substWeight (isRat_intCast A) (isRat_intCast u) (isRat_intCast v) m m').sub
+    (isRat_substWeight (isRat_intCast A) (isRat_intCast u') (isRat_intCast v') m m')
+
+/-- Away from `m`, `m + e₀` and `m + e₁`, every term of the coefficient sum is
+rational. -/
+theorem isRat_diffPoly_term {p : MvPolynomial (Fin 2) ℝ} {l : ℕ}
+    (hp : IrrDegLE p (l + 1)) (A u v u' v' : ℤ) {m m' : Fin 2 →₀ ℕ}
+    (hdeg : l ≤ m 0 + m 1) (hm' : m' ≠ m)
+    (h0 : m' ≠ m + Finsupp.single 0 1) (h1 : m' ≠ m + Finsupp.single 1 1) :
+    IsRat (p.coeff m' * (substWeight (A : ℝ) (u : ℝ) (v : ℝ) m m'
+      - substWeight (A : ℝ) (u' : ℝ) (v' : ℝ) m m')) := by
+  by_cases hle : m 0 ≤ m' 0 ∧ m 1 ≤ m' 1
+  · by_cases hbig : l + 1 < m' 0 + m' 1
+    · exact (isRat_iff.2 (hp m' hbig)).mul (isRat_weight_diff A u v u' v' m m')
+    · exfalso
+      have hd : m' 0 + m' 1 ≤ m 0 + m 1 + 1 := by omega
+      rcases eq_of_le_of_deg_le hle.1 hle.2 hd with he | he | he
+      · exact hm' he
+      · exact h0 he
+      · exact h1 he
+  · rw [substWeight_eq_zero _ _ _ hle, substWeight_eq_zero _ _ _ hle]
+    simpa using isRat_zero
+
+/-- Blueprint: the degree drop.  `diffPoly` has irrational degree at most `l`
+when `p` has irrational degree at most `l + 1`. -/
+theorem irrDegLE_diffPoly {p : MvPolynomial (Fin 2) ℝ} {l : ℕ}
+    (hp : IrrDegLE p (l + 1)) (A u v u' v' : ℤ) :
+    IrrDegLE (diffPoly A u v u' v' p) l := by
+  classical
+  intro m hm
+  refine isRat_iff.1 ?_
+  rw [coeff_diffPoly A u v u' v' p m (Finset.Subset.refl _)]
+  refine IsRat.sum _ _ fun m' _ => ?_
+  by_cases he : m' = m
+  · subst he
+    rw [substWeight_self, substWeight_self]
+    simpa using isRat_zero
+  · by_cases he0 : m' = m + Finsupp.single 0 1
+    · subst he0
+      exact (isRat_iff.2 (hp _ (by simp; omega))).mul (isRat_weight_diff A u v u' v' m _)
+    · by_cases he1 : m' = m + Finsupp.single 1 1
+      · subst he1
+        exact (isRat_iff.2 (hp _ (by simp; omega))).mul (isRat_weight_diff A u v u' v' m _)
+      · exact isRat_diffPoly_term hp A u v u' v' (by omega) he he0 he1
+
+/-- Blueprint: the degree-`l` coefficients of the difference polynomial are
+those of `A^{m₀} ∂_w p`, up to rationals. -/
+theorem coeff_diffPoly_sub_isRat {p : MvPolynomial (Fin 2) ℝ} {l : ℕ}
+    (hp : IrrDegLE p (l + 1)) (A u v u' v' : ℤ) {m : Fin 2 →₀ ℕ} (hm : m 0 + m 1 = l) :
+    IsRat ((diffPoly A u v u' v' p).coeff m
+      - (A : ℝ) ^ (m 0) * (dirDeriv (u - u', v - v') p).coeff m) := by
+  classical
+  have hne0 : m + Finsupp.single (0 : Fin 2) 1 ≠ m := by
+    intro hc
+    have := congrArg (fun f : Fin 2 →₀ ℕ => f 0) hc
+    simp at this
+  have hne1 : m + Finsupp.single (1 : Fin 2) 1 ≠ m := by
+    intro hc
+    have := congrArg (fun f : Fin 2 →₀ ℕ => f 1) hc
+    simp at this
+  have hne01 : m + Finsupp.single (0 : Fin 2) 1 ≠ m + Finsupp.single (1 : Fin 2) 1 := by
+    intro hc
+    have := congrArg (fun f : Fin 2 →₀ ℕ => f 0) hc
+    simp at this
+  set S : Finset (Fin 2 →₀ ℕ) :=
+    {m, m + Finsupp.single 0 1, m + Finsupp.single 1 1} with hSdef
+  set T : Finset (Fin 2 →₀ ℕ) := S ∪ p.support with hTdef
+  have hsub : p.support ⊆ T := Finset.subset_union_right
+  have hST : S ⊆ T := Finset.subset_union_left
+  have hmemS : ∀ m' : Fin 2 →₀ ℕ, m' ∈ S ↔
+      (m' = m ∨ m' = m + Finsupp.single 0 1 ∨ m' = m + Finsupp.single 1 1) := by
+    intro m'
+    simp [hSdef]
+  rw [coeff_diffPoly A u v u' v' p m hsub, ← Finset.sum_sdiff hST]
+  have hrest : IsRat (∑ m' ∈ T \ S, p.coeff m'
+      * (substWeight (A : ℝ) (u : ℝ) (v : ℝ) m m'
+        - substWeight (A : ℝ) (u' : ℝ) (v' : ℝ) m m')) := by
+    refine IsRat.sum _ _ fun m' hm' => ?_
+    have hnot := (Finset.mem_sdiff.1 hm').2
+    rw [hmemS] at hnot
+    push Not at hnot
+    exact isRat_diffPoly_term hp A u v u' v' (by omega) hnot.1 hnot.2.1 hnot.2.2
+  have hSsum : (∑ m' ∈ S, p.coeff m'
+      * (substWeight (A : ℝ) (u : ℝ) (v : ℝ) m m'
+        - substWeight (A : ℝ) (u' : ℝ) (v' : ℝ) m m'))
+      = (A : ℝ) ^ (m 0) * (dirDeriv (u - u', v - v') p).coeff m := by
+    rw [hSdef, Finset.sum_insert (by simp [hne0.symm, hne1.symm]),
+      Finset.sum_insert (by simp [hne01]), Finset.sum_singleton]
+    rw [substWeight_self, substWeight_self, substWeight_add_zero, substWeight_add_zero,
+      substWeight_add_one, substWeight_add_one, coeff_dirDeriv]
+    push_cast
+    ring
+  rw [hSsum]
+  simpa using hrest
+
+/-! ### Counting the bad pairs -/
+
+theorem sumDigits_le_of_lt_pow (hb : 1 < b) (ρ : ℕ) :
+    ∀ n : ℕ, n < b ^ ρ → sumDigits b n ≤ (b - 1) * ρ := by
+  induction ρ with
+  | zero =>
+    intro n hn
+    simp only [pow_zero, Nat.lt_one_iff] at hn
+    simp [hn, sumDigits]
+  | succ k ih =>
+    intro n hn
+    rcases Nat.eq_zero_or_pos n with rfl | hpos
+    · simp [sumDigits]
+    · have hd : Nat.digits b n = n % b :: Nat.digits b (n / b) := Nat.digits_def' hb hpos
+      have hs : sumDigits b n = n % b + sumDigits b (n / b) := by
+        rw [sumDigits, hd, List.sum_cons]
+        rfl
+      have hdiv : n / b < b ^ k := by
+        rw [Nat.div_lt_iff_lt_mul (by omega)]
+        calc n < b ^ (k + 1) := hn
+          _ = b ^ k * b := by ring
+      have hih := ih (n / b) hdiv
+      have hmod : n % b ≤ b - 1 := by
+        have := Nat.mod_lt n (show 0 < b by omega)
+        omega
+      have hexp : (b - 1) * (k + 1) = (b - 1) + (b - 1) * k := by ring
+      omega
+
+theorem card_filter_product {α β : Type*} [DecidableEq α] [DecidableEq β]
+    (s : Finset α) (t : Finset β) (P : α → β → Prop) [∀ a c, Decidable (P a c)] :
+    ((s ×ˢ t).filter (fun z => P z.1 z.2)).card = ∑ a ∈ s, (t.filter (P a)).card := by
+  simp only [Finset.card_filter]
+  rw [Finset.sum_product]
+
+/-- A linear function of `ρ` is eventually dominated by `ε δ^ρ` when `δ ≥ 2`. -/
+theorem exists_linear_le_pow {d : ℕ} (hd : 2 ≤ d) (K : ℕ) {ε : ℝ} (hε : 0 < ε) :
+    ∃ ρ : ℕ, 1 ≤ ρ ∧ ((K : ℝ) * ρ + 1) ≤ ε * (d : ℝ) ^ ρ := by
+  have hd1 : (1 : ℝ) < (d : ℝ) := by exact_mod_cast hd
+  have hdpos : (0 : ℝ) < (d : ℝ) := by linarith
+  have hr : (0 : ℝ) ≤ (d : ℝ)⁻¹ := by positivity
+  have hr1 : (d : ℝ)⁻¹ < 1 := by
+    rw [inv_lt_one_iff₀]
+    right; exact hd1
+  have h1 : Tendsto (fun ρ : ℕ => (ρ : ℝ) * ((d : ℝ)⁻¹) ^ ρ) atTop (nhds 0) :=
+    tendsto_self_mul_const_pow_of_lt_one hr hr1
+  have h2 : Tendsto (fun ρ : ℕ => ((d : ℝ)⁻¹) ^ ρ) atTop (nhds 0) :=
+    tendsto_pow_atTop_nhds_zero_of_lt_one hr hr1
+  have h3 : Tendsto (fun ρ : ℕ => ((K : ℝ) * ρ + 1) / (d : ℝ) ^ ρ) atTop (nhds 0) := by
+    have := (h1.const_mul (K : ℝ)).add h2
+    rw [mul_zero, add_zero] at this
+    refine this.congr fun ρ => ?_
+    rw [div_eq_mul_inv, ← inv_pow]
+    ring
+  have h4 : ∀ᶠ ρ : ℕ in atTop, ((K : ℝ) * ρ + 1) / (d : ℝ) ^ ρ < ε :=
+    Filter.Tendsto.eventually_lt_const hε h3
+  obtain ⟨ρ, hρ1, hρ2⟩ := ((eventually_ge_atTop 1).and h4).exists
+  refine ⟨ρ, hρ1, ?_⟩
+  have hpow : (0 : ℝ) < (d : ℝ) ^ ρ := by positivity
+  rw [div_lt_iff₀ hpow] at hρ2
+  linarith
+
+/-- The pairs `(j, j')` below `δ^ρ` on which the linear form
+`c₁ κ + c₂ s_b∘κ` takes the same value. -/
+def badPairs (b : ℕ) (D : Finset ℕ) (c : ℤ × ℤ) (ρ : ℕ) : Finset (ℕ × ℕ) :=
+  (range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).filter
+    (fun z : ℕ × ℕ => c.1 * (enum b D z.1 : ℤ) + c.2 * (sumDigits b (enum b D z.1) : ℤ)
+      = c.1 * (enum b D z.2 : ℤ) + c.2 * (sumDigits b (enum b D z.2) : ℤ))
+
+theorem mem_badPairs {c : ℤ × ℤ} {ρ : ℕ} {z : ℕ × ℕ} :
+    z ∈ badPairs b D c ρ ↔ (z.1 < D.card ^ ρ ∧ z.2 < D.card ^ ρ) ∧
+      c.1 * (enum b D z.1 : ℤ) + c.2 * (sumDigits b (enum b D z.1) : ℤ)
+        = c.1 * (enum b D z.2 : ℤ) + c.2 * (sumDigits b (enum b D z.2) : ℤ) := by
+  simp [badPairs, Finset.mem_filter, Finset.mem_product]
+
+/-- When `c₁ ≠ 0`, a bad partner is determined by its digit sum, of which
+there are at most `(b-1)ρ + 1` values. -/
+theorem card_badPairs_le_of_fst_ne (h : Standing b D) {c : ℤ × ℤ} (hc1 : c.1 ≠ 0) (ρ : ℕ) :
+    (badPairs b D c ρ).card ≤ D.card ^ ρ * ((b - 1) * ρ + 1) := by
+  classical
+  rw [badPairs, card_filter_product _ _ (fun j j' : ℕ =>
+    c.1 * (enum b D j : ℤ) + c.2 * (sumDigits b (enum b D j) : ℤ)
+      = c.1 * (enum b D j' : ℤ) + c.2 * (sumDigits b (enum b D j') : ℤ))]
+  have hb : 1 < b := by have := h.three_le_base; omega
+  have hbound : ∀ j ∈ range (D.card ^ ρ),
+      ((range (D.card ^ ρ)).filter (fun j' : ℕ =>
+        c.1 * (enum b D j : ℤ) + c.2 * (sumDigits b (enum b D j) : ℤ)
+          = c.1 * (enum b D j' : ℤ) + c.2 * (sumDigits b (enum b D j') : ℤ))).card
+        ≤ (b - 1) * ρ + 1 := by
+    intro j _
+    have := Finset.card_le_card_of_injOn (f := fun j' : ℕ => sumDigits b (enum b D j'))
+      (s := (range (D.card ^ ρ)).filter (fun j' : ℕ =>
+        c.1 * (enum b D j : ℤ) + c.2 * (sumDigits b (enum b D j) : ℤ)
+          = c.1 * (enum b D j' : ℤ) + c.2 * (sumDigits b (enum b D j') : ℤ)))
+      (t := range ((b - 1) * ρ + 1)) ?_ ?_
+    · simpa using this
+    · intro j' hj'
+      simp only [Finset.mem_coe, Finset.mem_range]
+      have hlt : j' < D.card ^ ρ :=
+        Finset.mem_range.1 (Finset.mem_filter.1 (Finset.mem_coe.1 hj')).1
+      have h1 : enum b D j' < b ^ ρ := enum_lt_pow h hlt
+      have := sumDigits_le_of_lt_pow (b := b) hb ρ _ h1
+      omega
+    · intro x hx y hy hxy
+      simp only [Finset.coe_filter, Set.mem_setOf_eq] at hx hy
+      have hex : (enum b D x : ℤ) = (enum b D y : ℤ) := by
+        have h1 := hx.2
+        have h2 := hy.2
+        have h3 : (sumDigits b (enum b D x) : ℤ) = (sumDigits b (enum b D y) : ℤ) := by
+          exact_mod_cast congrArg (fun n : ℕ => (n : ℤ)) hxy
+        have : c.1 * (enum b D x : ℤ) = c.1 * (enum b D y : ℤ) := by
+          rw [h3] at h1
+          omega
+        exact mul_left_cancel₀ hc1 this
+      have : enum b D x = enum b D y := by exact_mod_cast hex
+      exact (enum_strictMono h).injective this
+  calc (∑ j ∈ range (D.card ^ ρ), ((range (D.card ^ ρ)).filter (fun j' : ℕ =>
+          c.1 * (enum b D j : ℤ) + c.2 * (sumDigits b (enum b D j) : ℤ)
+            = c.1 * (enum b D j' : ℤ) + c.2 * (sumDigits b (enum b D j') : ℤ))).card)
+      ≤ ∑ _j ∈ range (D.card ^ ρ), ((b - 1) * ρ + 1) := Finset.sum_le_sum hbound
+    _ = D.card ^ ρ * ((b - 1) * ρ + 1) := by simp [mul_comm]
+
+/-! ### The bad pairs when the linear form involves only the digit sum -/
+
+theorem continuous_expc : Continuous expc := by
+  unfold expc
+  fun_prop
+
+theorem continuous_expc_mul (c : ℝ) : Continuous (fun θ : ℝ => expc (c * θ)) :=
+  continuous_expc.comp (continuous_const.mul continuous_id)
+
+theorem continuous_Lhat (D : Finset ℕ) : Continuous (Lhat D) := by
+  unfold Lhat
+  exact continuous_const.mul (continuous_finset_sum _ fun d _ => continuous_expc_mul _)
+
+theorem integrableOn_expc_mul (c : ℝ) :
+    MeasureTheory.IntegrableOn (fun θ : ℝ => expc (c * θ)) (Set.Ioc (0:ℝ) 1) :=
+  (continuous_expc_mul c).integrableOn_Ioc
+
+/-- Orthogonality of the characters `θ ↦ e(kθ)` on `[0,1]`. -/
+theorem integral_expc_intCast_mul (k : ℤ) :
+    ∫ θ in Set.Ioc (0:ℝ) 1, expc ((k : ℝ) * θ) = if k = 0 then 1 else 0 := by
+  rw [← intervalIntegral.integral_of_le (by norm_num : (0:ℝ) ≤ 1)]
+  by_cases hk : k = 0
+  · subst hk
+    simp
+  · rw [if_neg hk]
+    have hpi : (0:ℝ) < π := Real.pi_pos
+    have hkR : (k : ℝ) ≠ 0 := Int.cast_ne_zero.2 hk
+    have hcne : (((2 * π * (k : ℝ) : ℝ)) : ℂ) * Complex.I ≠ 0 := by
+      refine mul_ne_zero ?_ Complex.I_ne_zero
+      simp only [ne_eq, Complex.ofReal_eq_zero]
+      intro hc
+      rcases mul_eq_zero.1 hc with hc' | hc'
+      · rcases mul_eq_zero.1 hc' with hc'' | hc''
+        · norm_num at hc''
+        · linarith
+      · exact hkR hc'
+    have hcongr : ∀ θ : ℝ,
+        expc ((k : ℝ) * θ) = Complex.exp (((2 * π * (k : ℝ) : ℝ) : ℂ) * Complex.I * (θ : ℂ)) := by
+      intro θ
+      rw [expc]
+      congr 1
+      push_cast
+      ring
+    rw [intervalIntegral.integral_congr (fun θ _ => hcongr θ), integral_exp_mul_complex hcne]
+    have h1 : Complex.exp (((2 * π * (k : ℝ) : ℝ) : ℂ) * Complex.I * ((1 : ℝ) : ℂ)) = 1 := by
+      have he : (((2 * π * (k : ℝ) : ℝ)) : ℂ) * Complex.I * ((1 : ℝ) : ℂ)
+          = ((2 * π * ((k : ℤ) : ℝ) : ℝ) : ℂ) * Complex.I := by push_cast; ring
+      rw [he]
+      exact expc_intCast k
+    have h0 : Complex.exp (((2 * π * (k : ℝ) : ℝ) : ℂ) * Complex.I * ((0 : ℝ) : ℂ)) = 1 := by
+      simp
+    rw [h1, h0, sub_self, zero_div]
+
+/-- `∑_{j < δ^ρ} e(s_b(κ(j)) θ) = δ^ρ L̂(θ)^ρ`.  Specialisation of
+`sum_range_pow_eq` to `α = 0`. -/
+theorem sum_expc_sumDigits_eq (h : Standing b D) (θ : ℝ) (ρ : ℕ) :
+    ∑ j ∈ range (D.card ^ ρ), expc ((sumDigits b (enum b D j) : ℝ) * θ)
+      = (D.card : ℂ) ^ ρ * (Lhat D θ) ^ ρ := by
+  have h2 : ∀ j ∈ range (D.card ^ ρ),
+      expc ((sumDigits b (enum b D j) : ℝ) * θ) = expPhi b D 0 θ j := by
+    intro j _
+    rw [expPhi]
+    congr 1
+    ring
+  rw [Finset.sum_congr rfl h2, sum_range_pow_eq h 0 θ ρ]
+  congr 1
+  rw [Finset.prod_congr rfl (fun c _ => by
+    show Lhat D ((b : ℝ) ^ c * 0 + θ) = Lhat D θ
+    congr 1
+    ring), Finset.prod_const, Finset.card_range]
+
+theorem badPairs_fst_zero (h : Standing b D) {c : ℤ × ℤ} (hc1 : c.1 = 0) (hc2 : c.2 ≠ 0) (ρ : ℕ) :
+    badPairs b D c ρ
+      = (range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).filter
+          (fun z : ℕ × ℕ => sumDigits b (enum b D z.1) = sumDigits b (enum b D z.2)) := by
+  rw [badPairs]
+  refine Finset.filter_congr fun z _ => ?_
+  rw [hc1]
+  constructor
+  · intro hh
+    have h2 : c.2 * (sumDigits b (enum b D z.1) : ℤ)
+        = c.2 * (sumDigits b (enum b D z.2) : ℤ) := by linarith [hh]
+    exact_mod_cast mul_left_cancel₀ hc2 h2
+  · intro hh
+    rw [hh]
+    ring
+
+theorem card_badPairs_fst_zero (h : Standing b D) {c : ℤ × ℤ} (hc1 : c.1 = 0) (hc2 : c.2 ≠ 0)
+    (ρ : ℕ) :
+    ((badPairs b D c ρ).card : ℝ)
+      = ((D.card : ℝ) ^ ρ) ^ 2 * ∫ θ in Set.Ioc (0:ℝ) 1, ‖Lhat D θ‖ ^ (2 * ρ) := by
+  classical
+  have e1 : ((badPairs b D c ρ).card : ℂ)
+      = ∑ j ∈ range (D.card ^ ρ), ∑ j' ∈ range (D.card ^ ρ),
+          (if sumDigits b (enum b D j) = sumDigits b (enum b D j') then (1:ℂ) else 0) := by
+    rw [badPairs_fst_zero h hc1 hc2, card_filter_product _ _
+      (fun j j' : ℕ => sumDigits b (enum b D j) = sumDigits b (enum b D j'))]
+    push_cast
+    refine Finset.sum_congr rfl fun j _ => ?_
+    rw [Finset.card_filter]
+    push_cast
+    rfl
+  have e2 : ∀ j j' : ℕ,
+      (if sumDigits b (enum b D j) = sumDigits b (enum b D j') then (1:ℂ) else 0)
+        = ∫ θ in Set.Ioc (0:ℝ) 1,
+            expc ((((sumDigits b (enum b D j) : ℤ) - (sumDigits b (enum b D j') : ℤ) : ℤ) : ℝ) * θ) := by
+    intro j j'
+    rw [integral_expc_intCast_mul]
+    by_cases hh : sumDigits b (enum b D j) = sumDigits b (enum b D j')
+    · rw [if_pos hh, if_pos (by omega :
+        ((sumDigits b (enum b D j) : ℤ) - (sumDigits b (enum b D j') : ℤ)) = 0)]
+    · rw [if_neg hh, if_neg (by omega : ¬
+        (((sumDigits b (enum b D j) : ℤ) - (sumDigits b (enum b D j') : ℤ)) = 0))]
+  have hintg : ∀ j j' : ℕ, MeasureTheory.IntegrableOn
+      (fun θ : ℝ => expc ((((sumDigits b (enum b D j) : ℤ)
+        - (sumDigits b (enum b D j') : ℤ) : ℤ) : ℝ) * θ)) (Set.Ioc (0:ℝ) 1) :=
+    fun _ _ => integrableOn_expc_mul _
+  have e3 : (∑ j ∈ range (D.card ^ ρ), ∑ j' ∈ range (D.card ^ ρ),
+        ∫ θ in Set.Ioc (0:ℝ) 1, expc ((((sumDigits b (enum b D j) : ℤ)
+          - (sumDigits b (enum b D j') : ℤ) : ℤ) : ℝ) * θ))
+      = ∫ θ in Set.Ioc (0:ℝ) 1, ∑ j ∈ range (D.card ^ ρ), ∑ j' ∈ range (D.card ^ ρ),
+          expc ((((sumDigits b (enum b D j) : ℤ)
+            - (sumDigits b (enum b D j') : ℤ) : ℤ) : ℝ) * θ) := by
+    rw [MeasureTheory.integral_finset_sum _ (fun j _ =>
+      MeasureTheory.integrable_finset_sum _ (fun j' _ => hintg j j'))]
+    exact Finset.sum_congr rfl fun j _ =>
+      (MeasureTheory.integral_finset_sum _ (fun j' _ => hintg j j')).symm
+  have e4 : ∀ θ : ℝ, (∑ j ∈ range (D.card ^ ρ), ∑ j' ∈ range (D.card ^ ρ),
+        expc ((((sumDigits b (enum b D j) : ℤ)
+          - (sumDigits b (enum b D j') : ℤ) : ℤ) : ℝ) * θ))
+      = (((((D.card : ℝ) ^ ρ) ^ 2 * ‖Lhat D θ‖ ^ (2 * ρ)) : ℝ) : ℂ) := by
+    intro θ
+    have hnorm := normSq_sum_expc (D.card ^ ρ) (fun j => (sumDigits b (enum b D j) : ℝ) * θ)
+    have hcongr : ∀ j j' : ℕ, expc ((((sumDigits b (enum b D j) : ℤ)
+          - (sumDigits b (enum b D j') : ℤ) : ℤ) : ℝ) * θ)
+        = expc ((sumDigits b (enum b D j) : ℝ) * θ - (sumDigits b (enum b D j') : ℝ) * θ) := by
+      intro j j'
+      congr 1
+      push_cast
+      ring
+    rw [Finset.sum_congr rfl (fun j _ => Finset.sum_congr rfl (fun j' _ => hcongr j j')), ← hnorm]
+    congr 1
+    rw [sum_expc_sumDigits_eq h θ ρ, norm_mul, norm_pow, norm_pow, Complex.norm_natCast,
+      mul_pow, show 2 * ρ = ρ * 2 by ring, pow_mul]
+  have hcast : (((badPairs b D c ρ).card : ℝ) : ℂ)
+      = ((((D.card : ℝ) ^ ρ) ^ 2 * ∫ θ in Set.Ioc (0:ℝ) 1, ‖Lhat D θ‖ ^ (2 * ρ) : ℝ) : ℂ) := by
+    push_cast
+    rw [e1, Finset.sum_congr rfl (fun j _ => Finset.sum_congr rfl (fun j' _ => e2 j j')), e3]
+    simp only [e4]
+    rw [integral_complex_ofReal, MeasureTheory.integral_const_mul]
+    push_cast
+    ring
+  exact_mod_cast hcast
+
+/-- `∫₀¹ |L̂(θ)|^{2ρ} dθ → 0`: dominated convergence, using that
+`|L̂(θ)| = 1` only on a countable set. -/
+theorem tendsto_integral_Lhat_pow (h : Standing b D) :
+    Tendsto (fun ρ : ℕ => ∫ θ in Set.Ioc (0:ℝ) 1, ‖Lhat D θ‖ ^ (2 * ρ)) atTop (nhds 0) := by
+  have hDne : D.Nonempty := ⟨0, h.zero_mem⟩
+  have hs : 0 < stepSize D := stepSize_pos h
+  have hsR : ((stepSize D : ℕ) : ℝ) ≠ 0 := by positivity
+  have hfin : MeasureTheory.IsFiniteMeasure
+      (MeasureTheory.volume.restrict (Set.Ioc (0:ℝ) 1)) := by
+    constructor
+    simp [Real.volume_Ioc]
+  have hmeas : ∀ ρ : ℕ, MeasureTheory.AEStronglyMeasurable
+      (fun θ : ℝ => ‖Lhat D θ‖ ^ (2 * ρ))
+      (MeasureTheory.volume.restrict (Set.Ioc (0:ℝ) 1)) := fun ρ =>
+    (((continuous_Lhat D).norm).pow (2 * ρ)).aestronglyMeasurable
+  have hbound : ∀ ρ : ℕ, ∀ᵐ θ ∂(MeasureTheory.volume.restrict (Set.Ioc (0:ℝ) 1)),
+      ‖‖Lhat D θ‖ ^ (2 * ρ)‖ ≤ (1 : ℝ) := by
+    intro ρ
+    filter_upwards with θ
+    rw [Real.norm_eq_abs, abs_of_nonneg (by positivity)]
+    exact pow_le_one₀ (norm_nonneg _) (norm_Lhat_le_one hDne θ)
+  have hlim : ∀ᵐ θ ∂(MeasureTheory.volume.restrict (Set.Ioc (0:ℝ) 1)),
+      Tendsto (fun ρ : ℕ => ‖Lhat D θ‖ ^ (2 * ρ)) atTop (nhds 0) := by
+    rw [MeasureTheory.ae_iff]
+    refine MeasureTheory.measure_mono_null ?_
+      (Set.Countable.measure_zero
+        (Set.countable_range (fun k : ℤ => (k : ℝ) / ((stepSize D : ℕ) : ℝ))) _)
+    intro θ hθ
+    simp only [Set.mem_setOf_eq] at hθ
+    by_contra hnot
+    refine hθ ?_
+    have hne : ‖Lhat D θ‖ ≠ 1 := by
+      intro he
+      obtain ⟨k, hk⟩ := (abs_Lhat_eq_one_iff h.zero_mem θ).1 he
+      exact hnot ⟨k, by field_simp; linarith [hk]⟩
+    have hlt : ‖Lhat D θ‖ < 1 := lt_of_le_of_ne (norm_Lhat_le_one hDne θ) hne
+    have h2 : ‖Lhat D θ‖ ^ 2 < 1 := by nlinarith [norm_nonneg (Lhat D θ)]
+    have hp := tendsto_pow_atTop_nhds_zero_of_lt_one (by positivity) h2
+    refine hp.congr fun ρ => ?_
+    rw [← pow_mul]
+  have hmain := MeasureTheory.tendsto_integral_of_dominated_convergence
+    (fun _ : ℝ => (1:ℝ)) hmeas (MeasureTheory.integrable_const 1) hbound hlim
+  simpa using hmain
+
+/-! ### From the difference polynomial back to the sequence -/
+
+theorem IsRat.of_mul_left {r x : ℝ} (hr : IsRat r) (hr0 : r ≠ 0) (hrx : IsRat (r * x)) :
+    IsRat x := by
+  obtain ⟨a, ha⟩ := hr
+  obtain ⟨c, hc⟩ := hrx
+  have ha0 : (a : ℝ) ≠ 0 := by rw [← ha]; exact hr0
+  have ha0' : a ≠ 0 := by
+    intro hh
+    apply ha0
+    rw [hh]
+    norm_num
+  refine ⟨c / a, ?_⟩
+  have hx : x = (r * x) / r := by field_simp
+  rw [hx, hc, ha]
+  push_cast
+  ring
+
+/-- The proportion of bad pairs can be made arbitrarily small. -/
+theorem exists_rho_card_badPairs_le (h : Standing b D) {c : ℤ × ℤ} (hc : c ≠ 0) {ε : ℝ}
+    (hε : 0 < ε) :
+    ∃ ρ : ℕ, 1 ≤ ρ ∧ ((badPairs b D c ρ).card : ℝ) ≤ ε * ((D.card : ℝ) ^ ρ) ^ 2 := by
+  by_cases hc1 : c.1 = 0
+  · have hc2 : c.2 ≠ 0 := by
+      intro h2
+      exact hc (Prod.ext hc1 h2)
+    have hlim := tendsto_integral_Lhat_pow h
+    obtain ⟨ρ, hρ1, hρ2⟩ :=
+      ((eventually_ge_atTop 1).and (Filter.Tendsto.eventually_lt_const hε hlim)).exists
+    refine ⟨ρ, hρ1, ?_⟩
+    rw [card_badPairs_fst_zero h hc1 hc2]
+    have hpos : (0:ℝ) < ((D.card : ℝ) ^ ρ) ^ 2 := by
+      have : 0 < D.card := by have := h.two_le_card; omega
+      positivity
+    nlinarith [hρ2, hpos]
+  · obtain ⟨ρ, hρ1, hρ2⟩ := exists_linear_le_pow (d := D.card) h.two_le_card (b - 1) hε
+    refine ⟨ρ, hρ1, ?_⟩
+    have hle := card_badPairs_le_of_fst_ne h hc1 ρ
+    have hR : ((badPairs b D c ρ).card : ℝ)
+        ≤ ((D.card : ℝ) ^ ρ) * (((b - 1 : ℕ) : ℝ) * ρ + 1) := by
+      have := (Nat.cast_le (α := ℝ)).2 hle
+      push_cast at this
+      linarith
+    have hpow : (0:ℝ) ≤ (D.card : ℝ) ^ ρ := by positivity
+    nlinarith [hR, hρ2, hpow]
+
+theorem polyEval_cantorSeq (q : MvPolynomial (Fin 2) ℝ) (n : ℕ) :
+    polyEval q (cantorSeq b D n)
+      = eval ![((enum b D n : ℕ) : ℝ), ((sumDigits b (enum b D n) : ℕ) : ℝ)] q := by
+  rw [polyEval]
+  congr 2
+  funext i
+  fin_cases i <;> simp [cantorSeq]
+
+theorem polyEval_substAffine_cantorSeq (h : Standing b D) (q : MvPolynomial (Fin 2) ℝ)
+    (ρ m : ℕ) {j : ℕ} (hj : j < D.card ^ ρ) :
+    polyEval (substAffine (((b ^ ρ : ℕ) : ℤ) : ℝ) (((enum b D j : ℕ) : ℤ) : ℝ)
+        (((sumDigits b (enum b D j) : ℕ) : ℤ) : ℝ) q) (cantorSeq b D m)
+      = polyEval q (cantorSeq b D (D.card ^ ρ * m + j)) := by
+  rw [polyEval_cantorSeq, polyEval_cantorSeq, eval_substAffine]
+  congr 2
+  funext i
+  fin_cases i
+  · simp only [Matrix.cons_val_zero]
+    rw [enum_block' h ρ m hj]
+    push_cast
+    ring
+  · simp only [Matrix.cons_val_one, Matrix.head_cons]
+    rw [sumDigits_enum_block' h ρ m hj]
+    push_cast
+    ring
+
+/-- The difference polynomial evaluates to the difference of the two shifted
+values of `p` along the Cantor sequence. -/
+theorem polyEval_diffPoly_cantorSeq (h : Standing b D) (q : MvPolynomial (Fin 2) ℝ)
+    (ρ m : ℕ) {j j' : ℕ} (hj : j < D.card ^ ρ) (hj' : j' < D.card ^ ρ) :
+    polyEval (diffPoly ((b ^ ρ : ℕ) : ℤ) ((enum b D j : ℕ) : ℤ)
+        ((sumDigits b (enum b D j) : ℕ) : ℤ) ((enum b D j' : ℕ) : ℤ)
+        ((sumDigits b (enum b D j') : ℕ) : ℤ) q) (cantorSeq b D m)
+      = polyEval q (cantorSeq b D (D.card ^ ρ * m + j))
+        - polyEval q (cantorSeq b D (D.card ^ ρ * m + j')) := by
+  rw [diffPoly, polyEval, map_sub, ← polyEval, ← polyEval,
+    polyEval_substAffine_cantorSeq h q ρ m hj, polyEval_substAffine_cantorSeq h q ρ m hj']
+
+/-- The difference polynomial attached to a pair `(j, j')` of offsets inside a
+block of length `δ^ρ`. -/
+noncomputable def blockDiff (b : ℕ) (D : Finset ℕ) (p : MvPolynomial (Fin 2) ℝ)
+    (ρ j j' : ℕ) : MvPolynomial (Fin 2) ℝ :=
+  diffPoly ((b ^ ρ : ℕ) : ℤ) ((enum b D j : ℕ) : ℤ) ((sumDigits b (enum b D j) : ℕ) : ℤ)
+    ((enum b D j' : ℕ) : ℤ) ((sumDigits b (enum b D j') : ℕ) : ℤ) p
+
+theorem irrDegLE_blockDiff {p : MvPolynomial (Fin 2) ℝ} {l : ℕ} (hp1 : IrrDegLE p (l + 1))
+    (ρ j j' : ℕ) : IrrDegLE (blockDiff b D p ρ j j') l :=
+  irrDegLE_diffPoly hp1 _ _ _ _ _
+
+theorem polyEval_blockDiff_cantorSeq (h : Standing b D) (p : MvPolynomial (Fin 2) ℝ)
+    (ρ m : ℕ) {j j' : ℕ} (hj : j < D.card ^ ρ) (hj' : j' < D.card ^ ρ) :
+    polyEval (blockDiff b D p ρ j j') (cantorSeq b D m)
+      = polyEval p (cantorSeq b D (D.card ^ ρ * m + j))
+        - polyEval p (cantorSeq b D (D.card ^ ρ * m + j')) :=
+  polyEval_diffPoly_cantorSeq h p ρ m hj hj'
+
+/-- A pair whose difference polynomial is not irrational is a bad pair. -/
+theorem mem_badPairs_of_not_irrationalPoly (h : Standing b D) {l : ℕ} (hl : 1 ≤ l)
+    {p : MvPolynomial (Fin 2) ℝ} (hp1 : IrrDegLE p (l + 1)) {c : ℤ × ℤ}
+    (hcbad : ∀ w : ℤ × ℤ, (∀ m : Fin 2 →₀ ℕ, m 0 + m 1 = l →
+        ¬ Irrational ((dirDeriv w p).coeff m)) → c.1 * w.1 + c.2 * w.2 = 0)
+    (ρ : ℕ) {j j' : ℕ} (hj : j < D.card ^ ρ) (hj' : j' < D.card ^ ρ)
+    (hnot : ¬ IsIrrationalPoly (blockDiff b D p ρ j j')) :
+    ((j, j') : ℕ × ℕ) ∈ badPairs b D c ρ := by
+  have hb : 0 < b := by have := h.three_le_base; omega
+  have hApos : (0:ℝ) < (((b ^ ρ : ℕ) : ℤ) : ℝ) := by
+    have : (0:ℝ) < ((b ^ ρ : ℕ) : ℝ) := by positivity
+    push_cast at this ⊢
+    exact this
+  have hA : (((b ^ ρ : ℕ) : ℤ) : ℝ) ≠ 0 := ne_of_gt hApos
+  have hnot' : ∀ m : Fin 2 →₀ ℕ, m ≠ 0 →
+      ¬ Irrational ((blockDiff b D p ρ j j').coeff m) := by
+    intro m hm
+    rw [IsIrrationalPoly] at hnot
+    push Not at hnot
+    exact hnot m hm
+  have hrat : ∀ m : Fin 2 →₀ ℕ, m 0 + m 1 = l →
+      ¬ Irrational ((dirDeriv (((enum b D j : ℕ) : ℤ) - ((enum b D j' : ℕ) : ℤ),
+        ((sumDigits b (enum b D j) : ℕ) : ℤ)
+          - ((sumDigits b (enum b D j') : ℕ) : ℤ)) p).coeff m) := by
+    intro m hm
+    have hm0 : m ≠ 0 := by
+      intro hc0
+      rw [hc0] at hm
+      simp only [Finsupp.coe_zero, Pi.zero_apply, add_zero] at hm
+      omega
+    have h1 : IsRat ((blockDiff b D p ρ j j').coeff m) := isRat_iff.2 (hnot' m hm0)
+    have h2 := coeff_diffPoly_sub_isRat hp1 ((b ^ ρ : ℕ) : ℤ) ((enum b D j : ℕ) : ℤ)
+      ((sumDigits b (enum b D j) : ℕ) : ℤ) ((enum b D j' : ℕ) : ℤ)
+      ((sumDigits b (enum b D j') : ℕ) : ℤ) hm
+    have h3 : IsRat ((((b ^ ρ : ℕ) : ℤ) : ℝ) ^ (m 0)
+        * (dirDeriv (((enum b D j : ℕ) : ℤ) - ((enum b D j' : ℕ) : ℤ),
+            ((sumDigits b (enum b D j) : ℕ) : ℤ)
+              - ((sumDigits b (enum b D j') : ℕ) : ℤ)) p).coeff m) := by
+      have h4 := h1.sub h2
+      simpa [blockDiff] using h4
+    exact isRat_iff.1
+      (IsRat.of_mul_left ((isRat_intCast _).pow _) (pow_ne_zero _ hA) h3)
+  have hzero := hcbad _ hrat
+  rw [mem_badPairs]
+  refine ⟨⟨hj, hj'⟩, ?_⟩
+  simp only at hzero ⊢
+  linear_combination hzero
+
 /-! ### The induction step and the main theorem
 
-The induction step is the one part of this chapter that is **not** formalized:
-`UD_succ` below is stated but proved by `sorry`.  The intended proof is the
-one of the blueprint (`thm:UDstep`):
+The induction step follows the blueprint (`thm:UDstep`):
 
-* split `[M, N)` into blocks of length `δ^ρ` using `enum_block'` and
-  `sumDigits_enum_block'`, so that on a block the pair
-  `(κ(δ^ρ m + j), s_b(κ(δ^ρ m + j)))` equals
-  `(b^ρ κ(m) + κ(j), s_b(κ(m)) + s_b(κ(j)))`;
-* apply Cauchy--Schwarz in the block index, which replaces `p` by the
-  difference polynomials `R_{j,j'}`, the derivative of `p` in the integer
-  direction `w = (κ(j) - κ(j'), s_b(κ(j)) - s_b(κ(j')))` plus lower order
-  terms;
-* by `badDirections`, `R_{j,j'}` has irrational degree `l - 1`, so the
-  inductive hypothesis applies, unless `(j, j')` is *bad*, meaning
-  `c₁ κ(j) + c₂ s_b(κ(j))` agrees for `j` and `j'`;
-* the proportion of bad pairs tends to `0` as `ρ → ∞` in each of the three
-  cases `c₂ = 0`, `c₁ ≠ 0 ≠ c₂` and `c₁ = 0`; the last uses
-  `abs_Lhat_eq_one_iff` together with dominated convergence for
-  `∫₀¹ |L̂(θ)|^{2ρ} dθ → 0`.
+* split `[M, N)` into blocks of length `δ^ρ` (`window_block_split`), so that on
+  a block the pair `(κ(δ^ρ m + j), s_b(κ(δ^ρ m + j)))` equals
+  `(b^ρ κ(m) + κ(j), s_b(κ(m)) + s_b(κ(j)))` (`enum_block'`,
+  `sumDigits_enum_block'`);
+* apply Cauchy--Schwarz in the block index (`norm_sum_sq_le_card_mul`) and
+  expand `|∑_j e(p(·))|²` as a double sum of differences
+  (`normSq_sum_expc`), which replaces `p` by the difference polynomials
+  `blockDiff b D p ρ j j'`;
+* `irrDegLE_blockDiff` drops the irrational degree to `l`, and
+  `coeff_diffPoly_sub_isRat` identifies the degree-`l` coefficients with those
+  of `b^{ρ m₀} ∂_w p`, so by `badDirections` the inductive hypothesis applies
+  unless `(j, j')` is *bad* (`mem_badPairs_of_not_irrationalPoly`);
+* the proportion of bad pairs tends to `0`
+  (`exists_rho_card_badPairs_le`): when `c₁ ≠ 0` a bad partner is determined by
+  its digit sum, of which there are at most `(b-1)ρ + 1`; when `c₁ = 0` the
+  count equals `δ^{2ρ} ∫₀¹ |L̂(θ)|^{2ρ} dθ`, which tends to `0` by
+  `abs_Lhat_eq_one_iff` and dominated convergence.
 -/
 
 /-- Blueprint: `thm:UDstep`.  If the averaging conclusion holds for all
 polynomials of irrational degree at most `l`, it holds for all polynomials of
-irrational degree at most `l + 1`.
-
-**Not formalized**: the proof below is `sorry`. -/
+irrational degree at most `l + 1`. -/
 theorem UD_succ (h : Standing b D) {l : ℕ} (hl : 1 ≤ l)
     (ih : ∀ r : MvPolynomial (Fin 2) ℝ, IrrDegLE r l → IsIrrationalPoly r →
       UniformAvg (cantorSeq b D) r)
     {p : MvPolynomial (Fin 2) ℝ} (hp1 : IrrDegLE p (l + 1))
     (hp : IsIrrationalPoly p) :
     UniformAvg (cantorSeq b D) p := by
-  sorry
+  classical
+  by_cases hdrop : IrrDegLE p l
+  · exact ih p hdrop hp
+  obtain ⟨m₀, hm₀deg, hm₀irr⟩ :
+      ∃ m₀ : Fin 2 →₀ ℕ, m₀ 0 + m₀ 1 = l + 1 ∧ Irrational (p.coeff m₀) := by
+    rw [IrrDegLE] at hdrop
+    push Not at hdrop
+    obtain ⟨m₀, hlt, hirr⟩ := hdrop
+    refine ⟨m₀, ?_, hirr⟩
+    by_contra hne
+    exact (hp1 m₀ (by omega)) hirr
+  obtain ⟨c, hcne, hcbad⟩ := badDirections p (show 1 ≤ l + 1 by omega) hm₀deg hm₀irr
+  simp only [Nat.add_sub_cancel] at hcbad
+  intro ε hε
+  have hcard : 0 < D.card := by have := h.two_le_card; omega
+  obtain ⟨ρ, hρ1, hρ2⟩ :=
+    exists_rho_card_badPairs_le h hcne (show (0:ℝ) < ε ^ 2 / 8 by positivity)
+  have hΛpos : 0 < D.card ^ ρ := pow_pos hcard ρ
+  have hΛR : (0:ℝ) < ((D.card ^ ρ : ℕ) : ℝ) := by exact_mod_cast hΛpos
+  have hKex : ∀ z : ℕ × ℕ, ∃ K : ℕ, IsIrrationalPoly (blockDiff b D p ρ z.1 z.2) →
+      ∀ M' N' : ℕ, M' + K ≤ N' →
+        ‖((N' - M' : ℕ) : ℂ)⁻¹ * ∑ m ∈ Ico M' N',
+          expc (polyEval (blockDiff b D p ρ z.1 z.2) (cantorSeq b D m))‖ < ε ^ 2 / 8 := by
+    intro z
+    by_cases hgood : IsIrrationalPoly (blockDiff b D p ρ z.1 z.2)
+    · obtain ⟨K, hK⟩ := ih (blockDiff b D p ρ z.1 z.2) (irrDegLE_blockDiff hp1 ρ z.1 z.2)
+        hgood (ε ^ 2 / 8) (by positivity)
+      exact ⟨K, fun _ => hK⟩
+    · exact ⟨0, fun hc => absurd hc hgood⟩
+  choose KK hKK using hKex
+  refine ⟨max (D.card ^ ρ * ((range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z) + 2))
+    (⌈4 * ((D.card ^ ρ : ℕ) : ℝ) / ε⌉₊ + 1), ?_⟩
+  intro M N hMN
+  -- the window split
+  have hf1 : ‖(∑ n ∈ Ico M N, expc (polyEval p (cantorSeq b D n)))
+      - ∑ m ∈ Ico ((M + D.card ^ ρ - 1) / D.card ^ ρ) (N / D.card ^ ρ),
+          ∑ j ∈ range (D.card ^ ρ),
+            expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖
+      ≤ 2 * ((D.card ^ ρ : ℕ) : ℝ) :=
+    window_block_split hΛpos _ (fun n => le_of_eq (norm_expc _)) M N
+  obtain ⟨hA, hB⟩ := ceil_div_bounds (q := D.card ^ ρ) (M := M) hΛpos
+  obtain ⟨hC, hDD⟩ := floor_div_bounds (q := D.card ^ ρ) (N := N) hΛpos
+  have hblk := block_count_le (q := D.card ^ ρ) (M := M) (N := N) hΛpos
+  obtain ⟨M₁, hM₁⟩ : ∃ k, (M + D.card ^ ρ - 1) / D.card ^ ρ = k := ⟨_, rfl⟩
+  obtain ⟨N₁, hN₁⟩ : ∃ k, N / D.card ^ ρ = k := ⟨_, rfl⟩
+  rw [hM₁] at hA hB hf1 hblk
+  rw [hN₁] at hC hDD hf1 hblk
+  -- the numeric facts about the block range
+  have hKs : D.card ^ ρ * ((range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z) + 2)
+      ≤ max (D.card ^ ρ * ((range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z) + 2))
+        (⌈4 * ((D.card ^ ρ : ℕ) : ℝ) / ε⌉₊ + 1) := le_max_left _ _
+  have hCeil : ⌈4 * ((D.card ^ ρ : ℕ) : ℝ) / ε⌉₊ + 1
+      ≤ max (D.card ^ ρ * ((range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z) + 2))
+        (⌈4 * ((D.card ^ ρ : ℕ) : ℝ) / ε⌉₊ + 1) := le_max_right _ _
+  have hgt : M₁ + (range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z) < N₁ := by
+    have e1 : D.card ^ ρ * (M₁ + (range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z))
+        = D.card ^ ρ * M₁
+          + D.card ^ ρ * (range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z) := by
+      ring
+    have e2 : D.card ^ ρ * ((range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z) + 2)
+        = D.card ^ ρ * (range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z)
+          + D.card ^ ρ * 2 := by ring
+    have e3 : D.card ^ ρ * 2 = D.card ^ ρ + D.card ^ ρ := by ring
+    have hlt : D.card ^ ρ
+        * (M₁ + (range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z))
+        < D.card ^ ρ * N₁ := by omega
+    exact Nat.lt_of_mul_lt_mul_left hlt
+  have hMN₁ : M₁ ≤ N₁ := by omega
+  have hdpos : 0 < N₁ - M₁ := by omega
+  have hdposR : (0:ℝ) < ((N₁ - M₁ : ℕ) : ℝ) := by exact_mod_cast hdpos
+  have hNMpos : 0 < N - M := by omega
+  have hNMposR : (0:ℝ) < ((N - M : ℕ) : ℝ) := by exact_mod_cast hNMpos
+  -- the differencing identity
+  have hW : ∀ m : ℕ, ((‖∑ j ∈ range (D.card ^ ρ),
+        expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖ : ℝ) : ℂ) ^ 2
+      = ∑ j ∈ range (D.card ^ ρ), ∑ j' ∈ range (D.card ^ ρ),
+          expc (polyEval (blockDiff b D p ρ j j') (cantorSeq b D m)) := by
+    intro m
+    rw [← Complex.ofReal_pow, normSq_sum_expc]
+    exact Finset.sum_congr rfl fun j hj => Finset.sum_congr rfl fun j' hj' => by
+      rw [polyEval_blockDiff_cantorSeq h p ρ m (Finset.mem_range.1 hj) (Finset.mem_range.1 hj')]
+  have hsumC : ((∑ m ∈ Ico M₁ N₁, ‖∑ j ∈ range (D.card ^ ρ),
+        expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖ ^ 2 : ℝ) : ℂ)
+      = ∑ j ∈ range (D.card ^ ρ), ∑ j' ∈ range (D.card ^ ρ), ∑ m ∈ Ico M₁ N₁,
+          expc (polyEval (blockDiff b D p ρ j j') (cantorSeq b D m)) := by
+    push_cast
+    rw [Finset.sum_congr rfl (fun m _ => hW m), Finset.sum_comm]
+    exact Finset.sum_congr rfl fun j _ => Finset.sum_comm
+  have hsumNonneg : (0:ℝ) ≤ ∑ m ∈ Ico M₁ N₁, ‖∑ j ∈ range (D.card ^ ρ),
+      expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖ ^ 2 :=
+    Finset.sum_nonneg fun m _ => by positivity
+  have hsumLe : (∑ m ∈ Ico M₁ N₁, ‖∑ j ∈ range (D.card ^ ρ),
+        expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖ ^ 2)
+      ≤ ∑ j ∈ range (D.card ^ ρ), ∑ j' ∈ range (D.card ^ ρ),
+          ‖∑ m ∈ Ico M₁ N₁,
+            expc (polyEval (blockDiff b D p ρ j j') (cantorSeq b D m))‖ := by
+    calc (∑ m ∈ Ico M₁ N₁, ‖∑ j ∈ range (D.card ^ ρ),
+          expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖ ^ 2)
+        = ‖((∑ m ∈ Ico M₁ N₁, ‖∑ j ∈ range (D.card ^ ρ),
+            expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖ ^ 2 : ℝ) : ℂ)‖ := by
+          rw [norm_ofReal_of_nonneg hsumNonneg]
+      _ = ‖∑ j ∈ range (D.card ^ ρ), ∑ j' ∈ range (D.card ^ ρ), ∑ m ∈ Ico M₁ N₁,
+            expc (polyEval (blockDiff b D p ρ j j') (cantorSeq b D m))‖ := by rw [hsumC]
+      _ ≤ ∑ j ∈ range (D.card ^ ρ), ‖∑ j' ∈ range (D.card ^ ρ), ∑ m ∈ Ico M₁ N₁,
+            expc (polyEval (blockDiff b D p ρ j j') (cantorSeq b D m))‖ := norm_sum_le _ _
+      _ ≤ ∑ j ∈ range (D.card ^ ρ), ∑ j' ∈ range (D.card ^ ρ), ‖∑ m ∈ Ico M₁ N₁,
+            expc (polyEval (blockDiff b D p ρ j j') (cantorSeq b D m))‖ :=
+          Finset.sum_le_sum fun j _ => norm_sum_le _ _
+  -- the good/bad dichotomy, termwise
+  have hterm : ∀ z ∈ range (D.card ^ ρ) ×ˢ range (D.card ^ ρ),
+      ‖∑ m ∈ Ico M₁ N₁, expc (polyEval (blockDiff b D p ρ z.1 z.2) (cantorSeq b D m))‖
+        ≤ ((N₁ - M₁ : ℕ) : ℝ) * (ε ^ 2 / 8)
+          + (if z ∈ badPairs b D c ρ then ((N₁ - M₁ : ℕ) : ℝ) else 0) := by
+    intro z hz
+    have hz1 : z.1 < D.card ^ ρ := Finset.mem_range.1 (Finset.mem_product.1 hz).1
+    have hz2 : z.2 < D.card ^ ρ := Finset.mem_range.1 (Finset.mem_product.1 hz).2
+    by_cases hgood : IsIrrationalPoly (blockDiff b D p ρ z.1 z.2)
+    · have hKle : KK z ≤ (range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)).sup (fun z => KK z) :=
+        Finset.le_sup hz
+      have hbd := hKK z hgood M₁ N₁ (by omega)
+      rw [norm_mul, norm_inv, Complex.norm_natCast] at hbd
+      have hlt : ‖∑ m ∈ Ico M₁ N₁,
+          expc (polyEval (blockDiff b D p ρ z.1 z.2) (cantorSeq b D m))‖
+          < ((N₁ - M₁ : ℕ) : ℝ) * (ε ^ 2 / 8) := by
+        rw [inv_mul_eq_div, div_lt_iff₀ hdposR] at hbd
+        linarith
+      have hif : (0:ℝ) ≤ (if z ∈ badPairs b D c ρ then ((N₁ - M₁ : ℕ) : ℝ) else 0) := by
+        split <;> positivity
+      linarith
+    · have hmem : z ∈ badPairs b D c ρ := by
+        have := mem_badPairs_of_not_irrationalPoly h hl hp1 hcbad ρ hz1 hz2 hgood
+        simpa using this
+      rw [if_pos hmem]
+      have htri : ‖∑ m ∈ Ico M₁ N₁,
+          expc (polyEval (blockDiff b D p ρ z.1 z.2) (cantorSeq b D m))‖
+          ≤ ((N₁ - M₁ : ℕ) : ℝ) := by
+        calc ‖∑ m ∈ Ico M₁ N₁,
+              expc (polyEval (blockDiff b D p ρ z.1 z.2) (cantorSeq b D m))‖
+            ≤ ∑ m ∈ Ico M₁ N₁,
+                ‖expc (polyEval (blockDiff b D p ρ z.1 z.2) (cantorSeq b D m))‖ :=
+              norm_sum_le _ _
+          _ = ((N₁ - M₁ : ℕ) : ℝ) := by simp [norm_expc]
+      have : (0:ℝ) ≤ ((N₁ - M₁ : ℕ) : ℝ) * (ε ^ 2 / 8) := by positivity
+      linarith
+  -- summing the termwise bound
+  have hcountbad : ((badPairs b D c ρ).card : ℝ) ≤ (ε ^ 2 / 8) * ((D.card ^ ρ : ℕ) : ℝ) ^ 2 := by
+    have := hρ2
+    push_cast at this ⊢
+    linarith
+  have htot : (∑ j ∈ range (D.card ^ ρ), ∑ j' ∈ range (D.card ^ ρ),
+        ‖∑ m ∈ Ico M₁ N₁,
+          expc (polyEval (blockDiff b D p ρ j j') (cantorSeq b D m))‖)
+      ≤ ((N₁ - M₁ : ℕ) : ℝ) * (ε ^ 2 / 4) * ((D.card ^ ρ : ℕ) : ℝ) ^ 2 := by
+    rw [← Finset.sum_product']
+    calc (∑ z ∈ range (D.card ^ ρ) ×ˢ range (D.card ^ ρ),
+          ‖∑ m ∈ Ico M₁ N₁,
+            expc (polyEval (blockDiff b D p ρ z.1 z.2) (cantorSeq b D m))‖)
+        ≤ ∑ z ∈ range (D.card ^ ρ) ×ˢ range (D.card ^ ρ),
+            (((N₁ - M₁ : ℕ) : ℝ) * (ε ^ 2 / 8)
+              + (if z ∈ badPairs b D c ρ then ((N₁ - M₁ : ℕ) : ℝ) else 0)) :=
+          Finset.sum_le_sum hterm
+      _ = ((D.card ^ ρ : ℕ) : ℝ) ^ 2 * (((N₁ - M₁ : ℕ) : ℝ) * (ε ^ 2 / 8))
+            + ((((range (D.card ^ ρ) ×ˢ range (D.card ^ ρ)) ∩ badPairs b D c ρ).card : ℕ) : ℝ)
+              * ((N₁ - M₁ : ℕ) : ℝ) := by
+          rw [Finset.sum_add_distrib, Finset.sum_const, Finset.sum_ite_mem, Finset.sum_const,
+            Finset.card_product, Finset.card_range]
+          push_cast
+          ring
+      _ ≤ ((D.card ^ ρ : ℕ) : ℝ) ^ 2 * (((N₁ - M₁ : ℕ) : ℝ) * (ε ^ 2 / 8))
+            + ((ε ^ 2 / 8) * ((D.card ^ ρ : ℕ) : ℝ) ^ 2) * ((N₁ - M₁ : ℕ) : ℝ) := by
+          have hsub : (((range (D.card ^ ρ) ×ˢ range (D.card ^ ρ))
+              ∩ badPairs b D c ρ).card : ℝ) ≤ ((badPairs b D c ρ).card : ℝ) := by
+            exact_mod_cast Finset.card_le_card Finset.inter_subset_right
+          nlinarith [hdposR, hsub, hcountbad]
+      _ = ((N₁ - M₁ : ℕ) : ℝ) * (ε ^ 2 / 4) * ((D.card ^ ρ : ℕ) : ℝ) ^ 2 := by ring
+  -- Cauchy--Schwarz
+  have hCS : ‖∑ m ∈ Ico M₁ N₁, ∑ j ∈ range (D.card ^ ρ),
+        expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖ ^ 2
+      ≤ ((N₁ - M₁ : ℕ) : ℝ) * ∑ m ∈ Ico M₁ N₁, ‖∑ j ∈ range (D.card ^ ρ),
+          expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖ ^ 2 := by
+    have := norm_sum_sq_le_card_mul (Ico M₁ N₁)
+      (fun m => ∑ j ∈ range (D.card ^ ρ),
+        expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j))))
+    simpa using this
+  have hTsq : ‖∑ m ∈ Ico M₁ N₁, ∑ j ∈ range (D.card ^ ρ),
+        expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖ ^ 2
+      ≤ (((N₁ - M₁ : ℕ) : ℝ) * ((D.card ^ ρ : ℕ) : ℝ) * (ε / 2)) ^ 2 := by
+    have h1 : (∑ m ∈ Ico M₁ N₁, ‖∑ j ∈ range (D.card ^ ρ),
+        expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖ ^ 2)
+        ≤ ((N₁ - M₁ : ℕ) : ℝ) * (ε ^ 2 / 4) * ((D.card ^ ρ : ℕ) : ℝ) ^ 2 :=
+      le_trans hsumLe htot
+    nlinarith [hCS, h1, hdposR, hΛR]
+  have hT : ‖∑ m ∈ Ico M₁ N₁, ∑ j ∈ range (D.card ^ ρ),
+        expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖
+      ≤ ((N₁ - M₁ : ℕ) : ℝ) * ((D.card ^ ρ : ℕ) : ℝ) * (ε / 2) := by
+    exact le_of_sq_le_sq (norm_nonneg _) (by positivity) hTsq
+  -- the block count and the leftover
+  have hblkR : ((D.card ^ ρ : ℕ) : ℝ) * ((N₁ - M₁ : ℕ) : ℝ) ≤ ((N - M : ℕ) : ℝ) := by
+    exact_mod_cast hblk
+  have hleft : 2 * ((D.card ^ ρ : ℕ) : ℝ) < ((N - M : ℕ) : ℝ) * (ε / 2) := by
+    have hceil : (4 * ((D.card ^ ρ : ℕ) : ℝ) / ε) ≤ (⌈4 * ((D.card ^ ρ : ℕ) : ℝ) / ε⌉₊ : ℝ) :=
+      Nat.le_ceil _
+    have hge : ((⌈4 * ((D.card ^ ρ : ℕ) : ℝ) / ε⌉₊ : ℕ) : ℝ) + 1 ≤ ((N - M : ℕ) : ℝ) := by
+      have : (⌈4 * ((D.card ^ ρ : ℕ) : ℝ) / ε⌉₊ : ℕ) + 1 ≤ N - M := by omega
+      exact_mod_cast this
+    have h4 : 4 * ((D.card ^ ρ : ℕ) : ℝ) / ε < ((N - M : ℕ) : ℝ) := by linarith
+    rw [div_lt_iff₀ hε] at h4
+    linarith
+  -- conclude
+  have hS : ‖∑ n ∈ Ico M N, expc (polyEval p (cantorSeq b D n))‖
+      < ((N - M : ℕ) : ℝ) * ε := by
+    have htri : ‖∑ n ∈ Ico M N, expc (polyEval p (cantorSeq b D n))‖
+        ≤ ‖∑ m ∈ Ico M₁ N₁, ∑ j ∈ range (D.card ^ ρ),
+            expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j)))‖
+          + 2 * ((D.card ^ ρ : ℕ) : ℝ) := by
+      have := norm_sub_norm_le (∑ n ∈ Ico M N, expc (polyEval p (cantorSeq b D n)))
+        (∑ m ∈ Ico M₁ N₁, ∑ j ∈ range (D.card ^ ρ),
+          expc (polyEval p (cantorSeq b D (D.card ^ ρ * m + j))))
+      linarith [hf1, this]
+    nlinarith [htri, hT, hblkR, hleft, hdposR, hΛR, hε]
+  rw [norm_mul, norm_inv, Complex.norm_natCast, inv_mul_eq_div, div_lt_iff₀ hNMposR]
+  linarith [hS]
 
 /-- The averaging conclusion for every polynomial of irrational degree at
-most `l + 1`, by induction on `l`.
-
-Depends on the `sorry` in `UD_succ`. -/
+most `l + 1`, by induction on `l`. -/
 theorem UD_le (h : Standing b D) :
     ∀ l : ℕ, ∀ p : MvPolynomial (Fin 2) ℝ, IrrDegLE p (l + 1) → IsIrrationalPoly p →
       UniformAvg (cantorSeq b D) p := by
@@ -785,9 +1945,7 @@ theorem UD_le (h : Standing b D) :
   | succ k ih => exact fun p hp1 hp => UD_succ h (by omega) ih hp1 hp
 
 /-- Blueprint: `thm:polyUniform`, Theorem 4.3 of the paper.  The sequence
-`n ↦ (κ(n), s_b(κ(n)))` is polynomially uniformly distributed.
-
-Depends on the `sorry` in `UD_succ`. -/
+`n ↦ (κ(n), s_b(κ(n)))` is polynomially uniformly distributed. -/
 theorem isPUDU (h : Standing b D) : IsPUDU (cantorSeq b D) := fun p hp =>
   UD_le h p.totalDegree p ((irrDegLE_totalDegree p).mono (Nat.le_succ _)) hp
 

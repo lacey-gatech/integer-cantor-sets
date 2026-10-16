@@ -5,9 +5,8 @@ A Lean 4 / Mathlib formalization of the paper in the parent directory, with a
 
 ## Status
 
-The project **builds**. Chapters 2, 3 and 4 are complete and sorry-free;
-Chapter 5 is complete apart from its induction step. There is exactly
-**one `sorry`** in the project, `UD_succ` in `PUDU.lean`.
+The project **builds and contains no `sorry`**. Chapters 2, 3, 4 and 5 are
+complete.
 
 - **Chapter 2 is complete**: `Structure.lean` proves **Proposition 2.5**,
   the enumeration theorem (`thm:enum-bij`, `lem:enum-block`), so `enum` is the
@@ -23,14 +22,15 @@ Chapter 5 is complete apart from its induction step. There is exactly
   rests on — `abs_Lhat_eq_one_iff`, `blockProduct` and `window_split` — and
   the escape lemma `exceptional_of_tendsto`. This is the result on which
   Chapters 5, 6 and 8 of the blueprint all depend.
-- **Chapter 5 is complete except for the induction step**: `PUDU.lean` sets up
-  polynomial uniform distribution for `MvPolynomial (Fin 2) ℝ` and proves
-  **the base case** `UD_one` (`thm:UD1`), the first consumer of
-  `tendsto_expSum`, together with `badDirections` (`lem:badDirections`) and
-  the whole finite-Fourier apparatus it needs. `UD_succ` (`thm:UDstep`) is
-  **stated but proved by `sorry`**; `UD_le` and `isPUDU` (`thm:polyUniform`,
-  Theorem 4.3) reduce the theorem to it, so they are proved *modulo*
-  `UD_succ` and carry `sorryAx`.
+- **Chapter 5 is complete**: `PUDU.lean` proves **Theorem 4.3**
+  (`thm:polyUniform`), that `n ↦ (κ(n), s_b(κ(n)))` is polynomially uniformly
+  distributed (`isPUDU`). The base case `UD_one` (`thm:UD1`) is the first
+  consumer of `tendsto_expSum`; the induction step `UD_succ` (`thm:UDstep`)
+  is block decomposition plus Cauchy–Schwarz, with `badDirections`
+  (`lem:badDirections`) controlling the difference polynomials and three
+  counts of bad pairs, the last of which is
+  `∫₀¹ |L̂(θ)|^{2ρ} dθ → 0` by `abs_Lhat_eq_one_iff` and dominated
+  convergence.
 
 The remaining blueprint chapters (6–9) have no Lean statements yet; four of
 their results are blocked on material absent from Mathlib (see below).
@@ -39,19 +39,18 @@ their results are blocked on material absent from Mathlib (see below).
 |---|---|
 | Lean toolchain | `leanprover/lean4:v4.35.0` |
 | Mathlib | pinned at tag `v4.35.0` |
-| Lean declarations | 30 definitions/structures, 137 theorem statements |
-| Proved | 134; three (`UD_succ`, `UD_le`, `isPUDU`) depend on the one `sorry` |
+| Lean declarations | 36 definitions/structures, 198 theorem statements |
+| Proved | 198 (all of them) |
 | Blueprint items | 65 (20 definitions, 45 results), 8 marked blocked |
-| `sorry` | 1 (`UD_succ`) |
+| `sorry` | 0 |
 
-Every theorem in the project except `UD_succ`, `UD_le` and `isPUDU` depends
-only on `propext`, `Classical.choice` and `Quot.sound`; those three also
-depend on `sorryAx`. In particular `IntegerCantorSet.range_enum`,
+Every theorem in the project depends only on `propext`, `Classical.choice`
+and `Quot.sound`; in particular `IntegerCantorSet.range_enum`,
 `IntegerCantorSet.enum_block`, `IntegerCantorSet.vdcConst_cantorSet_le`,
 `IntegerCantorSet.intersectiveConst_cantorSet_le`,
 `IntegerCantorSet.isIntersective_cantorSet`,
 `IntegerCantorSet.exists_dvd_of_isIntersective` and
-`IntegerCantorSet.tendsto_expSum`.
+`IntegerCantorSet.tendsto_expSum` and `IntegerCantorSet.isPUDU`.
 
 Proved so far:
 
@@ -119,9 +118,37 @@ Proved so far:
   `polyEval_sub_int_of_dvd`, `ratPart`, `coeff_ratPart`, `ratPart_coeff_rat`,
   `polyEval_eq_add_ratPart`.
 - Chapter 5, the base case (Theorem 4.3 for irrational degree 1): `UD_one`.
-
-Stated but **not proved**: `UD_succ` (`sorry`). `UD_le` and `isPUDU` are
-proved from `UD_one` and `UD_succ`, hence hold modulo that one `sorry`.
+- Chapter 5, rational reals: `IsRat` with `isRat_iff` and its closure lemmas
+  (`IsRat.add`, `.sub`, `.mul`, `.pow`, `.sum`, `.of_mul_left`,
+  `isRat_intCast`, `isRat_natCast`), `irrational_of_isRat_sub`.
+- Chapter 5, differencing: `conj_expc`, `normSq_sum_expc` (the expansion of
+  `|∑ e(tⱼ)|²`), `norm_sum_sq_le_card_mul` (Cauchy–Schwarz),
+  `le_of_sq_le_sq`, `norm_ofReal_of_nonneg`, `window_block_split`,
+  `block_range_bounds`.
+- Chapter 5, affine substitution: `substAffine`, `eval_substAffine`,
+  `substAffine_add`, `C_mul_X_add_C_pow`, `substAffine_monomial`,
+  `coeff_substAffine_monomial`, `substWeight` with
+  `substWeight_eq_zero`/`_self`/`_add_zero`/`_add_one`,
+  `isRat_substWeight`, `coeff_substAffine`.
+- Chapter 5, the degree drop: `add_e0_apply_zero` and friends,
+  `eq_of_le_of_deg_le`, `diffPoly`, `coeff_diffPoly`, `isRat_weight_diff`,
+  `isRat_diffPoly_term`, **`irrDegLE_diffPoly`** (the difference polynomial
+  loses a degree) and **`coeff_diffPoly_sub_isRat`** (its degree-`l`
+  coefficients are those of `A^{m₀} ∂_w p`).
+- Chapter 5, counting bad pairs: `sumDigits_le_of_lt_pow`,
+  `card_filter_product`, `exists_linear_le_pow`, `badPairs`, `mem_badPairs`,
+  `card_badPairs_le_of_fst_ne`, `badPairs_fst_zero`,
+  `card_badPairs_fst_zero` (the Parseval identity
+  `#bad = δ^{2ρ} ∫₀¹ |L̂|^{2ρ}`), `tendsto_integral_Lhat_pow` (dominated
+  convergence), `exists_rho_card_badPairs_le`.
+- Chapter 5, characters and integrals: `continuous_expc`,
+  `continuous_expc_mul`, `continuous_Lhat`, `integrableOn_expc_mul`,
+  `integral_expc_intCast_mul`, `sum_expc_sumDigits_eq`.
+- Chapter 5, the induction step and Theorem 4.3: `blockDiff`,
+  `irrDegLE_blockDiff`, `polyEval_cantorSeq`,
+  `polyEval_substAffine_cantorSeq`, `polyEval_diffPoly_cantorSeq`,
+  `polyEval_blockDiff_cantorSeq`, `mem_badPairs_of_not_irrationalPoly`,
+  **`UD_succ`**, `UD_le`, **`isPUDU`**.
 
 ## Layout
 
@@ -182,14 +209,16 @@ The blueprint's Chapter 1 argues for this order.
    `thm:irrational`, together with `lem:badDirections` and the finite Fourier
    apparatus (orthogonality mod `q`, common denominators, the rational part of
    a polynomial of irrational degree 1).
-6. **`thm:UDstep`** — the one `sorry` in the project, and now the single thing
-   standing between the project and Theorem 4.3. Block decomposition by
-   `enum_block'`, Cauchy–Schwarz in the block index, `badDirections` applied
-   to the difference polynomial, and three counts of bad pairs, the last of
-   which needs `∫₀¹ |L̂(θ)|^{2ρ} dθ → 0` from `abs_Lhat_eq_one_iff` by
-   dominated convergence.
+6. ~~**`thm:UDstep` and `thm:polyUniform`**~~ — done. Theorem 4.3 is
+   unconditional. Block decomposition by `enum_block'`, Cauchy–Schwarz in the
+   block index, `badDirections` applied to the difference polynomial, and
+   three counts of bad pairs, the last of which needs
+   `∫₀¹ |L̂(θ)|^{2ρ} dθ → 0` from `abs_Lhat_eq_one_iff` by dominated
+   convergence. Chapter 6 (`chap:residue`) is no longer blocked.
 7. **`lem:noCarry`** — additive energy is multiplicative over digits. Finitary
    and independent of everything else, so it parallelizes.
+8. **Chapter 6 (`chap:residue`)**, distribution in residue classes: finite
+   Fourier analysis on `ℤ_q` plus Chapters 4 and 5, both now available.
 
 ## Known obstructions
 

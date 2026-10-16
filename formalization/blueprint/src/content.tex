@@ -31,9 +31,8 @@ spent where it will actually close.
   \item \textbf{Chapters \ref{chap:expsum} and \ref{chap:pudu} are hard but
     unblocked.} They need limits of infinite products of complex numbers,
     Weyl's criterion, and a two-variable polynomial induction. All of the
-    ingredients exist in Mathlib; the work is long but ordinary. Chapter
-    \ref{chap:expsum} is now complete, and Chapter \ref{chap:pudu} is complete
-    apart from its induction step, Theorem \ref{thm:UDstep}.
+    ingredients exist in Mathlib; the work is long but ordinary. Both are now
+    complete.
   \item \textbf{Chapter \ref{chap:residue} is unblocked and moderate.} It is
     finite Fourier analysis on $\Z_q$ plus the results of Chapter
     \ref{chap:expsum}.
@@ -965,11 +964,8 @@ The quantitative bridge between them, $\abs{1 - e(x)} = 2\sin(\pi\norm{x})
 \label{chap:pudu}
 
 This chapter formalizes Section 4; the file is
-\texttt{IntegerCantorSets/PUDU.lean}. Everything below is formalized
-\emph{except} the induction step, Theorem \ref{thm:UDstep}: its Lean statement
-exists and typechecks, but its proof is \texttt{sorry}. Consequently Theorem
-\ref{thm:polyUniform} is reduced to Theorem \ref{thm:UDstep} in Lean but is
-not yet unconditionally proved.
+\texttt{IntegerCantorSets/PUDU.lean}. Everything below is formalized, with no
+\texttt{sorry}: Theorem \ref{thm:polyUniform} is proved unconditionally.
 
 Polynomials in two variables over $\R$ are represented by
 \texttt{MvPolynomial (Fin 2) $\R$}, evaluated at integer points
@@ -1114,25 +1110,71 @@ coefficients.
   Definition \ref{def:PUDU} holds for every irrational polynomial of
   irrational degree at most $\ell$, then it holds for every irrational
   polynomial of irrational degree at most $\ell + 1$.
-
-  \emph{The Lean statement exists and typechecks; the Lean proof is
-  \texttt{sorry}.}
 \end{theorem}
 \begin{proof}
   \uses{thm:UDstep}
-  Split $[M,N)$ into blocks of length $\delta^\rho$ using Lemma
-  \ref{lem:enum-block}, apply Cauchy--Schwarz in the block index, and observe
-  that the resulting difference polynomial $R_{j,j'}$, the derivative of $p$ in
-  the integer direction
-  $w = (\enum(j) - \enum(j'), \sd(\enum(j)) - \sd(\enum(j')))$ plus lower
-  order terms, has irrational degree $\ell$ by Lemma \ref{lem:badDirections}
-  unless $(j,j')$ is \emph{bad}, meaning
-  $c_1\enum(j) + c_2\sd(\enum(j))$ agrees for $j$ and $j'$. The proportion
-  $\eta_\rho$ of bad pairs tends to $0$: if $c_2 = 0$ it is $\delta^{-\rho}$;
-  if $c_1, c_2 \neq 0$ it is $O(\rho\,\delta^{-\rho})$ since
-  $\sd(\enum(j)) \leq (b-1)\rho$; and if $c_1 = 0$ it equals
-  $\int_0^1 \abs{\Lhat(\theta)}^{2\rho} d\theta \to 0$ by Lemma
-  \ref{lem:Lhat-abs-one} and dominated convergence.
+  \leanok
+  We may assume $p$ has a monomial of total degree exactly $\ell+1$ with
+  irrational coefficient, since otherwise the inductive hypothesis applies
+  directly. Let $(c_1,c_2)$ be the direction supplied by Lemma
+  \ref{lem:badDirections}.
+
+  Fix $\rho$ and write $\Lambda = \delta^\rho$. Splitting $[M,N)$ into the
+  complete blocks of length $\Lambda$ it contains costs at most $2\Lambda$
+  unimodular terms (\texttt{window\_block\_split}, the same ceiling/floor
+  bookkeeping as Lemma \ref{lem:windowSplit}). On a block, Lemma
+  \ref{lem:enum-block} gives
+  $\enum(\Lambda m + j) = b^\rho \enum(m) + \enum(j)$ and
+  $\sd(\enum(\Lambda m + j)) = \sd(\enum(m)) + \sd(\enum(j))$. Cauchy--Schwarz
+  in the block index (\texttt{norm\_sum\_sq\_le\_card\_mul}) and the identity
+  \[
+    \abs{\sum_{j<\Lambda} \e{t_j}}^2
+      = \sum_{j,j'<\Lambda} \e{t_j - t_{j'}}
+  \]
+  (\texttt{normSq\_sum\_expc}) replace $p$ by the \emph{difference
+  polynomials}
+  \[
+    R_{j,j'}(X,Y) = p\bigl(b^\rho X + \enum(j),\ Y + \sd(\enum(j))\bigr)
+      - p\bigl(b^\rho X + \enum(j'),\ Y + \sd(\enum(j'))\bigr)
+  \]
+  (\texttt{blockDiff}), which satisfy
+  $R_{j,j'}(\enum(m), \sd(\enum(m))) = p(x_{\Lambda m + j}) - p(x_{\Lambda m+j'})$.
+
+  Writing the coefficients of an affine substitution as a single sum over the
+  support (\texttt{coeff\_substAffine}) shows two things at once. First, the
+  degree $\ell+1$ coefficients of $R_{j,j'}$ cancel and the higher ones are
+  rational, so $R_{j,j'}$ has irrational degree at most $\ell$
+  (\texttt{irrDegLE\_diffPoly}). Second, in degree $\ell$ only the three
+  monomials $m$, $m + e_X$, $m + e_Y$ contribute, and the result is
+  $b^{\rho m_X} \partial_w p$ up to a rational, where
+  $w = (\enum(j) - \enum(j'), \sd(\enum(j)) - \sd(\enum(j')))$
+  (\texttt{coeff\_diffPoly\_sub\_isRat}). Hence, by Lemma
+  \ref{lem:badDirections}, $R_{j,j'}$ is irrational --- so the inductive
+  hypothesis applies to it --- unless $(j,j')$ is \emph{bad}, meaning
+  $c_1\enum(j) + c_2\sd(\enum(j))$ agrees for $j$ and $j'$.
+
+  The proportion of bad pairs tends to $0$. If $c_1 \neq 0$ then a bad partner
+  of $j$ is determined by its digit sum, because $\enum$ is injective; since
+  $\enum(j') < b^\rho$ forces $\sd(\enum(j')) \leq (b-1)\rho$, there are at
+  most $(b-1)\rho + 1$ of them, and $((b-1)\rho+1)/\delta^\rho \to 0$. If
+  $c_1 = 0$ then bad means $\sd(\enum(j)) = \sd(\enum(j'))$, and
+  orthogonality of the characters $\theta \mapsto \e{k\theta}$ on $[0,1]$
+  turns the count into
+  \[
+    \#\{(j,j') : \sd(\enum(j)) = \sd(\enum(j'))\}
+      = \int_0^1 \abs{\sum_{j<\Lambda} \e{\sd(\enum(j))\theta}}^2 d\theta
+      = \delta^{2\rho}\int_0^1 \abs{\Lhat(\theta)}^{2\rho}\,d\theta ,
+  \]
+  the middle step by Lemma \ref{lem:blockProduct} with $\alpha = 0$. By Lemma
+  \ref{lem:Lhat-abs-one}, $\abs{\Lhat(\theta)} = 1$ only when
+  $s(D)\theta \in \Z$, a countable set; so $\abs{\Lhat(\theta)}^{2\rho} \to 0$
+  almost everywhere and the integral tends to $0$ by dominated convergence.
+
+  Choosing $\rho$ with bad proportion below $\varepsilon^2/8$, and the
+  inductive tolerance also $\varepsilon^2/8$, makes the square of the
+  normalised block average at most $\varepsilon^2/4$; the incomplete blocks
+  contribute $2\Lambda/(N-M)$, which is below $\varepsilon/2$ once $N-M$ is
+  large.
 \end{proof}
 
 \begin{theorem}[Theorem 4.3]
@@ -1145,13 +1187,11 @@ coefficients.
 \end{theorem}
 \begin{proof}
   \uses{thm:polyUniform}
+  \leanok
   Induction on $\ell$ in ``irrational degree at most $\ell$''
   (\texttt{UD\_le}): the base case is Theorem \ref{thm:UD1} and the step is
   Theorem \ref{thm:UDstep}. Any irrational $p$ has irrational degree at most
-  $\deg p$ (\texttt{irrDegLE\_totalDegree}), which supplies the $\ell$. In Lean
-  this reduction is complete and carries no \texttt{sorry} of its own, but it
-  inherits the \texttt{sorry} of Theorem \ref{thm:UDstep}, so the proof is not
-  marked complete.
+  $\deg p$ (\texttt{irrDegLE\_totalDegree}), which supplies the $\ell$.
 \end{proof}
 
 \chapter{Distribution in residue classes}
