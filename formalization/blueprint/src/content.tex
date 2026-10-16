@@ -43,7 +43,8 @@ spent where it will actually close.
   \item \textbf{Chapter \ref{chap:paircorr} is blocked} on the theorem of
     Aistleitner, Larcher and Lewko, which is a research paper in its own right
     and is not a realistic formalization target. It is recorded as a
-    hypothesis.
+    hypothesis. Its finitary input, Lemma \ref{lem:noCarry}, is unblocked and
+    is now complete.
 \end{itemize}
 
 \section{Mathlib inventory}
@@ -1583,36 +1584,81 @@ the smallest $j$ with $q \mid b^j$.
 \begin{definition}
   \label{def:pairCorrelation}
   \lean{IntegerCantorSet.HasPairCorrelation}
+  \leanok
   A sequence $(\theta_n)$ has \emph{Poissonian pair correlation} if for every
   $s > 0$,
   $N^{-1}\abs{\{0 \leq j \neq k < N : \norm{\theta_j - \theta_k} < s/N\}}
   \to 2s$.
+
+  In Lean $\norm{\cdot}$ is \texttt{distInt}, the distance to the nearest
+  integer already introduced in Chapter \ref{chap:expsum}, and the count is a
+  \texttt{Set.ncard}, which avoids a decidability instance for a strict
+  inequality between reals.
 \end{definition}
 
 \begin{definition}[Additive energy]
   \label{def:additiveEnergy}
   \lean{IntegerCantorSet.additiveEnergy}
+  \leanok
   $E(A) = \abs{\{(x,y,z,w) \in A^4 : x + y = z + w\}}$.
-  Mathlib has \texttt{Finset.additiveEnergy}; check whether the conventions
-  agree before reproving anything.
+
+  Mathlib (v4.35.0) has this under the name \texttt{Finset.addEnergy} --- not
+  \texttt{Finset.additiveEnergy} --- defined as
+  $\abs{\{q \in (s \times s) \times (t \times t) : q_{11} + q_{21} = q_{12} +
+  q_{22}\}}$.  With $s = t = A$ that is exactly the quadruple count above, so
+  the conventions agree and nothing needs reproving:
+  \texttt{IntegerCantorSet.additiveEnergy} is an \texttt{abbrev} for
+  \texttt{Finset.addEnergy A A}, kept only because the blueprint names it, and
+  \texttt{additiveEnergy\_eq\_card} is the unfolding (\texttt{rfl}).
 \end{definition}
 
 \begin{lemma}[No carries]
   \label{lem:noCarry}
-  \lean{IntegerCantorSet.additiveEnergy_pow}
+  \lean{IntegerCantorSet.additiveEnergy_pow, IntegerCantorSet.noCarry_add_eq_iff,
+    IntegerCantorSet.cantorBlock}
+  \leanok
   \uses{def:additiveEnergy, lem:enum-initial}
   If $D \subseteq \{0, \ldots, \lfloor (b-1)/2 \rfloor\}$ then addition of two
   elements of $\Cbd \cap [0,b^\ell)$ produces no carries, and consequently
   $E(\Cbd \cap [0,b^\ell)) = E(D)^\ell$.
+
+  In Lean the block $\Cbd \cap [0,b^\ell)$ is the \texttt{Finset}
+  \texttt{cantorBlock b D l}, the image of $[0,\delta^\ell)$ under $\enum$;
+  \texttt{coe\_cantorBlock} identifies it with the intersection, which is
+  Lemma \ref{lem:enum-initial}.
 \end{lemma}
 \begin{proof}
   \uses{lem:noCarry}
+  \leanok
   Each digit of the sum is $x_j + y_j \leq b-1$, so the base $b$ digits of
   $x+y$ are the digitwise sums; hence $x + y = z + w$ iff
   $x_j + y_j = z_j + w_j$ for all $j$, and the count factors.
 
-  This lemma is entirely finitary and is a good second target, independent of
-  everything in Chapters \ref{chap:expsum}--\ref{chap:residue}.
+  The formalization runs the argument one digit at a time rather than over
+  digit strings, following the pattern of Lemma \ref{lem:enum-recursion}.  The
+  crux is isolated as \texttt{noCarry\_add\_eq\_iff}: if $d + e < b$ and
+  $d' + e' < b$ then
+  \[
+    (bx + d) + (by + e) = (bx' + d') + (by' + e')
+    \iff x + y = x' + y' \ \text{and} \ d + e = d' + e',
+  \]
+  because base $b$ splitting below the base is unique
+  (\texttt{eq\_of\_base\_add}).  The hypothesis
+  $D \subseteq \{0,\ldots,\lfloor (b-1)/2\rfloor\}$ enters only through
+  \texttt{add\_lt\_base\_of\_le\_half}, which supplies $d + e < b$.
+
+  Given that, additive energy factors across a single digit position:
+  \texttt{additiveEnergy\_image\_base} shows
+  $E(b \cdot A + S) = E(A)\,E(S)$ for any $A$ and any $S$ whose elements sum
+  pairwise to less than $b$, by an explicit bijection
+  (\texttt{Finset.card\_nbij}) between the quadruples counted on the two
+  sides.  Since \texttt{cantorBlock\_succ} writes the block as
+  $b \cdot (\Cbd \cap [0,b^\ell)) + D$, induction on $\ell$ gives
+  $E(D)^\ell$.  The no-carry phenomenon is also recorded in its digit-sum
+  form, \texttt{sumDigits\_add\_cantorBlock}: $s_b$ is additive on the block.
+
+  This lemma is entirely finitary and independent of everything in Chapters
+  \ref{chap:expsum}--\ref{chap:residue}.
 \end{proof}
 
 \begin{lemma}

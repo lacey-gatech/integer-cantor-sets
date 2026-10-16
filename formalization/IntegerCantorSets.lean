@@ -5,3 +5,4 @@ import IntegerCantorSets.Signed
 import IntegerCantorSets.ExpSum
 import IntegerCantorSets.PUDU
 import IntegerCantorSets.Residue
+import IntegerCantorSets.PairCorrelation

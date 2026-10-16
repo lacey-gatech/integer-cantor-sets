@@ -6,7 +6,10 @@ A Lean 4 / Mathlib formalization of the paper in the parent directory, with a
 ## Status
 
 The project **builds and contains no `sorry`**. Chapters 2, 3, 4, 5 and 6 are
-complete.
+complete, and so is the unblocked part of Chapter 9 (pair correlation).
+**Every unblocked item of the blueprint is now proved**: the only blueprint
+entries without Lean statements are the seven marked `\notready`, each of which
+is blocked on material absent from Mathlib (see *Known obstructions* below).
 
 - **Chapter 2 is complete**: `Structure.lean` proves **Proposition 2.5**,
   the enumeration theorem (`thm:enum-bij`, `lem:enum-block`), so `enum` is the
@@ -47,18 +50,33 @@ complete.
   `joint_limitDistribution`, `joint_uniform` and the three non-uniformity
   cases). It is finite Fourier analysis on `ℤ_q` over `tendsto_expSum`;
   Chapter 5 is not used.
+- **The unblocked part of Chapter 9 is complete**: `PairCorrelation.lean`
+  proves **Lemma `lem:noCarry`** (`additiveEnergy_pow`): if every digit of `D`
+  is at most `⌊(b-1)/2⌋` then adding two elements of `C(b,D) ∩ [0, b^ℓ)`
+  produces no carries, so `E(C(b,D) ∩ [0, b^ℓ)) = E(D)^ℓ`. The crux is isolated
+  as `noCarry_add_eq_iff` (digit positions do not interact) and
+  `additiveEnergy_image_base` (energy factors across one digit position); the
+  block is the `Finset` `cantorBlock`, identified with the intersection by
+  `coe_cantorBlock` from `enum_image_Iio`. The chapter's definitions
+  `HasPairCorrelation` and `additiveEnergy` are stated here as well.
+  Mathlib's additive energy is `Finset.addEnergy` (**not**
+  `Finset.additiveEnergy`, as the blueprint used to say), and with both
+  arguments equal it is exactly the blueprint's quadruple count, so
+  `additiveEnergy` is a thin `abbrev` over it and nothing was reproved.
 
-The remaining blueprint chapters (7–9) have no Lean statements yet; four of
-their results are blocked on material absent from Mathlib (see below). One
-unblocked item remains outside them: `lem:noCarry`.
+The blueprint's remaining seven entries are blocked on material absent from
+Mathlib (see below); Chapter 9's own `thm:pairCorrelation` is one of them, so
+`lem:noCarry` is a leaf — it is formalized because it is the last
+self-contained piece, not because it unblocks anything.
 
 | | |
 |---|---|
 | Lean toolchain | `leanprover/lean4:v4.35.0` |
 | Mathlib | pinned at tag `v4.35.0` |
-| Lean declarations | 45 definitions/structures, 263 theorem statements |
-| Proved | 263 (all of them) |
-| Blueprint items | 66 (20 definitions, 46 results), 8 marked blocked |
+| Lean declarations | 48 definitions/structures, 274 theorem statements |
+| Proved | 274 (all of them) |
+| Blueprint items | 66 (20 definitions, 46 results), 7 marked blocked |
+| Items with a Lean statement | 59 — every item not marked blocked |
 | `sorry` | 0 |
 
 Every theorem in the project depends only on `propext`, `Classical.choice`
@@ -70,8 +88,9 @@ and `Quot.sound`; in particular `IntegerCantorSet.range_enum`,
 `IntegerCantorSet.vdcConst_signed_le`,
 `IntegerCantorSet.tendsto_expSum`, `IntegerCantorSet.isPUDU`,
 `IntegerCantorSet.sumDigits_equidistributed`,
-`IntegerCantorSet.limitDistribution`, `IntegerCantorSet.positive_density`
-and `IntegerCantorSet.joint_limitDistribution`.
+`IntegerCantorSet.limitDistribution`, `IntegerCantorSet.positive_density`,
+`IntegerCantorSet.joint_limitDistribution` and
+`IntegerCantorSet.additiveEnergy_pow`.
 
 Proved so far:
 
@@ -208,6 +227,14 @@ Proved so far:
   `joint_uniform`, `not_jointUniform_of_countMod2_eq_zero`,
   `not_jointUniform_of_gcd_enum`, `not_jointUniform_of_gcd_sumDigits`,
   `not_jointUniform_of_gcd_sub_one`.
+- Chapter 9, pair correlation (the unblocked part): `HasPairCorrelation`,
+  `additiveEnergy` (an `abbrev` for `Finset.addEnergy A A`),
+  `additiveEnergy_eq_card`, `additiveEnergy_singleton`, `eq_of_base_add`,
+  `noCarry_add_eq_iff` (the no-carry observation), `add_lt_base_of_le_half`,
+  `additiveEnergy_image_base` (energy factors across a digit position),
+  `cantorBlock`, `coe_cantorBlock`, `cantorBlock_zero`, `cantorBlock_succ`,
+  `sumDigits_add_cantorBlock` (no carries, in digit-sum form) and
+  **`additiveEnergy_pow`** (Lemma `lem:noCarry`).
 
 ## Layout
 
@@ -220,6 +247,7 @@ IntegerCantorSets/Signed.lean     Chapter 3, §3.1: signed digits, power savings
 IntegerCantorSets/ExpSum.lean     Chapter 4: the key exponential sum
 IntegerCantorSets/PUDU.lean       Chapter 5: polynomial uniform distribution
 IntegerCantorSets/Residue.lean    Chapter 6: distribution in residue classes
+IntegerCantorSets/PairCorrelation.lean  Chapter 9: additive energy, no carries
 blueprint/src/content.tex         The blueprint (all 8 chapters)
 blueprint/print/print.pdf         Readable PDF, builds with plain pdflatex
 ```
@@ -279,15 +307,31 @@ The blueprint's Chapter 1 argues for this order.
 7. ~~**Chapter 6 (`chap:residue`)**~~ — done. Distribution in residue classes:
    finite Fourier inversion on `ℤ_q` over `thm:irrational`, which supplies
    every Fourier coefficient. Chapter 5 turned out not to be needed.
-8. **`lem:noCarry`** — additive energy is multiplicative over digits. Finitary
-   and independent of everything else, so it parallelizes.
-9. **The signed-digit section of Chapter 3** (`def:signedCantorSet`,
-   `thm:powerSavings`): the only other unblocked piece left.
+8. ~~**The signed-digit section of Chapter 3**~~ — done.
+   `def:signedCantorSet` and `thm:powerSavings` (Proposition 3.7), the power
+   saving `τ(C,N) ≤ σ N^{-log σ / log b}` for a signed digit set, which reuses
+   the Fejér kernel of `lem:fejer` because the product of the single-digit
+   kernels *is* the kernel of the block set.
+9. ~~**`lem:noCarry`**~~ — done. Additive energy is multiplicative over digits,
+   `additiveEnergy_pow`, by an explicit bijection on quadruples. This was the
+   last unblocked item.
+
+**There is nothing unblocked left to start.** The seven remaining blueprint
+entries are exactly the `\notready` ones listed under *Known obstructions*;
+each needs Mathlib infrastructure that does not exist, so the next step for
+this project is a prerequisite project of its own (the Furstenberg
+correspondence principle, or joint spectral measures for commuting unitaries).
+Two small, genuinely optional follow-ups are recorded in the hand-over notes:
+the real-exponent form `κ(n) ≤ b n^{log b / log δ}` of `lem:growth`, and a
+bridge between `signedCantorSet` and `cantorSet`.
 
 ## Known obstructions
 
-Four results in the paper are blocked on material absent from Mathlib, and are
-marked `\notready` in the blueprint:
+Seven blueprint entries — one definition (`def:banach`) and six results
+(`thm:furstenberg`, `thm:polysIntersective`, `thm:ergodic`,
+`thm:polyMeanErgodic`, `thm:ALL`, `thm:pairCorrelation`) — are blocked on
+material absent from Mathlib, and are marked `\notready` in the blueprint.
+They come from three obstructions, plus one the project avoided:
 
 - **Furstenberg correspondence principle** and upper Banach density
   (Chapter 7). A prerequisite project in its own right.
