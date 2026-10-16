@@ -1,0 +1,49 @@
+name: CI
+
+# Builds the Lean formalization and fails if any declaration uses `sorry`.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # elan reads formalization/lean-toolchain and installs the pinned
+      # toolchain (leanprover/lean4:v4.35.0) on first use of `lake`.
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch the Mathlib build cache
+        working-directory: formalization
+        run: lake exe cache get
+
+      # `set -o pipefail` so that a non-zero `lake build` is not masked by the
+      # pipe into tee; GitHub's default bash does not set it.
+      - name: Build
+        working-directory: formalization
+        run: |
+          set -o pipefail
+          lake build 2>&1 | tee build.log
+
+      # `lake build` warns "declaration uses `sorry`" for every incomplete
+      # proof, and replays those warnings even when nothing is recompiled, so
+      # this catches a `sorry` whether or not the build was cached.
+      - name: Fail if any declaration uses `sorry`
+        working-directory: formalization
+        run: |
+          if grep -q "declaration uses" build.log; then
+            echo "::error::a declaration uses \`sorry\`"
+            grep "declaration uses" build.log
+            exit 1
+          fi
+          echo "no declaration uses \`sorry\`"

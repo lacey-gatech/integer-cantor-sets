@@ -19,3 +19,9 @@ formalization/.lake/
 # Course rosters: student names and emails, nothing to do with this paper.
 # Kept out of version control deliberately.
 Claude outputs/
+
+# Built PDF of the paper: regenerate with pdflatex, not tracked.
+main.pdf
+
+# Third-party reference PDF, kept locally but not in the repository.
+Moreiraergodicnotes.pdf
