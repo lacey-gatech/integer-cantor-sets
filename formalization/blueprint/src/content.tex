@@ -752,17 +752,27 @@ Section \ref{chap:vdc} are applied to $H = \abs{\Cbd} \setminus \{0\}$.
 
 This chapter formalizes Lemma 4.7 of the paper, the single result on which
 Chapters \ref{chap:pudu}, \ref{chap:residue} and \ref{chap:ergodic} all rest.
-It is unblocked but long.
+It is unblocked but long.  It is now formalized, in
+\texttt{IntegerCantorSets/ExpSum.lean}.
+
+Two pieces of notation are given Lean definitions of their own here:
+$e(x) = \exp(2\pi i x)$ is \texttt{IntegerCantorSet.expc}, and
+$\norm{x}$, the distance from $x$ to the nearest integer, is
+\texttt{IntegerCantorSet.distInt}, defined as $\abs{x - \mathrm{round}(x)}$.
+The quantitative bridge between them, $\abs{1 - e(x)} = 2\sin(\pi\norm{x})
+\geq 4\norm{x}$, is \texttt{four\_mul\_distInt\_le}.
 
 \begin{definition}
   \label{def:Lhat}
   \lean{IntegerCantorSet.Lhat}
+  \leanok
   $\Lhat(\theta) = \delta^{-1} \sum_{d \in D} e(d\theta)$.
 \end{definition}
 
 \begin{lemma}
   \label{lem:Lhat-abs-one}
   \lean{IntegerCantorSet.abs_Lhat_eq_one_iff}
+  \leanok
   \uses{def:Lhat, def:stepSize}
   Assume $0 \in D$. Then $\abs{\Lhat(\theta)} = 1$ if and only if
   $s(D)\,\theta \in \Z$. In particular $\abs{\Lhat(\theta)} < 1$ except at
@@ -770,16 +780,33 @@ It is unblocked but long.
 \end{lemma}
 \begin{proof}
   \uses{lem:Lhat-abs-one}
+  \leanok
   Equality in the triangle inequality for a mean of unit vectors forces all
   the $e(d\theta)$ to be equal; since $0 \in D$ that common value is $1$, i.e.
   $d\theta \in \Z$ for all $d \in D$, which is equivalent to
   $\gcd(D)\,\theta \in \Z$ by B\'ezout.
+
+  Formalized through the quantitative defect estimate
+  \texttt{norm\_Lhat\_le}: for every $d \in D$,
+  \[
+    \abs{\Lhat(\theta)} \leq 1 - \frac{\abs{1 - e(d\theta)}^2}{4\delta},
+  \]
+  which comes from isolating the two terms $d = 0$ and $d$ in the sum and
+  using $\abs{1 + z}^2 + \abs{1 - z}^2 = 4$ for $\abs{z} = 1$.  Equality
+  $\abs{\Lhat(\theta)} = 1$ therefore forces $e(d\theta) = 1$ for every
+  $d \in D$.  The B\'ezout step is \texttt{exists\_gcd\_eq\_sum}, proved by
+  induction on the finite set: $\gcd(D) = \sum_{d \in D} f_d\, d$ for some
+  integers $f_d$.  The same estimate is reused in
+  Theorem \ref{thm:irrational}, where the convergence
+  $\abs{\Lhat(\theta_c)} \to 1$ is turned into $\norm{d\theta_c} \to 0$
+  without any compactness argument.
 \end{proof}
 
 \begin{lemma}[Block product]
   \label{lem:blockProduct}
   \lean{IntegerCantorSet.blockProduct}
-  \uses{lem:enum-initial, def:Lhat}
+  \leanok
+  \uses{lem:enum-recursion, def:Lhat}
   With $\Phi(n) = e(\enum(n)\alpha + \sd(\enum(n))\beta)$,
   \[
     P_\ell := \delta^{-\ell} \sum_{0 \leq j < \delta^\ell} \Phi(j)
@@ -788,68 +815,107 @@ It is unblocked but long.
 \end{lemma}
 \begin{proof}
   \uses{lem:blockProduct}
-  By Lemma \ref{lem:digits-enum} the digits of $\enum(j)$ range independently
-  and uniformly over $D$ as $j$ ranges over $[0, \delta^\ell)$, and
+  \leanok
+  The digits of $\enum(j)$ range independently and uniformly over $D$ as $j$
+  ranges over $[0, \delta^\ell)$, and
   $\enum(j)\alpha + \sd(\enum(j))\beta = \sum_c d_{j_c}(b^c\alpha + \beta)$.
   This is a product of independent averages.
+
+  Formalized by induction on $\ell$ with $\alpha$ generalized, peeling off the
+  \emph{least} significant base $\delta$ digit rather than a whole block: with
+  $n = \delta m + j$ and $j < \delta$, Lemma \ref{lem:enum-recursion} and
+  \texttt{sumDigits\_mul\_add} give
+  $\Phi_{\alpha,\beta}(n) = \Phi_{b\alpha,\beta}(m)\, e(d_j(\alpha + \beta))$,
+  so $P_\ell(\alpha) = \Lhat(\alpha + \beta)\, P_{\ell-1}(b\alpha)$, which is
+  the recursion satisfied by the product (\texttt{Finset.prod\_range\_succ'}).
+  That the inner sum over $j < \delta$ is $\delta\,\Lhat(\alpha + \beta)$ is
+  \texttt{sum\_range\_card\_digitOf}, the statement that $\texttt{digitOf}$ is a
+  bijection $[0,\delta) \to D$.
 \end{proof}
 
 \begin{lemma}[Window splitting]
   \label{lem:windowSplit}
   \lean{IntegerCantorSet.window_split}
+  \leanok
   \uses{lem:enum-block, lem:blockProduct}
-  For $0 \leq M < N$ and $i \geq 1$, with
-  $M_i = \lceil M/\delta^i \rceil$ and $N_i = \lfloor N/\delta^i \rfloor$,
+  For $0 \leq M \leq N$ and $i \geq 0$, with
+  $M_i = \lceil M/\delta^i \rceil$ and $N_i = \lfloor N/\delta^i \rfloor$, put
+  $\Psi_i(m) = e(b^i \enum(m)\alpha + \sd(\enum(m))\beta)$.  Then
   \[
-    \frac{1}{N-M}\sum_{M \leq n < N} \Phi(n)
-      = \frac{\delta^i(N_i - M_i)}{N-M} P_i \cdot
-        \frac{1}{N_i - M_i}\sum_{M_i \leq m < N_i}
-          e(b^i \enum(m)\alpha + \sd(\enum(m))\beta)
-        + O\!\left(\frac{\delta^i}{N-M}\right).
+    \abs{\sum_{M \leq n < N} \Phi(n)
+      - \delta^i P_i \sum_{M_i \leq m < N_i} \Psi_i(m)} \leq 2\delta^i .
   \]
+  (The Lean statement is this un-normalised inequality rather than the
+  normalised identity-with-$O$ of the paper; dividing by $N - M$ and using
+  $\delta^i(N_i - M_i) \leq N - M$ recovers the latter.  The hypothesis
+  $i \geq 1$ is not needed: $i = 0$ is trivial.)
 \end{lemma}
 \begin{proof}
   \uses{lem:windowSplit}
-  Lemma \ref{lem:enum-block} factors $\Phi$ over each complete block; at most
-  $2\delta^i$ indices lie outside the complete blocks.
+  \leanok
+  Lemma \ref{lem:enum-block} factors $\Phi$ over each complete block
+  $[\delta^i m, \delta^i(m+1))$, giving $\Psi_i(m) \cdot \delta^i P_i$ there
+  by Lemma \ref{lem:blockProduct}; at most $2\delta^i$ indices lie outside
+  the complete blocks, and each $\abs{\Phi(n)} = 1$.  In Lean the two
+  elementary facts $M \leq \delta^i M_i < M + \delta^i$ and
+  $\delta^i N_i \leq N < \delta^i N_i + \delta^i$ are isolated as
+  \texttt{ceil\_div\_bounds} and \texttt{floor\_div\_bounds}; the degenerate
+  case $N_i < M_i$ (no complete block) is handled separately, where they give
+  $N - M < \delta^i$ directly.  The consequence
+  $\delta^i(N_i - M_i) \leq N - M$ is \texttt{block\_count\_le}, and the
+  normalised window bound actually used in Theorem \ref{thm:irrational} is
+  \texttt{norm\_window\_le}.
 \end{proof}
 
 \begin{definition}[Exceptional pairs]
   \label{def:exceptional}
   \lean{IntegerCantorSet.Exceptional}
+  \leanok
   $(\alpha, \beta)$ is \emph{exceptional} if there are integers $a$, $r$ and
   $t \geq 0$ with
   \[
     s\alpha \equiv \frac{a}{b-1} + \frac{r}{b^t}, \qquad
     s\beta \equiv -\frac{a}{b-1} \pmod 1 .
   \]
-  The set of exceptional pairs is countable.
+  (That the set of exceptional pairs is countable is clear from the
+  definition and is not needed below, so it is not formalized.)
 \end{definition}
 
 \begin{lemma}
   \label{lem:escape}
   \lean{IntegerCantorSet.exceptional_of_tendsto}
+  \leanok
   \uses{def:exceptional}
-  If $\norm{b^c\alpha + \beta} \to 0$ as $c \to \infty$ then
-  $(\alpha, \beta)$ is exceptional, and moreover
-  $b^c\alpha + \beta \in \Z$ for all $c \geq t$.
+  If $\norm{s(b^c\alpha + \beta)} \to 0$ as $c \to \infty$ then
+  $(\alpha, \beta)$ is exceptional, and moreover there is a $t$ with
+  $s(b^c\alpha + \beta) \in \Z$ for all $c \geq t$.
 \end{lemma}
 \begin{proof}
   \uses{lem:escape}
-  Put $x = (b-1)\alpha$, so $\norm{b^c x} \leq \norm{b^{c+1}\alpha + \beta} +
-  \norm{b^c \alpha + \beta} \to 0$. Choose $c_0$ with
+  \leanok
+  Write $\alpha' = s\alpha$, $\beta' = s\beta$ and put $x = (b-1)\alpha'$, so
+  $\norm{b^c x} \leq \norm{b^{c+1}\alpha' + \beta'} +
+  \norm{b^c \alpha' + \beta'} \to 0$. Choose $c_0$ with
   $\norm{b^c x} < 1/(2b)$ for $c \geq c_0$. If $\norm{b^{c_0}x} \neq 0$ then
   $\norm{b^{c_0+i}x} = b^i\norm{b^{c_0}x}$ eventually exceeds $1/(2b)$, a
   contradiction. Hence $b^{c_0}x \in \Z$, and partial fractions using
-  $\gcd(b-1, b^t) = 1$ give the stated form.
+  $\gcd(b-1, b^t) = 1$ give the stated form with $t = c_0$.  Finally, for
+  $c \geq t$ the quantity $b^c\alpha' + \beta'$ differs from
+  $a/(b-1) + \beta'$ by an integer, so $\norm{a/(b-1) + \beta'}$ is both
+  constant in $c$ and a limit of a null sequence, hence zero.
+
+  The $D$-free core is \texttt{escape\_core}; the amplification step
+  $\norm{by} = b\norm{y}$ when $\norm{y} < 1/(2b)$ is
+  \texttt{distInt\_nat\_mul}.
 \end{proof}
 
 \begin{theorem}[Lemma 4.7]
   \label{thm:irrational}
   \lean{IntegerCantorSet.tendsto_expSum}
+  \leanok
   \uses{lem:Lhat-abs-one, lem:blockProduct, lem:windowSplit, lem:escape}
   The limit
-  $\lim_{N} \delta^{-1}\!\!\sum_{0 \leq n < N} \Phi(n)$
+  $\lim_{N} N^{-1}\!\!\sum_{0 \leq n < N} \Phi(n)$
   exists for all $(\alpha, \beta)$, and is zero unless $(\alpha,\beta)$ is
   exceptional. If $(\alpha,\beta)$ is not exceptional, the convergence to
   zero is uniform over windows: the average over $M \leq n < N$ tends to zero
@@ -857,16 +923,40 @@ It is unblocked but long.
 \end{theorem}
 \begin{proof}
   \uses{thm:irrational}
-  First reduce to $s(D) = 1$ by passing to $D' = D/s$ and $(s\alpha,s\beta)$.
-  If $\norm{b^c\alpha+\beta} \not\to 0$, then infinitely many factors in
-  Lemma \ref{lem:blockProduct} have modulus bounded away from $1$ by Lemma
-  \ref{lem:Lhat-abs-one} and compactness, so $P_\ell \to 0$; feeding
-  $\abs{P_i} < \varepsilon$ into Lemma \ref{lem:windowSplit} gives the uniform
-  statement. Otherwise Lemma \ref{lem:escape} applies, the factors with
-  $c \geq t$ equal $1$, $P_\ell = P_t$ for $\ell \geq t$, and the inner
-  average in Lemma \ref{lem:windowSplit} is identically $1$ because
-  $b-1$ divides $\enum(m) - \sd(\enum(m))$ by Lemma \ref{lem:b-sub-one-dvd};
-  so the limit is $P_t$.
+  \leanok
+  Write $\theta_c = b^c\alpha + \beta$ and $P_\ell = \prod_{c<\ell}
+  \Lhat(\theta_c)$.  Each $\abs{\Lhat(\theta_c)} \leq 1$, so
+  $\abs{P_\ell}$ is non-increasing.  Split on whether it tends to $0$.
+
+  If $\abs{P_\ell} \to 0$, feeding $\abs{P_i} < \varepsilon/2$ into Lemma
+  \ref{lem:windowSplit} gives $\abs{\sum_{M \leq n < N}\Phi(n)} \leq
+  (\varepsilon/2)(N-M) + 2\delta^i$, hence the uniform window statement, and
+  with $M = 0$ the limit $0$.
+
+  Otherwise $\abs{P_\ell} \geq \varepsilon_0 > 0$ for all $\ell$.  Being
+  non-increasing and bounded below, $\abs{P_\ell}$ converges to a positive
+  limit, so $\abs{\Lhat(\theta_c)} = \abs{P_{c+1}}/\abs{P_c} \to 1$.  The
+  defect estimate of Lemma \ref{lem:Lhat-abs-one} then gives
+  $\abs{1 - e(d\theta_c)} \to 0$, hence $\norm{d\theta_c} \to 0$, for every
+  $d \in D$; B\'ezout turns this into $\norm{s\theta_c} \to 0$.  Lemma
+  \ref{lem:escape} applies: $(\alpha,\beta)$ is exceptional and
+  $s\theta_c \in \Z$ for $c \geq t$.  Since $s \mid d$ for every $d \in D$,
+  every factor with $c \geq t$ equals $1$, so $P_\ell = P_t$ for
+  $\ell \geq t$, and the inner sum in Lemma \ref{lem:windowSplit} at $i = t$
+  is identically $1$: for $n \in \Cbd$ with digits $d_j$,
+  $b^t n \alpha + \sd(n)\beta = \sum_j d_j \theta_{t+j} \in \Z$
+  (\texttt{exists\_int\_of\_mem\_cantorSet}, by induction on $n$ through
+  $n = b\lfloor n/b\rfloor + (n \bmod b)$).  Comparing $\delta^t\lfloor
+  N/\delta^t\rfloor$ with $N$ costs a further $\delta^t$, so the limit is
+  $P_t$.
+
+  Two deviations from the paper's route.  The reduction to $s(D) = 1$ is not
+  carried out: $s$ is kept explicit throughout, which is why Lemma
+  \ref{lem:escape} and Definition \ref{def:exceptional} carry the factor $s$.
+  And the first case is settled by monotonicity of $\abs{P_\ell}$ together
+  with the quantitative defect estimate, rather than by compactness; this
+  also makes Lemma \ref{lem:b-sub-one-dvd} unnecessary here, its role being
+  taken by the digit decomposition just described.
 \end{proof}
 
 \chapter{Polynomial uniform distribution}

@@ -5,8 +5,8 @@ A Lean 4 / Mathlib formalization of the paper in the parent directory, with a
 
 ## Status
 
-The project **builds and contains no `sorry`**. Chapters 2 and 3 — everything
-the blueprint lists as in scope so far — are complete.
+The project **builds and contains no `sorry`**. Chapters 2, 3 and 4 are
+complete.
 
 - **Chapter 2 is complete**: `Structure.lean` proves **Proposition 2.5**,
   the enumeration theorem (`thm:enum-bij`, `lem:enum-block`), so `enum` is the
@@ -16,16 +16,22 @@ the blueprint lists as in scope so far — are complete.
   (`thm:logSavings`), `τ(C,N) ≤ log b / log N` for `N ≥ 2`, and its
   intersective counterpart `thm:logSavings-intersective`,
   `I(C,N) ≤ 2 log b / log N` for `N ≥ b`.
+- **Chapter 4 is complete**: `ExpSum.lean` proves **Lemma 4.7**
+  (`thm:irrational`), the convergence of the key exponential sum
+  `N⁻¹ ∑_{n<N} e(κ(n)α + s_b(κ(n))β)`, together with the three lemmas it
+  rests on — `abs_Lhat_eq_one_iff`, `blockProduct` and `window_split` — and
+  the escape lemma `exceptional_of_tendsto`. This is the result on which
+  Chapters 5, 6 and 8 of the blueprint all depend.
 
-The remaining blueprint chapters (4–9) have no Lean statements yet; four of
+The remaining blueprint chapters (5–9) have no Lean statements yet; four of
 their results are blocked on material absent from Mathlib (see below).
 
 | | |
 |---|---|
 | Lean toolchain | `leanprover/lean4:v4.35.0` |
 | Mathlib | pinned at tag `v4.35.0` |
-| Lean declarations | 14 definitions/structures, 56 theorem statements |
-| Proved | 56 (all of them) |
+| Lean declarations | 20 definitions/structures, 104 theorem statements |
+| Proved | 104 (all of them) |
 | Blueprint items | 65 (20 definitions, 45 results), 8 marked blocked |
 | `sorry` | 0 |
 
@@ -33,8 +39,9 @@ Every theorem in the project depends only on `propext`, `Classical.choice`
 and `Quot.sound`; in particular `IntegerCantorSet.range_enum`,
 `IntegerCantorSet.enum_block`, `IntegerCantorSet.vdcConst_cantorSet_le`,
 `IntegerCantorSet.intersectiveConst_cantorSet_le`,
-`IntegerCantorSet.isIntersective_cantorSet` and
-`IntegerCantorSet.exists_dvd_of_isIntersective`.
+`IntegerCantorSet.isIntersective_cantorSet`,
+`IntegerCantorSet.exists_dvd_of_isIntersective` and
+`IntegerCantorSet.tendsto_expSum`.
 
 Proved so far:
 
@@ -65,6 +72,24 @@ Proved so far:
   `vdcConst_cantorSet_le`, `isVdC_cantorSet`,
   `intersectiveConst_cantorSet_le`, `isIntersective_cantorSet`,
   `exists_dvd_of_isIntersective`.
+- Chapter 4, the character `e(x)` and the distance to `ℤ`: `expc_zero`,
+  `expc_add`, `norm_expc`, `expc_ne_zero`, `expc_eq_one_iff`, `expc_zpow`,
+  `distInt_nonneg`, `distInt_le_half`, `round_eq_of_abs_sub_lt`,
+  `distInt_eq_of_abs_sub_lt`, `distInt_le`, `distInt_eq_zero_iff`,
+  `distInt_add_le`, `distInt_neg`, `distInt_add_int`, `distInt_int_mul`,
+  `distInt_sum_le`, `distInt_nat_mul`, `tendsto_zero_of_sq`,
+  `norm_one_sub_expc`, `four_mul_distInt_le`.
+- Chapter 4, the single-digit sum `L̂`: `exists_gcd_eq_sum` (Bézout for a
+  finite set), `norm_Lhat_le_one`, `norm_prod_Lhat_le_one`, `norm_Lhat_le`
+  (the quantitative defect estimate), `Lhat_eq_one`, `abs_Lhat_eq_one_iff`.
+- Chapter 4, the block product: `norm_expPhi`, `norm_expPsi`, `expPsi_zero`,
+  `sum_range_mul`, `sum_Ico_mul`, `sum_range_card_digitOf`, `expPhi_mul_add`,
+  `blockProduct`, `sum_range_pow_eq`.
+- Chapter 4, window splitting: `enum_block'`, `sumDigits_enum_block'`,
+  `sum_block`, `ceil_div_bounds`, `floor_div_bounds`, `window_split`,
+  `block_count_le`, `norm_window_le`.
+- Chapter 4, Lemma 4.7: `escape_core`, `exceptional_of_tendsto`,
+  `exists_int_of_mem_cantorSet`, `tendsto_expSum`.
 
 ## Layout
 
@@ -73,6 +98,7 @@ lakefile.toml, lean-toolchain     Lean project
 IntegerCantorSets/Defs.lean       Chapter 2 definitions
 IntegerCantorSets/Structure.lean  Chapter 2: the enumeration theorem
 IntegerCantorSets/VanDerCorput.lean  Chapter 3: intersective / vdC
+IntegerCantorSets/ExpSum.lean     Chapter 4: the key exponential sum
 blueprint/src/content.tex         The blueprint (all 8 chapters)
 blueprint/print/print.pdf         Readable PDF, builds with plain pdflatex
 ```
@@ -116,9 +142,14 @@ The blueprint's Chapter 1 argues for this order.
    derived from the single-digit recursion `enum_mul_add`
    (`lem:enum-recursion`), which keeps the inductions free of any reasoning
    about digit lists.
-4. **`lem:noCarry`** — additive energy is multiplicative over digits. Finitary
-   and independent of everything else, so it parallelizes. This is now the
-   natural next target: Chapter 2 no longer blocks anything.
+4. ~~**`thm:irrational`**~~ — done. Lemma 4.7, the key exponential sum, with
+   `lem:Lhat-abs-one`, `lem:blockProduct`, `lem:windowSplit` and
+   `lem:escape`. Chapters 5, 6 and 8 are no longer blocked on Chapter 4.
+5. **`lem:noCarry`** — additive energy is multiplicative over digits. Finitary
+   and independent of everything else, so it parallelizes.
+6. **Chapter 5 (`chap:pudu`)**, polynomial uniform distribution, is the
+   longest remaining unblocked piece and now has its only prerequisite,
+   `thm:irrational`, available.
 
 ## Known obstructions
 
@@ -130,7 +161,7 @@ marked `\notready` in the blueprint:
 - **Joint spectral measure for commuting unitaries** on `𝕋²` (Chapter 8).
   Mathlib has the continuous functional calculus but not the
   projection-valued measure. The scalar shadow of the theorem — convergence of
-  the exponential sums — is `thm:irrational` and *is* in scope.
+  the exponential sums — is `thm:irrational`, which is now proved.
 - **Aistleitner–Larcher–Lewko** (Chapter 9). Recorded as a hypothesis; the
   reduction to it is formalizable, the theorem itself is not a realistic
   target.
